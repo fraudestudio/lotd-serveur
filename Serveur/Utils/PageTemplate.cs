@@ -1,7 +1,7 @@
 using System;
 using DotLiquid;
 
-namespace PageTemplate
+namespace Server.Utils
 {
 	public class PageTemplate
 	{
@@ -12,7 +12,12 @@ namespace PageTemplate
 		/// </summary>
 		public PageTemplate(String path)
 		{
-			this._path = path;
+            if (!path.EndsWith(".html"))
+			{
+				path += ".html";
+			}
+
+            this._path = Path.Join("html", path);
 		}
 
 		/// <summary>
@@ -21,18 +26,18 @@ namespace PageTemplate
 		public String render(Drop drop = null)
 		{
 			Template template;
-			using (FileStream f = new FileStream(this._path, ))
+			using (StreamReader f = new StreamReader(this._path))
 			{
 				template = Template.Parse(f.ReadToEnd());
 			}
 
-			if (drop == null)
+            if (drop == null)
 			{
 				return template.Render();
 			}
 			else
 			{
-				return template.Render(drop);
+				return template.Render(Hash.FromAnonymousObject(drop));
 			}
 		}
 	}

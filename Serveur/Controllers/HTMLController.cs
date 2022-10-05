@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Model;
-// using Stubble.Core.Builders;
+using Server.Utils;
 
-namespace WebApplication1.Controllers
+namespace Server.Controllers
 {
     public class HTMLController : Controller
     {
         [Route("")]
         public ActionResult Index()
         {
-            var result = Content("<html><head><title>DEMO</title></head><body>HEllo world<body/></html>");
+            var result = Content(new PageTemplate("index").render());
             result.ContentType = "text/html; charset=UTF-8";
             return result;
         }
