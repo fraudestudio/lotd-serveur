@@ -4,7 +4,7 @@ using WebApplication1.Model;
 
 namespace WebApplication1.Controllers
 {
-    public class FrontController : Controller
+    public class HTMLController : Controller
     {
         [Route("")]
         public ActionResult Index()
