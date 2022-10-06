@@ -82,33 +82,29 @@ namespace DB_LOTD
         public string RandomKey(int i)
         {
             var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var Charsarr = new char[i];
+            string result = "";
             var random = new Random();
 
-            for (int j = 0; j < Charsarr.Length; j++)
+            for (int j = 0; j < i; j++)
             {
-                Charsarr[j] = characters[random.Next(characters.Length)];
+                result += characters[random.Next(characters.Length)];
             }
-
-            var resultString = new String(Charsarr);
-            return Charsarr.ToString();
+            return result;
         }
 
         //Insert statement
         public void Insert_client(string adresse_mail, string nom_compte, string mdp)
         {
-            string query = "INSERT INTO Client (ID_CLIENT,ADRESS_MAIL,NOM_COMPTE,MDP,TOKEN_CONNEXION,VALIDE,DATE_CREATION) VALUES(@adresse_mail,@nom_compte,@mdp,@TOKEN_CONNEXION,@VALIDITE,@DATE_CREATION);";
-            
+            string query = "INSERT INTO Client (ADRESS_MAIL,NOM_COMPTE,MDP,TOKEN_CONNEXION,VALIDE,DATE_CREATION) VALUES(@adresse_mail,@nom_compte,@mdp,@TOKEN_CONNEXION,@VALIDITE,@DATE_CREATION);";
             Console.WriteLine("connexion...");
             bool r = this.OpenConnection();
-
             //open connection
             if (r == true)
             {
                 Console.WriteLine("connecté");
                 //create command and assign the query and connection from the constructor
                 MySqlCommand cmd = new MySqlCommand(query, connection);
-                cmd.Parameters.AddWithValue("@adresse_mail",adresse_mail );
+                cmd.Parameters.AddWithValue("@adresse_mail", adresse_mail);
                 cmd.Parameters.AddWithValue("@nom_compte", nom_compte);
                 cmd.Parameters.AddWithValue("@mdp", mdp);
                 cmd.Parameters.AddWithValue("@TOKEN_CONNEXION", RandomKey(10));
@@ -123,7 +119,28 @@ namespace DB_LOTD
             }
             else
             {
-                    Console.WriteLine("erreur");
+                Console.WriteLine("erreur");
+            }
+        }
+
+        public Boolean verif_USER(string nom_compte, string mdp)
+        {
+            string query = "select * from client where NOM_COMPTE = @nomcompte and MDP = @mdp ;";
+            Console.WriteLine("connexion...");
+            bool r = this.OpenConnection();
+            try
+            {
+                MySqlCommand cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@nomcompte", nom_compte);
+                cmd.Parameters.AddWithValue("@mdp", mdp);
+                cmd.ExecuteNonQuery();
+                Console.WriteLine("utilisateur existant ");
+                return true;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
             }
         }
 
