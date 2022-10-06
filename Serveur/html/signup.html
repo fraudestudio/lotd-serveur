@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include 'head' %}
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+</head>
+<body>
+    {% assign show_signup_button = false %}
+    {% assign show_signin_button = true %}
+    {% include 'header' %}
+    
+    <main>
+        <form
+            id="form"
+            method="post"
+            action="api/account/signup"
+            onsubmit="return checkCaptcha()" >
+            <fieldset>
+                <div>
+                    <label for="mail">Adresse Mail:</label>
+                    <input type="email" name="email" required/>
+                </div>
+                <div>
+                    <label for="pseudo">Nom d'utilisateur:</label>
+                    <input type="text" name="pseudo" required/>
+                </div>
+                <div>
+                    <span id="error-message" style="color:red"></span>
+                    <div
+                        class="g-recaptcha"
+                        data-sitekey="6LfnKFwiAAAAAPd-9GjoxlDOI36qmaFu8o-Fkuy8" 
+                        data-callback="captchaFilled"
+                        data-expired-callback="captchaExpired">
+                    </div>
+                </div>
+                <input type="submit" value="S'inscrire">
+            </fieldset>
+        </form>
+    </main>
+
+    {% include 'footer' %}
+
+    <script>
+        var allow_submit = false
+
+        function captchaFilled () {
+            allow_submit = true
+        }
+
+        function captchaExpired () {
+            allow_submit = false
+        }
+
+        function checkCaptcha (e) {
+            if (!allow_submit) {
+                document.getElementById("error-message").innerText = "Veuillez valider le CAPTCHA";
+                return false;
+            }
+            else
+            {
+                captchaExpired();
+                return true;
+            }
+        }
+    </script>
+</body>
+</html>
