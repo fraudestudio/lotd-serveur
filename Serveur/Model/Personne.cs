@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Model
+﻿namespace Server.Model
 {
     /// <summary>
     /// Classe représentant une personne
