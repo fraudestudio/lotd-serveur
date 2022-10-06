@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebApplication1.Model;
+using Server.Model;
 
-namespace WebApplication1.Controllers
+namespace Server.Controllers
 {
     [ApiController]                 //Indique que votre classe est un controller
     [Route("Personne")]             //Adresse de votre controller, dans notre cas, pour appeler une méthode de ce controller, il faudra donc appeler : https://localhost:7034/Personne/RouteDeLaMethode
