@@ -5,27 +5,32 @@
     /// </summary>
     public class Personne
     {
-        private string nom;
-        private string prenom;
+        private string mail;
+        private string pseudo;
+        private string mdp;
+       
 
         /// <summary>
         /// Nom de la personne
         /// </summary>
-        public String Nom { get => nom;set => nom = value; }
+        public String Mail { get => mail;set => mail = value; }
         /// <summary>
         /// Prénom de la personne
         /// </summary>
-        public String Prenom { get => prenom; set => nom = value; }
+        public String Pseudo { get => pseudo; set => pseudo = value; }
+        public string Mdp { get => mdp; set => mdp = value; }
 
         /// <summary>
         /// Constructeur par défaut
         /// </summary>
         /// <param name="prenom">Prénom de la personne</param>
         /// <param name="nom">Nom de la personne</param>
-        public Personne(string prenom,string nom)
+        public Personne(string pseudo,string mail)
         {
-            this.nom = nom;
-            this.prenom = prenom;
+            this.mail = mail;
+            this.pseudo = pseudo;
         }
+        
+        
     }
 }
