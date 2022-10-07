@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    {% assign title = 'Inscription' %}
     {% include 'head' %}
     <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
@@ -10,32 +11,53 @@
     {% include 'header' %}
     
     <main>
-        <form
-            id="form"
-            method="post"
-            action="api/account/signup"
-            onsubmit="return checkCaptcha()" >
-            <fieldset>
-                <div>
-                    <label for="mail">Adresse Mail:</label>
-                    <input type="email" name="email" required/>
-                </div>
-                <div>
-                    <label for="pseudo">Nom d'utilisateur:</label>
-                    <input type="text" name="pseudo" required/>
-                </div>
-                <div>
-                    <span id="error-message" style="color:red"></span>
-                    <div
-                        class="g-recaptcha"
-                        data-sitekey="6LfnKFwiAAAAAPd-9GjoxlDOI36qmaFu8o-Fkuy8" 
-                        data-callback="captchaFilled"
-                        data-expired-callback="captchaExpired">
+        <h2>Inscription</h2>
+        {% if success %}
+            Votre mot de passe provisoire vous a été envoyé par mail.
+            <br>
+            Connectez-vous pour valider votre compte.
+        {% else %}
+            <form
+                id="form"
+                method="post"
+                action="api/account/signup"
+                onsubmit="return checkCaptcha()" >
+                <fieldset>
+                    <div>
+                        <span id="error-email" style="color:red">
+                            {% if error == 'emailexists' %}
+                                Cette adresse mail est déjà utilisée
+                            {% endif %}
+                        </span>
+                        <label for="mail">Adresse Mail:</label>
+                        <input type="email" name="email" required/>
                     </div>
-                </div>
-                <input type="submit" value="S'inscrire">
-            </fieldset>
-        </form>
+                    <div>
+                        <span id="error-username" style="color:red">
+                            {% if error == 'usernameexists' %}
+                                Ce nom d'utilisateur est déjà utilisé
+                            {% endif %}
+                        </span>
+                        <label for="username">Nom d'utilisateur:</label>
+                        <input type="text" name="username" required/>
+                    </div>
+                    <div>
+                        <span id="error-captcha" style="color:red">
+                            {% if error == 'invalidcaptcha' %}
+                                Le CAPTCHA a expiré ou n'a pas été validé
+                            {% endif %}
+                        </span>
+                        <div
+                            class="g-recaptcha"
+                            data-sitekey="6LfnKFwiAAAAAPd-9GjoxlDOI36qmaFu8o-Fkuy8" 
+                            data-callback="captchaFilled"
+                            data-expired-callback="captchaExpired">
+                        </div>
+                    </div>
+                    <input type="submit" value="S'inscrire">
+                </fieldset>
+            </form>
+        {% endif %}
     </main>
 
     {% include 'footer' %}
@@ -53,7 +75,7 @@
 
         function checkCaptcha (e) {
             if (!allow_submit) {
-                document.getElementById("error-message").innerText = "Veuillez valider le CAPTCHA";
+                document.getElementById("error-captcha").innerText = "Veuillez valider le CAPTCHA";
                 return false;
             }
             else

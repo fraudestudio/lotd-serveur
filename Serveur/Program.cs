@@ -1,5 +1,7 @@
 using DotLiquid.FileSystems;
 using DotLiquid;
+using System.Threading;
+using Server.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,5 +27,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+Thread mailThread = new Thread(EMail.SendMessages);
+mailThread.IsBackground = true;
+mailThread.Start();
 
 app.Run();
