@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="DotLiquid" Version="2.2.656" />
     <PackageReference Include="MailKit" Version="3.4.1" />
+    <PackageReference Include="MySqlConnector" Version="2.1.13" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 

@@ -23,7 +23,7 @@ namespace Server.Utils
 		/// <summary>
 		///   Render the template using <param>drop</param> as the data source.
 		/// </summary>
-		public String render(object drop = null)
+		public String render(object? drop = null)
 		{
 			Template template;
 			using (StreamReader f = new StreamReader(this._path))

@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Server.Utils;
+using Server.Model;
+using Server.Database;
 using System.Net.Mail;
+using System.Text.Json;
+
 
 namespace Server.Controllers
 {        
     [ApiController]
     [Route("api/account")]          
-    public class AccountController
+    public class AccountController : Controller
     {
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(
@@ -14,24 +18,22 @@ namespace Server.Controllers
             [FromForm] String username,
             [FromForm(Name = "g-recaptcha-response")] String recaptcha_response)
         {
-            // DBConnection database = new DBConnection();
             Captcha captcha = new Captcha(recaptcha_response);
-            /*
+            
             String tempPwd;
-            if (database.userExistsEmail(email))
+            if (await Account.UserExistsEmail(email))
             {
                 return new RedirectResult("../../signup?error=emailexists", false);
             }
-            else if (database.userExists(username))
+            else if (await Account.UserExists(username))
             {
                 return new RedirectResult("../../signup?error=usernameexists", false);
             }
             else
             {
-                tempPwd = database.createAccount(username, email);
+                tempPwd = await Account.CreateTemp(email, username);
             }
-            */
-
+            
             if (!(await captcha.IsValid()))
             {
                 return new RedirectResult("../../signup?error=invalidcaptcha", false);
@@ -41,7 +43,7 @@ namespace Server.Controllers
                 email,
                 "Mot de passe provisoire",
                 new PageTemplate("signup_email").render(new {
-                    password = "ABCDEFGHI",
+                    password = tempPwd,
                     username = username,
                 })
             );
@@ -51,24 +53,13 @@ namespace Server.Controllers
             return new RedirectResult("../../signup?success=true", false);
         }
 
-        [HttpGet("email")]
-        public IActionResult EMail()
+        [HttpGet("signin")]
+        public async Task<IActionResult> SignIn()
         {
-            EMail message = new EMail(
-                "louis.devie@iut-dijon.u-bourgogne.fr",
-                "Bonjour",
-                new PageTemplate("signup_email").render(new {
-                    password = "dwxfkmuoyigyfjhcvbjkliyf",
-                    username = "pseudo",
-                })
-            );
-
-            message.Send();
-
-            ContentResult result = new ContentResult();
-            result.Content = "ok";
-            result.ContentType = "text/plain; charset=UTF-8";
-            return result;
+            ContentResult res = new ContentResult();
+            res.Content = HttpContext.Request.Host.Host;
+            res.ContentType = "text/plain";
+            return res;
         }
     }
 }
