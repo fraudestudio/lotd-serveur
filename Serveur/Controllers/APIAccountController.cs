@@ -5,26 +5,38 @@ using Server.Model;
 namespace Serveur.Controllers
 {
     [ApiController]
-    [Route("API")]
+    [Route("account")]
     public class APIAccountController
     {
         [HttpPost("signin")]
-        public IActionResult Signin([FromBody] string pseudo, [FromBody] string mdp)
+        public IActionResult Signin([FromForm] string pseudo, [FromForm] string mdp)
         {
-            IActionResult reponse = null;
+            DBConnect db = new DBConnect();
+            
+            Console.WriteLine("caca");
             try
             {
-                DBConnect db = new DBConnect();
-                db.verif_USER(pseudo, mdp);
-                reponse = new AcceptedResult();
+                Console.WriteLine(pseudo + " " + mdp);
+                if (db.VerifJoueurConnexion(pseudo, mdp))
+                {
+                    Console.WriteLine("okok");
+                    return new AcceptedResult();
+                    
+                }
+                else
+                {
+                    Console.WriteLine("Nop");
+                    return new BadRequestResult();
+                }
 
 
             }
             catch (Exception e)
             {
-                reponse = new BadRequestResult();
+                Console.WriteLine(e.Message);
+                return new BadRequestResult();
             }
-            return reponse;
+            
         }
     }
 }

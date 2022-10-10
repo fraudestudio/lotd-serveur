@@ -12,7 +12,7 @@
             for (int i = 0; i < 8; i++)
             {
 
-                switch (r.Next(0, 3))
+                switch (r.Next(0, 2))
                 {
                     case 0:
                         mdp += (char)r.Next(65, 90);
