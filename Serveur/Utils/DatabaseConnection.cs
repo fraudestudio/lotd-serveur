@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace Server.Utils
 {
 	public class DatabaseConnection
@@ -9,21 +11,10 @@ namespace Server.Utils
 
 		static public void HandleRequests()
 		{
-			
 
 			while (true)
 			{
-				Console.WriteLine("Waiting for emails to send ...");
-				EMail message = EMail._messageQueue.Take();
-				try {
-					Console.WriteLine("Sending email ...");
-					EMail._smtpClient.Send(message);
-					Console.WriteLine("Email sent successfully");
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine("Couldn't send email: {0}", e);
-				}
+				
 			}
 		}
 	}
