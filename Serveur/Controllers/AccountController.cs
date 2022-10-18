@@ -4,10 +4,10 @@ using Server.Model;
 using Server.Database;
 using System.Net.Mail;
 using System.Text.Json;
-
+using System.Text;
 
 namespace Server.Controllers
-{        
+{
     [ApiController]
     [Route("api/account")]          
     public class AccountController : Controller
@@ -29,37 +29,71 @@ namespace Server.Controllers
             {
                 return new RedirectResult("../../signup?error=usernameexists", false);
             }
-            else
-            {
-                tempPwd = await Account.CreateTemp(email, username);
-            }
-            
-            if (!(await captcha.IsValid()))
+            else if (!(await captcha.IsValid()))
             {
                 return new RedirectResult("../../signup?error=invalidcaptcha", false);
             }
+            else
+            {
+                tempPwd = await Account.CreateTemp(email, username);
 
-            EMail message = new EMail(
-                email,
-                "Mot de passe provisoire",
-                new PageTemplate("signup_email").render(new {
-                    password = tempPwd,
-                    username = username,
-                })
-            );
+                EMail message = new EMail(
+                    email,
+                    "Mot de passe provisoire",
+                    new PageTemplate("signup_email").render(new {
+                        password = tempPwd,
+                        username = username,
+                    })
+                );
 
-            message.Send();
+                message.Send();
 
-            return new RedirectResult("../../signup?success=true", false);
+                return new RedirectResult("../../signup?success=true", false);
+            }
         }
 
-        [HttpGet("signin")]
-        public async Task<IActionResult> SignIn()
+        [HttpPost("signin")]
+        public IActionResult SignIn()
         {
-            ContentResult res = new ContentResult();
-            res.Content = HttpContext.Request.Host.Host;
-            res.ContentType = "text/plain";
-            return res;
+            Console.WriteLine("debug");
+            foreach (String str in Request.Headers.Authorization)
+            {
+                Console.WriteLine(str);
+            }
+            /*Console.WriteLine(
+                Encoding.UTF8.GetString(
+                    Convert.FromBase64String(
+                        Request.Headers.Authorization
+                    )
+                )
+            );*/
+
+            /*DBConnect db = new DBConnect();
+            
+            try
+            {
+                Console.WriteLine(pseudo + " " + mdp);
+                if (db.VerifJoueurConnexion(pseudo, mdp))
+                {
+                    Console.WriteLine("okok");
+                    return new AcceptedResult();
+                    
+                }
+                else
+                {
+                    Console.WriteLine("Nop");
+                    return new BadRequestResult();
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return new BadRequestResult();
+            }*/
+            
+            return new AcceptedResult();
         }
     }
 }

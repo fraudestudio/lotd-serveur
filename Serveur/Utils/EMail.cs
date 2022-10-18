@@ -15,6 +15,10 @@ namespace Server.Utils
 
 		static public void SendMessages()
 		{
+			EMail._smtpClient = new SmtpClient();
+			EMail._smtpClient.Connect("smtp.gmail.com", 465, SecureSocketOptions.Auto);
+			EMail._smtpClient.Authenticate(EMail._ADDRESS, EMail._PASSWORD);
+			
 			while (true)
 			{
 				Console.WriteLine("Waiting for emails to send ...");
@@ -42,9 +46,7 @@ namespace Server.Utils
 
 			if (EMail._smtpClient == null)
 			{
-				EMail._smtpClient = new SmtpClient();
-	 		   	EMail._smtpClient.Connect("smtp.gmail.com", 465, SecureSocketOptions.Auto);
-	 		   	EMail._smtpClient.Authenticate(EMail._ADDRESS, EMail._PASSWORD);
+				
 			}
 		}
 
