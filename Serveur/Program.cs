@@ -11,8 +11,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-Template.FileSystem = new LocalFileSystem(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "html"));
-Console.WriteLine(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "html", "partial"));
+Template.FileSystem = new LocalFileSystem(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "html", "partial"));
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
