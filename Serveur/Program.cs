@@ -3,22 +3,22 @@ using DotLiquid;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.WebHost.ConfigureKestrel(opt => {
+    opt.ListenAnyIP(80, opt => { });
+    opt.ListenAnyIP(443, opt =>
+    {
+        opt.UseHttps(
+            System.Environment.GetEnvironmentVariable("DEPLOY_CERTIFICATE") ?? "certificate.pfx",
+            System.Environment.GetEnvironmentVariable("DEPLOY_CERTIFICATE_PASSWORD" ?? "")
+        );
+    });
+});
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 Template.FileSystem = new LocalFileSystem(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "html", "partial"));
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
