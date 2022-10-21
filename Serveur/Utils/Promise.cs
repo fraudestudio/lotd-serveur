@@ -2,11 +2,10 @@ using System.Threading;
 
 namespace Server.Utils
 {
-	public class Promise<T>  : EventWaitHandle 
+	public class Promise<T> : EventWaitHandle 
 	where T : class
 	{
 		private Result<T>? _value;
-
 
         /// <summary>
         ///  A promise that will be resolved with a value of type <typeparamref name="T"/>
@@ -39,11 +38,11 @@ namespace Server.Utils
         /// Wait for the promise to be resolved and return the value
         /// </summary>
         /// <returns></returns>
-		public Result<T> Wait()
+		public bool Wait(out Result<T> result)
 		{
-       
-			this.WaitOne();
-            return this._value!;
+			bool sig = this.WaitOne();
+            result = this._value ?? throw new NullReferenceException("Expected a value");
+            return sig;
             
 		}
 
@@ -52,21 +51,37 @@ namespace Server.Utils
         /// </summary>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait</param>
         /// <returns></returns>
-        public Result<T> Wait(int millisecondsTimeout)
+        public bool Wait(out Result<T> result, int millisecondsTimeout)
         {
-            this.WaitOne(millisecondsTimeout);
-            return this._value!;
+            if (this.WaitOne(millisecondsTimeout))
+            {
+                result = this._value ?? throw new NullReferenceException("Expected a value");
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
         }
+
         /// <summary>
         /// Wait for the promise to be resolved and return the value
         /// </summary>
         /// <param name="timeout">A TimeSpan that represent the number of milliseconds to wait</param>
         /// <returns></returns>
-        public Result<T> Wait(TimeSpan timeout)
+        public bool Wait(out Result<T> result, TimeSpan timeout)
         {
-            this.WaitOne(timeout);
-            return this._value!;
+            if (this.WaitOne(timeout))
+            {
+                result = this._value ?? throw new NullReferenceException("Expected a value");
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
         }
-
     }
 }

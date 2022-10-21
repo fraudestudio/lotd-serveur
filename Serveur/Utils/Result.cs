@@ -1,12 +1,16 @@
 namespace Server.Utils
 {
-	public class Result<T> where T : class
+	/// <summary>
+	/// Either a value or an exception
+	/// </summary>
+	public class Result<T>
+	where T : class
 	{
 		private T? _value;
 		private Exception? _error;
 
         /// <summary>
-		///	Constructor that create a Results with a value and no error
+		///	Initalises a new <see cref="Result"> with a value
 		/// </summary>
 		/// <param name="val"></param>
 		public Result(T val)
@@ -16,7 +20,7 @@ namespace Server.Utils
 		}
 
 		/// <summary>
-		/// Constructor that create a Error and no Results
+		/// Initialises a new <see cref="Result"> with an exception
 		/// </summary>
 		/// <param name="err"></param>
 		public Result(Exception err)
@@ -26,26 +30,22 @@ namespace Server.Utils
 		}
 
 		/// <summary>
-		/// check if value is null or not
+		/// The result is a value
 		/// </summary>
 		public bool Ok => this._value != null;
 
 		/// <summary>
-		/// A Property that return the Value if it is OK else the Error 
+		/// Get the value or throw the exception
 		/// </summary>
-		public T Value
+		public T Value()
 		{
-			get
+			if (this.Ok)
 			{
-				if (this.Ok)
-				{
-					return _value;
-				}
-				else
-				{
-					throw this._error;
-                    
-				}
+				return _value;
+			}
+			else
+			{
+				throw this._error;   
 			}
 		}
 	}
