@@ -6,11 +6,11 @@ using Server.Utils;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(opt => {
-    opt.ListenAnyIP(80, opt => { });
-    opt.ListenAnyIP(443, opt =>
+    opt.ListenAnyIP(5080, opt => { });
+    opt.ListenAnyIP(5443, opt =>
     {
         opt.UseHttps(
-            System.Environment.GetEnvironmentVariable("DEPLOY_CERTIFICATE") ?? "certificate.pfx",
+            System.Environment.GetEnvironmentVariable("DEPLOY_CERTIFICATE") ?? "",
             System.Environment.GetEnvironmentVariable("DEPLOY_CERTIFICATE_PASSWORD" ?? "")
         );
     });
@@ -26,7 +26,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-Thread mailThread = new Thread(EMail.SendMessages);
+Thread mailThread = new Thread(Email.SendMessages);
 mailThread.IsBackground = true;
 mailThread.Start();
 

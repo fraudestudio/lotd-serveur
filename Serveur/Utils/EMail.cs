@@ -6,26 +6,25 @@ using MimeKit.Text;
 
 namespace Server.Utils
 {
-	public class EMail : MimeMessage, IDisposable
+	public class Email : MimeMessage, IDisposable
 	{
-		static private SmtpClient _smtpClient;
-		static private BlockingCollection<EMail> _messageQueue = new BlockingCollection<EMail>();
-		static private String _ADDRESS = Environment.GetEnvironmentVariable("BOT_EMAIL_ADDRESS");
-		static private String _PASSWORD = Environment.GetEnvironmentVariable("BOT_EMAIL_PASSWORD");
+		static private SmtpClient _smtpClient = new SmtpClient();
+		static private BlockingCollection<Email> _messageQueue = new BlockingCollection<Email>();
+		static private String _ADDRESS = Environment.GetEnvironmentVariable("BOT_EMAIL_ADDRESS") ?? "";
+		static private String _PASSWORD = Environment.GetEnvironmentVariable("BOT_EMAIL_PASSWORD") ?? "";
 
 		static public void SendMessages()
 		{
-			EMail._smtpClient = new SmtpClient();
-			EMail._smtpClient.Connect("iut-dijon.u-bourgogne.fr", 25, SecureSocketOptions.StartTls);
-			EMail._smtpClient.Authenticate(EMail._ADDRESS, EMail._PASSWORD);
+			Email._smtpClient.Connect("iut-dijon.u-bourgogne.fr", 25, SecureSocketOptions.StartTls);
+			Email._smtpClient.Authenticate(Email._ADDRESS, Email._PASSWORD);
 			
 			while (true)
 			{
 				Console.WriteLine("Waiting for emails to send ...");
-				EMail message = EMail._messageQueue.Take();
+				Email message = Email._messageQueue.Take();
 				try {
 					Console.WriteLine("Sending email ...");
-					EMail._smtpClient.Send(message);
+					Email._smtpClient.Send(message);
 					Console.WriteLine("Email sent successfully");
 				}
 				catch (Exception e)
@@ -35,25 +34,20 @@ namespace Server.Utils
 			}
 		}
 
-		public EMail(String recipient, String subject, String body) : base ()
+		public Email(String recipient, String subject, String body) : base ()
 		{
-			this.From.Add(new MailboxAddress("Lord Of The Dungeons", EMail._ADDRESS));
+			this.From.Add(new MailboxAddress("Lord Of The Dungeons", Email._ADDRESS));
 			this.To.Add(MailboxAddress.Parse(recipient));
 
 			this.Subject = subject;
 
    			this.Body = new TextPart(TextFormat.Html) { Text = body };
-
-			if (EMail._smtpClient == null)
-			{
-				
-			}
 		}
 
 		public void Send()
 		{
 			Console.WriteLine("Email is ready to be sent");
-			EMail._messageQueue.Add(this);
+			Email._messageQueue.Add(this);
 		}
 	}
 }

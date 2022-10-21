@@ -37,7 +37,7 @@ namespace Server.Controllers.Api
             {
                 tempPwd = await Account.CreateTemp(email, username);
 
-                EMail message = new EMail(
+                Email message = new Email(
                     email,
                     "Mot de passe provisoire",
                     new PageTemplate("signup_email").render(new {
