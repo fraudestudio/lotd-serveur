@@ -132,5 +132,77 @@ namespace Server.Database
             }
             return result;
         }
+
+        static public async Task<bool> VerifCompteExist(string nom_compte)
+        {
+            bool exist = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "select ID_JOUEUR from client where NOM_COMPTE = @nomcompte;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@nomcompte", nom_compte);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    exist = dataReader.Read();
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return exist;
+
+        }
+
+        static public async Task<bool> InsertJoueurSession(int id_compte)
+        {
+            string token = Utils.Utils.RandomPassword(10);
+            bool execute = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "INSERT INTO SESSION (ID_JOUEUR,TOKEN) VALUES(@id_j,@token);";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id_j", id_compte);
+                    cmd.Parameters.AddWithValue("@token", token);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    execute = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return execute;
+        }
+
+        static public async Task<bool> DeleteJoueurSession(int id_compte)
+        {
+            bool execute = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "DELETE FROM SESSION WHERE ID_JOUEUR = @id_j ;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id_j", id_compte);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    execute = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return execute;
+        }
     }
 }
