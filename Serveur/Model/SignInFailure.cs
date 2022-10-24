@@ -4,7 +4,7 @@ namespace Server.Model
 	{
 		private String _reason;
 
-		public SignInFailure(String reason) : base (true)
+		public SignInFailure(String reason) : base (false)
 		{
 			this._reason = reason;
 		}

@@ -102,5 +102,59 @@ namespace Server.Database
 
             return password;
         }
+
+        static public async Task<int?> CheckUsernamePassword(string username, string password)
+        {
+            int? result = null;
+            bool exist;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "select ID_JOUEUR from JOUEUR where NOM_COMPTE = @nomcompte and MDP = @mdp ;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@nomcompte", username);
+                    cmd.Parameters.AddWithValue("@mdp", password);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    exist = dataReader.Read();
+                    if (exist)
+                    {
+                        result = dataReader.GetInt32(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return result;
+        }
+
+        static public async Task<bool> CreateSession(int userId, string sessionToken)
+        {
+            bool executed = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "INSERT INTO SESSION (ID_JOUEUR,TOKEN) VALUES(@id_j,@token);";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id_j", userId);
+                    cmd.Parameters.AddWithValue("@token", sessionToken);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    executed = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return executed;
+        }
 	}
 }

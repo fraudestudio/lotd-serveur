@@ -16,12 +16,18 @@ namespace Server.Controllers
         [Route("signup")]
         public ActionResult SignUp(bool success, String error)
         {
-            object data = new {
+            var result = Content(new PageTemplate("signup").render(new {
                 success = success,
                 error = error,    
-            };
+            }));
+            result.ContentType = "text/html; charset=UTF-8";
+            return result;
+        }
 
-            var result = Content(new PageTemplate("signup").render(data));
+        [Route("myaccount")]
+        public ActionResult MyAccount()
+        {
+            var result = Content(new PageTemplate("myaccount").render(new {}));
             result.ContentType = "text/html; charset=UTF-8";
             return result;
         }

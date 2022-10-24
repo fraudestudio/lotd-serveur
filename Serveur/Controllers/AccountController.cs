@@ -1,10 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 using Server.Utils;
 using Server.Model;
+using Server.Auth;
 using Server.Database;
 using System.Net.Mail;
 using System.Text.Json;
 using System.Text;
+using System.Security.Principal;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace Server.Controllers
 {
@@ -52,48 +58,31 @@ namespace Server.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes="Basic")]
         [HttpPost("signin")]
-        public IActionResult SignIn()
+        public async Task<IActionResult> SignIn()
         {
-            Console.WriteLine("debug");
-            foreach (String str in Request.Headers.Authorization)
+            String token = Utils.Utils.RandomPassword(30);
+            String response;
+
+            if (await Account.CreateSession(UserIdentity.Get(HttpContext.User.Identity.Name).Id, token))
             {
-                Console.WriteLine(str);
+                SignInSuccess data = new SignInSuccess(token);
+
+                response = JsonSerializer.Serialize<SignInSuccess>(data);
             }
-            /*Console.WriteLine(
-                Encoding.UTF8.GetString(
-                    Convert.FromBase64String(
-                        Request.Headers.Authorization
-                    )
-                )
-            );*/
-
-            /*DBConnect db = new DBConnect();
-            
-            try
+            else
             {
-                Console.WriteLine(pseudo + " " + mdp);
-                if (db.VerifJoueurConnexion(pseudo, mdp))
-                {
-                    Console.WriteLine("okok");
-                    return new AcceptedResult();
-                    
-                }
-                else
-                {
-                    Console.WriteLine("Nop");
-                    return new BadRequestResult();
-                }
+                SignInFailure data = new SignInFailure("failed to create a session");
 
-
+                response = JsonSerializer.Serialize<SignInFailure>(data);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return new BadRequestResult();
-            }*/
-            
-            return new AcceptedResult();
+
+            var result = new ContentResult {
+                Content = response,
+                ContentType = "application/json; charset=UTF-8",
+            };
+            return result;
         }
     }
 }
