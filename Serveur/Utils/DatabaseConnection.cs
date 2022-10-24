@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Hosting.Server;
+using MySqlConnector;
 using System.Collections.Concurrent;
+
 
 namespace Server.Utils
 {
@@ -9,13 +12,26 @@ namespace Server.Utils
 		static private String _PASSWORD = Environment.GetEnvironmentVariable("DB_PASSWORD");
 		static private BlockingCollection<DatabaseMessage> _messageQueue = new BlockingCollection<DatabaseMessage>();
 
-		static public void HandleRequests()
+		static public async void HandleRequests()
 		{
+			MySqlConnection mySqlConnection = Server.Database.DatabaseConnection.NewConnection();
+            
+			await mySqlConnection.OpenAsync();
 
-			while (true)
+            while (true)
 			{
-				
-			}
+                DatabaseMessage message = _messageQueue.Take();
+                MySqlCommand command = new MySqlCommand(message.Query, mySqlConnection);
+
+
+            }
+
+            
 		}
-	}
+
+        public static void AddMessage(DatabaseMessage message)
+        {
+            _messageQueue.Add(message);
+        }
+    }
 }
