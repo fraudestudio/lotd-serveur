@@ -122,7 +122,7 @@ namespace Server.Database
                     exist = dataReader.Read();
                     if (exist)
                     {
-                        result = dataReader.GetInt32(1);
+                        result = dataReader.GetInt32(0);
                     }
                 }
                 catch (MySqlException ex)
@@ -154,7 +154,6 @@ namespace Server.Database
                 }
             }
             return exist;
-
         }
 
         static public async Task<bool> InsertJoueurSession(int id_compte)
@@ -203,6 +202,36 @@ namespace Server.Database
                 }
             }
             return execute;
+        }
+
+        static public async Task<int?> CheckTokenSession(string session)
+        {
+            int? result = null;
+            bool exist;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "select ID_JOUEUR from SESSION where TOKEN = @session;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@token", session);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    exist = dataReader.Read();
+                    if (exist)
+                    {
+                        result = dataReader.GetInt32(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return result;
+
         }
     }
 }
