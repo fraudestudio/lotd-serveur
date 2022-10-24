@@ -33,7 +33,7 @@ namespace Server.Auth
             try
             {
                 var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-                var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
+                var credentialBytes = Convert.FromBase64String(authHeader.Parameter ?? "");
                 var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':', 2);
                 username = credentials[0];
                 password = credentials[1];

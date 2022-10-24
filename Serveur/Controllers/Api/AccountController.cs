@@ -65,16 +65,23 @@ namespace Server.Controllers.Api
             String token = Utils.Utils.RandomPassword(30);
             String response;
 
-            if (await Account.CreateSession(UserIdentity.Get(HttpContext.User.Identity.Name).Id, token))
-            {
-                SignInSuccess data = new SignInSuccess(token);
+            try {
+                String username = HttpContext.User.Identity!.Name!;
 
-                response = JsonSerializer.Serialize<SignInSuccess>(data);
+                if (await Account.CreateSession(UserIdentity.Get(username).Id, token))
+                {
+                    SignInSuccess data = new SignInSuccess(token);
+                    response = JsonSerializer.Serialize<SignInSuccess>(data);
+                }
+                else
+                {
+                    SignInFailure data = new SignInFailure("failed to create a session");
+                    response = JsonSerializer.Serialize<SignInFailure>(data);
+                }
             }
-            else
+            catch (NullReferenceException)
             {
-                SignInFailure data = new SignInFailure("failed to create a session");
-
+                SignInFailure data = new SignInFailure("unknown user");
                 response = JsonSerializer.Serialize<SignInFailure>(data);
             }
 
