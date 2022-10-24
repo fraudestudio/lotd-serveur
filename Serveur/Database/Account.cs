@@ -77,7 +77,7 @@ namespace Server.Database
         static public async Task<string> CreateTemp(string email, string username)
         { 
             string password = Utils.Utils.RandomPassword(10);
-
+            
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
@@ -102,5 +102,35 @@ namespace Server.Database
 
             return password;
         }
-	}
+
+        static public async Task<int?> VerifJoueurConnexion(string nom_compte, string mdp)
+        {
+            int? result = null;
+            bool exist;
+            
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "select ID_JOUEUR from client where NOM_COMPTE = @nomcompte and MDP = @mdp ;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@nomcompte", nom_compte);
+                    cmd.Parameters.AddWithValue("@mdp", mdp);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    exist = dataReader.Read();
+                    if (exist)
+                    {
+                        result = dataReader.GetInt32(1);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return result;
+        }
+    }
 }
