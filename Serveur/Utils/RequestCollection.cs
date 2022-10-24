@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace Server.Utils
 {
-	public class DatabaseConnection
+	public class RequestCollection
 	{
 		static private String _SCHEMA = Environment.GetEnvironmentVariable("DB_SCHEMA");
 		static private String _USERNAME = Environment.GetEnvironmentVariable("DB_USERNAME");
@@ -18,11 +18,10 @@ namespace Server.Utils
             
 			await mySqlConnection.OpenAsync();
 
-            while (true)
-			{
+            while (true) 
+            { 
                 DatabaseMessage message = _messageQueue.Take();
                 MySqlCommand command = new MySqlCommand(message.Query, mySqlConnection);
-
 
             }
 
