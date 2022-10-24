@@ -77,7 +77,7 @@ namespace Server.Database
         static public async Task<string> CreateTemp(string email, string username)
         { 
             string password = Utils.Utils.RandomPassword(10);
-
+            
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
@@ -156,5 +156,58 @@ namespace Server.Database
             }
             return executed;
         }
-	}
+
+        static public async Task<bool> DeleteJoueurSession(int id_compte)
+        {
+            bool execute = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "DELETE FROM SESSION WHERE ID_JOUEUR = @id_j ;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id_j", id_compte);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    execute = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return execute;
+        }
+
+        static public async Task<int?> CheckTokenSession(string session)
+        {
+            int? result = null;
+            bool exist;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "select ID_JOUEUR from SESSION where TOKEN = @session;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@token", session);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    exist = dataReader.Read();
+                    if (exist)
+                    {
+                        result = dataReader.GetInt32(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return result;
+
+        }
+    }
 }

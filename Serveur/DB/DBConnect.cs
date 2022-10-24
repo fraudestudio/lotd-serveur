@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using MySqlConnector;
 
-namespace DB_LOTD
+namespace Server.DBConnect
 {
      public class DBConnect
     {
