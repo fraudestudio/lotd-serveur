@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% assign title = 'Mon compte' %}
+    {% include 'head' %}
+</head>
+<body>
+	{% assign show_signup_button = false %}
+    {% assign show_signin_button = true %}
+    {% include 'header' %}
+    
+    <main>
+        <h2>Inscription</h2>
+        <form
+            id="form"
+            action="javascript:;"
+            onsubmit="login(this)">
+            <fieldset>
+                <div>
+                    <label for="mail">Adresse Mail:</label>
+                    <input type="email" name="email" required/>
+                    <span id="error-email" style="color:red"></span>
+                </div>
+                <div>
+                    <label for="username">Nom d'utilisateur:</label>
+                    <input type="text" name="username" required/>
+                    <span id="error-username" style="color:red"></span>
+                </div>
+                <div>
+                    <div
+                        class="g-recaptcha"
+                        data-sitekey="6LfnKFwiAAAAAPd-9GjoxlDOI36qmaFu8o-Fkuy8" 
+                        data-callback="captchaFilled"
+                        data-expired-callback="captchaExpired">
+                    </div>
+                    <span id="error-captcha" style="color:red"></span>
+                </div>
+                <input type="submit" value="S'inscrire">
+            </fieldset>
+        </form>
+    </main>
+
+    {% include 'footer' %}
+
+    <script>
+        function login(form) {
+            let formData = new FormData();
+        }
+    </script>
+</body>
+</html>
