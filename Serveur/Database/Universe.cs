@@ -15,6 +15,7 @@ namespace Serveur.Database
         /// <param name="nom_univers">nom de l'univers</param>
         static public async Task<bool> InsertUnivers(string nom_univers, string mdp, string owner)
         {
+            bool result = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
@@ -27,8 +28,8 @@ namespace Serveur.Database
                     cmd.Parameters.AddWithValue("@nom", nom_univers);
                     cmd.Parameters.AddWithValue("@mdp", mdp);
                     cmd.Parameters.AddWithValue("@owner", owner);
-
                     await cmd.ExecuteNonQueryAsync();
+                    result = true;
                 }
                 catch (MySqlException ex)
                 {
@@ -36,7 +37,7 @@ namespace Serveur.Database
                 }
             }
 
-            return true;
+            return result;
         }
     }
 }
