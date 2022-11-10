@@ -1,6 +1,7 @@
-using MySqlConnector;
-using Server.Utils;
-using Server.Database;
+using System;
+using System.Data;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 
 namespace Server.Database
 {
@@ -19,7 +20,7 @@ namespace Server.Database
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@compte", username);
-                    MySqlDataReader dataReader = await cmd.ExecuteReaderAsync();
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
                     result = await dataReader.ReadAsync();
                     Console.WriteLine(result);
                     if (result)
@@ -53,7 +54,7 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@mail", emailAddress);
 
-                    MySqlDataReader dataReader = await cmd.ExecuteReaderAsync();
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
                     result = await dataReader.ReadAsync();
 
                     if (result)
@@ -207,7 +208,6 @@ namespace Server.Database
                 }
             }
             return result;
-
         }
     }
 }
