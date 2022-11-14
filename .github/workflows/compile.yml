@@ -1,0 +1,16 @@
+name: Vérification
+
+on:
+  pull_request:
+    branches:
+      main
+      
+  workflow_dispatch:
+
+jobs:
+  Compilation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Compile project
+        run: dotnet build /warnaserror
