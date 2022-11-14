@@ -13,4 +13,6 @@ jobs:
     
     steps:
       - name: Compile project
-        run: dotnet build /warnaserror
+        run: |
+          cd Serveur
+          dotnet build /warnaserror
