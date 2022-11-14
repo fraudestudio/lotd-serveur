@@ -4,4 +4,4 @@
 
 [Site web (accessible uniquement depuis le réeau de l'IUT)](https://info-dij-sae001.iut21.u-bourgogne.fr)
 
-[Documentation du projet](wiki/Accueil)
+[Documentation du projet](https://github.com/fraudestudio/serveur/wiki/Accueil)
