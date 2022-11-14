@@ -4,12 +4,12 @@ on:
   pull_request:
     branches:
       main
-      
   workflow_dispatch:
 
 jobs:
   Compilation:
     runs-on: ubuntu-latest
+    environment: Vérification
     
     steps:
       - name: Compile project
