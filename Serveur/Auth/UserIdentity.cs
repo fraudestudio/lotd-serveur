@@ -14,12 +14,19 @@ namespace Server.Auth
         private String _name;
         private int _id;
 
-        public UserIdentity(String authType, int userId, String name)
+        public UserIdentity(String authType, int userId)
         {
             this._authType = authType;
-            this._name = name;
             this._id = userId;
 
+            String uid;
+            do
+            {
+                uid = Utils.Utils.RandomPassword(20);
+            }
+            while (UserIdentity._users.ContainsKey(uid));
+
+            this._name = uid;
             UserIdentity._users[this._name] = this;
         }
 
