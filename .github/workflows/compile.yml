@@ -12,6 +12,8 @@ jobs:
     environment: Vérification
     
     steps:
+      - uses: actions/checkout@v2
+      
       - name: Compile project
         run: |
           cd Serveur
