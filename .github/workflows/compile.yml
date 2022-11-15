@@ -1,0 +1,23 @@
+name: Vérification
+
+on:
+  pull_request:
+    branches:
+      main
+  push:
+    branches:
+      main
+  workflow_dispatch:
+
+jobs:
+  Compilation:
+    runs-on: ubuntu-latest
+    environment: Vérification
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Compile project
+        run: |
+          cd Serveur
+          dotnet build /warnaserror
