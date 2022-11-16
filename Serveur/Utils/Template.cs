@@ -25,7 +25,7 @@ namespace Server.Utils
 
         private Template(String file)
 		{
-			using (StreamReader f = new StreamReader(Path.Combine(Template.TemplateDirectory, file)))
+			using (StreamReader f = new StreamReader(Path.Join(Template.TemplateDirectory, file)))
 			{
 				this._content = f.ReadToEnd();
 			}

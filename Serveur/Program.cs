@@ -1,5 +1,3 @@
-using DotLiquid.FileSystems;
-using DotLiquid;
 using System.Threading;
 using Server.Utils;
 using Server.Database;
@@ -24,7 +22,7 @@ builder.Services.AddAuthentication("Basic").AddScheme<AuthOptions, BasicAuthenti
 
 var app = builder.Build();
 
-Template.FileSystem = new LocalFileSystem(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "html", "partial"));
+Template.TemplateDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Templates");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
