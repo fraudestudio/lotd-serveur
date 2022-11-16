@@ -46,10 +46,7 @@ namespace Server.Controllers.Api
                 Email message = new Email(
                     email,
                     "Mot de passe provisoire",
-                    new PageTemplate("signup_email").render(new {
-                        password = tempPwd,
-                        username = username,
-                    })
+                    Template.Get("signup_email.html").Render(username, tempPwd)
                 );
 
                 message.Send();

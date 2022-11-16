@@ -7,28 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.2.656" />
     <PackageReference Include="MySqlConnector" Version="2.1.13" />
     <PackageReference Include="MailKit" Version="3.4.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="html\partial\_footer.liquid">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="html\partial\_head.liquid">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="html\index.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="html\partial\_header.liquid">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="html\signup.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="html\signup_email.html">
+    <None Update="Templates\signup_email.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
