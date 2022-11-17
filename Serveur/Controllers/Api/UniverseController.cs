@@ -19,11 +19,7 @@ namespace Serveur.Controllers.Api
             string response = "";
             //String userId = HttpContext.User.Identity!.Name!;
 
-            Console.WriteLine(universe.Name);
-            Console.WriteLine(universe.Password);
-            Console.WriteLine(universe.Password == null);
-
-            if (await Universe.InsertUnivers(universe.Name, universe.Password, 1))
+            if (await Universe.InsertUniverse(name, password, owner))
             {
                 CreateUniverseSuccess data = new CreateUniverseSuccess("Universe create successfully");
                 response = JsonSerializer.Serialize<CreateUniverseSuccess>(data);
