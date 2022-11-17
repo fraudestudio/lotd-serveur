@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Server.Auth;
 using Serveur.Database;
 using Serveur.Model;
 using System.Text.Json;
@@ -8,18 +9,21 @@ namespace Serveur.Controllers.Api
 {
     [ApiController]
     [Route("api/universe")]
-    public class UniverseController
+    //[Authorize(AuthenticationSchemes = "Basic")]
+    public class UniverseController : Controller
     {
 
-        [HttpPost("createuniverse")]
-        public async Task<IActionResult> SignIn(
-            [FromForm] string name,
-            [FromForm] string password,
-            [FromForm] string owner)
+        [HttpPost("create")]
+        public async Task<IActionResult> Create(UniverseModel universe)
         {
             string response = "";
+            //String userId = HttpContext.User.Identity!.Name!;
 
-            if (await Universe.InsertUnivers(name, password, owner))
+            Console.WriteLine(universe.Name);
+            Console.WriteLine(universe.Password);
+            Console.WriteLine(universe.Password == null);
+
+            if (await Universe.InsertUnivers(universe.Name, universe.Password, 1))
             {
                 CreateUniverseSuccess data = new CreateUniverseSuccess("Universe create successfully");
                 response = JsonSerializer.Serialize<CreateUniverseSuccess>(data);
