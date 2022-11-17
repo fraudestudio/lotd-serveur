@@ -13,7 +13,7 @@ namespace Serveur.Database
         /// </summary>
         /// <param name="mdp">mot de passe de l'univers</param>
         /// <param name="nom_univers">nom de l'univers</param>
-        static public async Task<bool> InsertUnivers(string nom_univers, string mdp, string owner)
+        static public async Task<bool> InsertUniverse(string nom_univers, string mdp, string owner)
         {
             bool result = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -30,6 +30,32 @@ namespace Serveur.Database
                     cmd.Parameters.AddWithValue("@owner", owner);
                     await cmd.ExecuteNonQueryAsync();
                     result = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return result;
+        }
+
+
+
+        static public async Task<string> GetUniverse(string nom_univers, string mdp, string owner)
+        {
+            string result = "";
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "SELECT ID_UNIVERS,NOM_UNIVERS,MDP_SERVEUR FROM UNIVERS";
+
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    result = dataReader.ToString();
                 }
                 catch (MySqlException ex)
                 {

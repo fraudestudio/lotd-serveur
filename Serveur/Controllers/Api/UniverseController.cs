@@ -19,7 +19,7 @@ namespace Serveur.Controllers.Api
         {
             string response = "";
 
-            if (await Universe.InsertUnivers(name, password, owner))
+            if (await Universe.InsertUniverse(name, password, owner))
             {
                 CreateUniverseSuccess data = new CreateUniverseSuccess("Universe create successfully");
                 response = JsonSerializer.Serialize<CreateUniverseSuccess>(data);
