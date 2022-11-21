@@ -75,15 +75,24 @@ namespace Server.Database
             return result;
         }
 
-        static public async Task<string> CreateTemp(string email, string username)
-        { 
-            string password = Utils.Utils.RandomPassword(10);
+        /// <summary>
+        /// créer un utilisateur temporaire et renvoie le mot de passe temporaire
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        static public async Task<byte[]> CreateTemp(string email, string username)
+        {
+
+            string sel = Utils.Utils.RandomPassword(32);
+            byte[] password = Utils.Utils.BtoH(Utils.Utils.RandomPassword(10),sel);
+            
             
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
                
-                string query = "INSERT INTO JOUEUR (ADRESS_MAIL,NOM_COMPTE,MDP,VALIDE,DATE_CREATION) VALUES (@adresse_mail,@nom_compte,@password,false,@date_creation);";
+                string query = "INSERT INTO JOUEUR (ADRESS_MAIL,NOM_COMPTE,MDP,VALIDE,DATE_CREATION,SEL) VALUES (@adresse_mail,@nom_compte,@password,false,@date_creation,@sel);";
             
                 try
                 {
@@ -92,6 +101,7 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@nom_compte", username);
                     cmd.Parameters.AddWithValue("@password", password);
                     cmd.Parameters.AddWithValue("@date_creation", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@sel", sel);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -104,27 +114,35 @@ namespace Server.Database
             return password;
         }
 
+        /// <summary>
+        /// check for the connexion return the id of the player 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         static public async Task<int?> CheckUsernamePassword(string username, string password)
         {
             int? result = null;
             bool exist;
 
+
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
 
-                string query = "select ID_JOUEUR from JOUEUR where NOM_COMPTE = @nomcompte and MDP = @mdp ;";
+                string query = "select SEL from JOUEUR where NOM_COMPTE = @nomcompte ;";
+                string query2 = "select ID_JOUEUR from JOUEUR where NOM_COMPTE = @nomcompte and MDP = @mdp ;";
+         
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
-                    cmd.Parameters.AddWithValue("@mdp", password);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    exist = dataReader.Read();
-                    if (exist)
-                    {
-                        result = dataReader.GetInt32(0);
-                    }
+                    MySqlDataReader dataReader1 = cmd.ExecuteReader();
+                    string sel = dataReader1.GetString(0);
+                    cmd = new MySqlCommand(query2, conn);
+                    cmd.Parameters.AddWithValue("@nomcompte", username);
+                    cmd.Parameters.AddWithValue("@mdp", Utils.Utils.BtoH(password,sel));
+                    result = dataReader1.GetInt32(0);
                 }
                 catch (MySqlException ex)
                 {
