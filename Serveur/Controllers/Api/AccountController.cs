@@ -63,33 +63,43 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SignIn()
         {
             String token = Utils.Utils.RandomPassword(30);
-            String response;
+            SignIn result;
 
             try {
-                String username = HttpContext.User.Identity!.Name!;
+                int id = HttpContext.User.Id();
 
-                if (await Account.CreateSession(UserIdentity.Get(username).Id, token))
+                if (await Account.CreateSession(id, token))
                 {
-                    SignInSuccess data = new SignInSuccess(token);
-                    response = JsonSerializer.Serialize<SignInSuccess>(data);
+                    result = new SignIn
+                    {
+                        Success = true,
+                        Validated = true,
+                        SessionToken = token,
+                    };
                 }
                 else
                 {
-                    SignInFailure data = new SignInFailure("failed to create a session");
-                    response = JsonSerializer.Serialize<SignInFailure>(data);
+                    result = new SignIn
+                    {
+                        Success = false,
+                        Reason = "Couldn't create session",
+                    };
                 }
             }
             catch (NullReferenceException)
             {
-                SignInFailure data = new SignInFailure("unknown user");
-                response = JsonSerializer.Serialize<SignInFailure>(data);
+                result = new SignIn
+                {
+                    Success = false,
+                    Reason = "User not found",
+                };
             }
 
-            var result = new ContentResult {
-                Content = response,
+            var contentResult = new ContentResult {
+                Content = JsonSerializer.Serialize<SignIn>(result, Utils.Utils.DefaultJsonOptions),
                 ContentType = "application/json; charset=UTF-8",
             };
-            return result;
+            return contentResult;
         }
     }
 }
