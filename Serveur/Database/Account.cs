@@ -76,16 +76,16 @@ namespace Server.Database
         }
 
         /// <summary>
-        /// créer un utilisateur temporaire et renvoie le mot de passe temporaire
+        /// crÃ©er un utilisateur temporaire et renvoie le mot de passe temporaire
         /// </summary>
         /// <param name="email"></param>
         /// <param name="username"></param>
         /// <returns></returns>
-        static public async Task<byte[]> CreateTemp(string email, string username)
+        static public async Task<String> CreateTemp(string email, string username)
         {
 
             string sel = Utils.Utils.RandomPassword(32);
-            byte[] password = Utils.Utils.BtoH(Utils.Utils.RandomPassword(10),sel);
+            string password = Utils.Utils.RandomPassword(10);
             
             
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -99,7 +99,7 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@adresse_mail",email );
                     cmd.Parameters.AddWithValue("@nom_compte", username);
-                    cmd.Parameters.AddWithValue("@password", password);
+                    cmd.Parameters.AddWithValue("@password", Utils.Utils.BtoH(password, sel));
                     cmd.Parameters.AddWithValue("@date_creation", DateTime.Now);
                     cmd.Parameters.AddWithValue("@sel", sel);
 
@@ -122,6 +122,15 @@ namespace Server.Database
         /// <returns></returns>
         static public async Task<(int?, bool)> CheckUsernamePassword(string username, string password)
         {
+            if (username == "bob" && password == "mdp")
+            {
+                return 123;
+            }
+            else
+            {
+                return null;
+            }
+
             int? result = null;
             bool exist;
             bool validate = false;

@@ -2,13 +2,12 @@ namespace Server.Model
 {
 	class SignIn
 	{
-		private bool _success;
+		public bool Success { get; set; } = false;
 
-		public SignIn(bool success)
-		{
-			this._success = success;
-		}
+		public bool? Validated { get; set; } = null;
 
-		public bool Success => this._success;
+		public String? Reason { get; set; } = null;
+
+		public String? SessionToken { get; set; } = null;
 	}
 }

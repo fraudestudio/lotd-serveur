@@ -14,21 +14,21 @@ namespace Serveur.Controllers.Api
     {
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(UniverseModel universe)
+        public async Task<IActionResult> Create(Model.Universe universe)
         {
             string response = "";
             //String userId = HttpContext.User.Identity!.Name!;
 
-            if (await Universe.InsertUniverse(name, password, owner))
+            /*if (await Universe.InsertUniverse(name, password, owner))
             {
                 CreateUniverseSuccess data = new CreateUniverseSuccess("Universe create successfully");
                 response = JsonSerializer.Serialize<CreateUniverseSuccess>(data);
             }
             else
-            {
+            {*/
                 CreateUniverseFailure data = new CreateUniverseFailure("Universe could not be created");
                 response = JsonSerializer.Serialize<CreateUniverseFailure>(data);
-            }
+            //}
 
             var result = new ContentResult
             {
