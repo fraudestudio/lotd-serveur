@@ -124,11 +124,15 @@ namespace Server.Database
         {
             if (username == "bob" && password == "mdp")
             {
-                return 123;
+                return (123, true);
+            }
+            else if (username == "alice" && password == "merveilles")
+            {
+                return (456, false);
             }
             else
             {
-                return null;
+                return (null, false);
             }
 
             int? result = null;
@@ -164,6 +168,7 @@ namespace Server.Database
 
         static public async Task<bool> CreateSession(int userId, string sessionToken)
         {
+            return true;
             bool executed = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
