@@ -45,53 +45,66 @@ namespace Serveur.Database
         /// retourne la liste des univers
         /// </summary>
         /// <returns>une liste a deux dimensions se composant de la façons suivant [univers,0(id_univers) 1(nom univers)]</returns>
-       static public async Task<String[,]> ReturnUniverse()
-        {
-            
-            int nbUnivers = 0;
-            String[,] res = new string[(int)nbUnivers, 2];
-            bool exist;
+       static public async Task<Dictionary<int, string>> ReturnUniverse()
+       {
+            int i = 0;
+            Dictionary<int, string> res =  new Dictionary<int, string>();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
-
-                string query = "select COUNT(ID_UNIVERS) from UNIVERS;";
-
                 try
                 { 
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    exist = dataReader.Read();
-
-                    if (exist)
+                    string query = "select ID_UNIVERS from UNIVERS;";
+                    MySqlCommand cmd2 = new MySqlCommand(query, conn);
+                    MySqlDataReader dataReader = cmd2.ExecuteReader();
+                    query = "select NOM_UNIVERS from UNIVERS;";
+                    MySqlCommand cmd3 = new MySqlCommand(query, conn);
+                    MySqlDataReader dataReader2 = cmd3.ExecuteReader();
+                    while (dataReader.Read())
                     {
-                        nbUnivers = dataReader.GetInt32(0);
-
-                        query = "select ID_UNIVERS from UNIVERS;";
-                        MySqlCommand cmd2 = new MySqlCommand(query, conn);
-                        dataReader = cmd2.ExecuteReader();
-                        for (int i = 0; i < nbUnivers; i++)
-                        {
-                            res[i,0] = dataReader.GetString(i);
-                        }
-
-                        query = "select NOM_UNIVERS from UNIVERS;";
-                        MySqlCommand cmd3 = new MySqlCommand(query, conn);
-                        dataReader = cmd3.ExecuteReader();
-                        for (int i = 0; i < nbUnivers; i++)
-                        {
-                            res[i, 1] = dataReader.GetString(i);
-                        }
+                        res.Add(dataReader.GetInt32(i), dataReader2.GetString(i));
+                        i++;
                     }
                 }
                 catch (MySqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-
             }
             return res;
+       }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <returns></returns>
+        static public async Task<int[]?> UniversPlayer(int playerId)
+        {
+            int[] result = new int[5];
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "select ID_UNIVERS from JOUE WHERE ID_JOUEUR = @id;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", playerId);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    for (int i = 0; i < 4 ; i++)
+                    {
+                        result[i] = dataReader.GetInt32(i);
+                    }
+
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return result;
         }
     }
 }
