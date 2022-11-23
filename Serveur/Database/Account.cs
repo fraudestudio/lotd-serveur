@@ -76,7 +76,7 @@ namespace Server.Database
         }
 
         /// <summary>
-        /// créer un utilisateur temporaire et renvoie le mot de passe temporaire
+        /// crÃ©er un utilisateur temporaire et renvoie le mot de passe temporaire
         /// </summary>
         /// <param name="email"></param>
         /// <param name="username"></param>
@@ -120,7 +120,7 @@ namespace Server.Database
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        static public async Task<int?> CheckUsernamePassword(string username, string password)
+        static public async Task<(int?, bool)> CheckUsernamePassword(string username, string password)
         {
             if (username == "bob" && password == "mdp")
             {
@@ -133,13 +133,14 @@ namespace Server.Database
 
             int? result = null;
             bool exist;
+            bool validate = false;
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
 
                 string query = "select SEL from JOUEUR where NOM_COMPTE = @nomcompte ;";
-                string query2 = "select ID_JOUEUR from JOUEUR where NOM_COMPTE = @nomcompte and MDP = @mdp ;";
+                string query2 = "select ID_JOUEUR , VALIDE from JOUEUR where NOM_COMPTE = @nomcompte and MDP = @mdp ;";
          
                 try
                 {
@@ -151,13 +152,14 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@nomcompte", username);
                     cmd.Parameters.AddWithValue("@mdp", Utils.Utils.BtoH(password,sel));
                     result = dataReader1.GetInt32(0);
+                    validate = dataReader1.GetBoolean(1);
                 }
                 catch (MySqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
             }
-            return result;
+            return (result,validate);
         }
 
         static public async Task<bool> CreateSession(int userId, string sessionToken)
@@ -233,6 +235,57 @@ namespace Server.Database
                     Console.WriteLine(ex.Message);
                 }
             }
+            return result;
+        }
+
+        static public async Task<bool> ValidateUser(int id)
+        {
+            bool result = false;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "UPDATE JOUEUR SET VALIDE = TRUE WHERE ID_JOUEUR = @id; ";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQueryAsync();
+                    result = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return result;
+        }
+
+        static public async Task<bool> UpdateMDP(string mdp, int id)
+        {
+            bool result = false;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "UPDATE JOUEUR SET MDP = @mdp WHERE ID_JOUEUR = @id; ";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@mdp", mdp);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQueryAsync();
+                    result = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
             return result;
         }
     }
