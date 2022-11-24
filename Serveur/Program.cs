@@ -8,14 +8,12 @@ using Server.Auth;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(opt => {
-    opt.ListenAnyIP(8080, opt => { });
-    opt.ListenAnyIP(8443, opt =>
+    opt.ListenAnyIP(80, opt => { });
+    opt.ListenAnyIP(443, opt =>
     {
         opt.UseHttps(
-            /*
             System.Environment.GetEnvironmentVariable("CERTIFICATE_FILE") ?? "",
             System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD" ?? "")
-            //*/
         );
     });
 });
