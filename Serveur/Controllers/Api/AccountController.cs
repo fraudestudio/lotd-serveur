@@ -63,33 +63,56 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SignIn()
         {
             String token = Utils.Utils.RandomPassword(30);
-            String response;
-
-            try {
-                String username = HttpContext.User.Identity!.Name!;
-
-                if (await Account.CreateSession(UserIdentity.Get(username).Id, token))
-                {
-                    SignInSuccess data = new SignInSuccess(token);
-                    response = JsonSerializer.Serialize<SignInSuccess>(data);
-                }
-                else
-                {
-                    SignInFailure data = new SignInFailure("failed to create a session");
-                    response = JsonSerializer.Serialize<SignInFailure>(data);
-                }
-            }
-            catch (NullReferenceException)
+            SignIn result = new SignIn
             {
-                SignInFailure data = new SignInFailure("unknown user");
-                response = JsonSerializer.Serialize<SignInFailure>(data);
+                Success = false,
+                Reason = "Invalid ticket",
+            }; 
+
+            int? maybeId = HttpContext.User.UserId();
+            bool? maybeValidated = HttpContext.User.IsValidated();
+
+            if (maybeId is int id)
+            {
+                if (maybeValidated is bool validated)
+                {
+                    if (validated)
+                    {
+                        if (await Account.CreateSession(id, token))
+                        {
+                            result = new SignIn
+                            {
+                                Success = true,
+                                Validated = true,
+                                SessionToken = token,
+                            };
+                        }
+                        else
+                        {
+                            result = new SignIn
+                            {
+                                Success = false,
+                                Reason = "Couldn't create session",
+                            };
+                        }
+                    }
+                    else
+                    {
+                        result = new SignIn
+                        {
+                            Success = true,
+                            Validated = false,
+                        };
+                    }
+
+                }
             }
 
-            var result = new ContentResult {
-                Content = response,
+            var contentResult = new ContentResult {
+                Content = JsonSerializer.Serialize<SignIn>(result, Utils.Utils.DefaultJsonOptions),
                 ContentType = "application/json; charset=UTF-8",
             };
-            return result;
+            return contentResult;
         }
     }
 }
