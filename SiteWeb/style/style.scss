@@ -53,6 +53,17 @@ header {
 		font-size: inherit;
 		font-family: inherit;
 	}
+
+	@media screen and (max-width: 1080px) {
+		flex-direction: column;
+		align-items: flex-start;
+		height: 120px;
+		justify-content: flex-start;
+
+		div {
+			align-self: flex-end;
+		}
+	}
 }
 
 footer {
@@ -102,6 +113,8 @@ input {
 
 	&[type="text"], &[type="password"], &[type="email"] {
 		margin-top: 4px;
+		width: 90%;
+   		max-width: 300px;
 	}
 }
 
@@ -115,7 +128,7 @@ div.input, div.captcha {
 	padding: 10px;
 }
 
-#error {
+.error {
 	background-color: #ff5e5eb3;
 	padding: 5px;
 	text-align: center;

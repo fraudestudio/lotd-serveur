@@ -22,7 +22,7 @@ namespace Server.Auth
             String uid;
             do
             {
-                uid = Utils.Utils.RandomPassword(20);
+                uid = Utils.Util.RandomPassword(20);
             }
             while (UserIdentity._users.ContainsKey(uid));
 

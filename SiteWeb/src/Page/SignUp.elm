@@ -12,11 +12,13 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Lazy as Lazy
 import Html.Events as Events
+import Http
 
 import Session exposing (..)
 import Route exposing (Route, SignUpFragment(..))
 import Component
 import Port
+import Api exposing (sendSignUpRequest)
 
 
 type alias Model = 
@@ -34,6 +36,7 @@ type alias FormModel =
   { username : String
   , email : String
   , captchaFilled : Bool
+  , captchaToken : String
   , errorMessage : String
   }
 
@@ -41,8 +44,11 @@ type alias FormModel =
 type Msg
   = Username String
   | Email String
-  | CaptchaFilled Bool
+  | CaptchaFilled String
+  | CaptchaExpired
+  | CaptchaError
   | SignUpRequest
+  | SignUpResponse (Result Http.Error ())
 
 
 init : Session -> SignUpFragment -> ( Model, Cmd Msg )
@@ -55,6 +61,7 @@ init oldSession fragment =
               { email = ""
               , username = ""
               , captchaFilled = False
+              , captchaToken = ""
               , errorMessage = ""
               }
 
@@ -75,7 +82,11 @@ session model = model.session
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-  Port.captchaFilled CaptchaFilled
+  Sub.batch
+    [ Port.captchaFilled CaptchaFilled
+    , Port.captchaExpired (Port.notify CaptchaExpired)
+    , Port.captchaError (Port.notify CaptchaError)
+    ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -91,19 +102,34 @@ update msg model =
       , Cmd.none
       )
 
-    ( CaptchaFilled filled, SignUpForm form ) ->
-      ( { model | section = SignUpForm { form | captchaFilled = filled } }
+    ( CaptchaFilled token, SignUpForm form ) ->
+      ( { model | section = SignUpForm
+          { form | captchaFilled = True , captchaToken = token }
+        }
+      , Cmd.none
+      )
+
+    ( CaptchaExpired, SignUpForm form ) ->
+      ( { model | section = SignUpForm
+          { form | captchaFilled = False , captchaToken = "" }
+        }
+      , Cmd.none
+      )
+
+    ( CaptchaError, SignUpForm form ) ->
+      ( { model | section = SignUpForm
+          { form | captchaFilled = False , captchaToken = "" }
+        }
       , Cmd.none
       )
 
     ( SignUpRequest, SignUpForm form ) ->
       if form.captchaFilled then
-        ( { model | section = SignUpForm
-            { form | errorMessage =
-              "incription en cours..."
-            }
-          }
-        , Cmd.none
+        ( model
+        , sendSignUpRequest SignUpResponse
+          { captcha = ""
+          , email = form.email
+          , username = form.email }
         )
       else
         ( { model | section = SignUpForm
@@ -113,6 +139,29 @@ update msg model =
           }
         , Cmd.none
         )
+
+    ( SignUpResponse response, SignUpForm form ) ->
+      case response of
+        Err err ->
+          ( { model | section = SignUpForm
+              { form | errorMessage =
+                ( case err of
+                    Http.BadUrl url ->
+                      "Invalid URL " ++ url
+                    Http.Timeout ->
+                      "Request timed out"
+                    Http.NetworkError ->
+                      "Network error"
+                    Http.BadStatus status ->
+                      "Got status code " ++ String.fromInt status
+                    Http.BadBody problem ->
+                      problem
+                )
+              }
+            }
+          , Cmd.none
+          )
+        Ok () -> ( { model | section = Success }, Cmd.none )
 
     _ ->
       ( model, Cmd.none )
@@ -140,7 +189,13 @@ view model =
 
 viewForm : FormModel -> List (Html Msg)
 viewForm form =
-  [ Html.p [ Attr.id "error" ] [ Html.text form.errorMessage ]
+  [ Html.p
+    [ Attr.class (
+        if String.isEmpty form.errorMessage then "no-error" else "error"
+      )
+    ]
+    [ Html.text form.errorMessage
+    ]
   , Html.form [ Attr.id "signin", Events.onSubmit SignUpRequest ]
     [ Lazy.lazy Component.formInput
         { id = "username"
@@ -157,22 +212,7 @@ viewForm form =
         , onInput = Email
         }
     , Html.div [ Attr.class "captcha" ]
-      [ Html.div
-        [ Attr.class "g-recaptcha"
-        , ( Attr.attribute
-            "data-sitekey"
-            "6LfnKFwiAAAAAPd-9GjoxlDOI36qmaFu8o-Fkuy8" 
-          )
-        , ( Attr.attribute
-            "data-callback"
-            "captchaFilled"
-          )
-        , ( Attr.attribute
-            "data-expired-callback"
-            "captchaExpired"
-          )
-        ]
-        [ ]
+      [ Html.div [ Attr.id "recaptcha" ] [ ]
       ]
     , Html.div [ Attr.class "input" ]
       [ Html.input [ Attr.type_ "submit", Attr.value "S'inscrire" ] [ ]

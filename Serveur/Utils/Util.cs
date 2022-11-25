@@ -1,8 +1,9 @@
+using Microsoft.Extensions.FileProviders;
 using System;
 
 namespace Server.Utils
 {
-    static class Utils
+    static class Util
     {
         private const String ALPHANUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 

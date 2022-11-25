@@ -12,8 +12,8 @@ namespace Server.Database
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
-                
-                string query = "select ID_JOUEUR from JOUEUR where NOM_COMPTE = @compte ;";
+
+                string query = "select ID_JOUEUR from JOUEUR where NOM_COMPTE = @compte ";
                 
                 try
                 {
@@ -76,7 +76,7 @@ namespace Server.Database
 
         static public async Task<string> CreateTemp(string email, string username)
         { 
-            string password = Utils.Utils.RandomPassword(10);
+            string password = Utils.Util.RandomPassword(10);
             
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {

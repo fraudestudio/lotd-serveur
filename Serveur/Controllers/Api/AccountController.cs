@@ -26,7 +26,6 @@ namespace Server.Controllers.Api
         {
             Captcha captcha = new Captcha(recaptcha_response);
             
-            String tempPwd;
             if (await Account.UserExistsEmail(email))
             {
                 return new RedirectResult("../../signup?error=emailexists", false);
@@ -41,7 +40,7 @@ namespace Server.Controllers.Api
             }
             else
             {
-                tempPwd = await Account.CreateTemp(email, username);
+                String tempPwd = await Account.CreateTemp(email, username);
 
                 Email message = new Email(
                     email,
@@ -59,7 +58,7 @@ namespace Server.Controllers.Api
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn()
         {
-            String token = Utils.Utils.RandomPassword(30);
+            String token = Util.RandomPassword(30);
             String response;
 
             try {

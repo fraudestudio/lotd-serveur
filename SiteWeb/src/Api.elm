@@ -1,73 +1,8 @@
-module Api exposing (RequestStatus(..))
+module Api exposing (Credentials(..), sendSignUpRequest)
 
-import Http
-
-
-type RequestStatus
-  = InProgress
-  | AuthenticationFailed
-  | RequestFailed
-  | Success
-
-
-type Msg
-  = SignInRequest
-  | SignInResponse (Result Http.Error SignInResult)
-  | ValidationRequest
-  | ValidationResponse (Result Http.Error ValidationResult)
-
-
-type SignInResult
-    = Success String
-    | NotValidated
-    | Failure
-
-
-sendSignInRequest : ModelSignIn -> Cmd Msg
-sendSignInRequest model =
-    requestWithAuth
-        { method = "POST"
-        , endpoint = "/account/signin"
-        , expect = Http.expectJson SignInResponse authDecoder
-        , body = Http.emptyBody
-        , auth = Basic { userId = model.userId, password = model.password }
-        }
-
-
-authDecoder : Decode.Decoder AuthResult
-authDecoder =
-    Decode.field "Success" Decode.bool
-        |> Decode.andThen (\success ->
-            if success then authDecoderSuccess else Decode.succeed Failure)
-
-
-authDecoderSuccess : Decode.Decoder AuthResult
-authDecoderSuccess =
-    Decode.field "Verified" Decode.bool
-        |> Decode.andThen (\verified ->
-            if verified then authDecoderValidated else Decode.succeed NotValidated)
-
-
-authDecoderValidated : Decode.Decoder AuthResult
-authDecoderValidated =
-    Decode.map (\token -> Success token) (Decode.field "Token" Decode.string)
-
-
-type alias ValidationResult = ()
-
-sendValidationRequest : ModelValidation -> Cmd Msg
-sendValidationRequest model =
-    requestWithAuth
-        { url = "http://localhost:5000/api/account/setpassword"
-        , expect = Http.expectWhatever ValidationResponse
-        , body = Http.jsonBody 
-            ( Encode.object
-                [ ( "NewPassword", Encode.string model.newPassword )
-                ]
-            )
-        , auth = Basic { userId = model.userId, password = model.oldPassword }
-        }
-
+import Http exposing (request, jsonBody, expectWhatever, Error)
+import Json.Encode as Encode
+import Base64.Encode as Base64
 
 type Credentials
   = Basic
@@ -91,7 +26,7 @@ credentialsToString creds =
       "Bearer " ++ token
 
 
-requestWithAuth :
+authRequest :
   { method : String
   , credentials : Credentials
   , endpoint : String
@@ -99,16 +34,63 @@ requestWithAuth :
   , expect : Http.Expect msg
   }
   -> Cmd msg
-requestWithAuth request = 
-  Http.request
-    { method = request.method
+authRequest req = 
+  request
+    { method = req.method
     , headers =
       [ Http.header "Authorization"
-        (credentialsToString method.credentials)
+        (credentialsToString req.credentials)
       ]
-    , url = "/api" ++ request.endpoint 
-    , body = request.body
-    , expect = request.expect
+    , url = "/api" ++ req.endpoint 
+    , body = req.body
+    , expect = req.expect
     , timeout = Nothing
     , tracker = Nothing
+    }
+
+
+noAuthRequest :
+  { method : String
+  , endpoint : String
+  , body : Http.Body
+  , expect : Http.Expect msg
+  }
+  -> Cmd msg
+noAuthRequest req = 
+  request
+    { method = req.method
+    , headers = [ ]
+    , url = "https://info-dij-sae001.iut21.u-bourgogne.fr/api" ++ req.endpoint 
+    , body = req.body
+    , expect = req.expect
+    , timeout = Nothing
+    , tracker = Nothing
+    }
+
+
+-- SIGN UP
+
+type alias SignUpPayload =
+  { username : String
+  , email : String
+  , captcha : String
+  }
+
+
+encodeSignUpPayload : SignUpPayload -> Encode.Value
+encodeSignUpPayload payload =
+  Encode.object
+    [ ( "Username", Encode.string payload.username )
+    , ( "Email ", Encode.string payload.email )
+    , ( "Captcha", Encode.string payload.captcha )
+    ]
+
+
+sendSignUpRequest : (Result Error () -> msg) -> SignUpPayload -> Cmd msg
+sendSignUpRequest response payload =
+  noAuthRequest
+    { method = "POST"
+    , endpoint = "/account/signup"
+    , body = jsonBody (encodeSignUpPayload payload)
+    , expect = expectWhatever response
     }
