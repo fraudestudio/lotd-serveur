@@ -134,13 +134,21 @@ namespace Server.Database
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
-                    MySqlDataReader dataReader1 = cmd.ExecuteReader();
-                    string sel = dataReader1.GetString(0);
+                    string sel;
+                    using (MySqlDataReader dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        sel = dataReader.GetString(0);
+                    }
                     cmd = new MySqlCommand(query2, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
                     cmd.Parameters.AddWithValue("@mdp", Utils.Utils.BtoH(password,sel));
-                    result = dataReader1.GetInt32(0);
-                    validate = dataReader1.GetBoolean(1);
+                    using (MySqlDataReader dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        result = dataReader.GetInt32(0);
+                        validate = dataReader.GetBoolean(1);
+                    }
                 }
                 catch (MySqlException ex)
                 {
