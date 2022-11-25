@@ -46,10 +46,7 @@ namespace Server.Controllers.Api
                 Email message = new Email(
                     email,
                     "Mot de passe provisoire",
-                    new PageTemplate("signup_email").render(new {
-                        password = tempPwd,
-                        username = username,
-                    })
+                    Template.Get("signup_email.html").Render(username, tempPwd)
                 );
 
                 message.Send();
@@ -63,11 +60,12 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SignIn()
         {
             String token = Utils.Utils.RandomPassword(30);
-            SignIn result = new SignIn
+            ContentResult result = new ContentResult
             {
-                Success = false,
-                Reason = "Invalid ticket",
-            }; 
+                StatusCode = StatusCodes.Status500InternalServerError,
+                ContentType = "text/plain",
+                Content = "No result",
+            };
 
             int? maybeId = HttpContext.User.UserId();
             bool? maybeValidated = HttpContext.User.IsValidated();
@@ -80,39 +78,41 @@ namespace Server.Controllers.Api
                     {
                         if (await Account.CreateSession(id, token))
                         {
-                            result = new SignIn
-                            {
-                                Success = true,
-                                Validated = true,
-                                SessionToken = token,
-                            };
+                            result.Content = JsonSerializer.Serialize<SignInSuccess>(
+                                new SignInSuccess
+                                {
+                                    Validated = true,
+                                    SessionToken = token,
+                                },
+                                Utils.Utils.DefaultJsonOptions
+                            );
+                            result.ContentType = "application/json; charset=UTF-8";
+                            result.StatusCode = StatusCodes.Status200OK;
                         }
                         else
                         {
-                            result = new SignIn
-                            {
-                                Success = false,
-                                Reason = "Couldn't create session",
-                            };
+                            result.Content = "Couldn't create session";
+                            result.StatusCode = StatusCodes.Status503ServiceUnavailable;
                         }
                     }
                     else
                     {
-                        result = new SignIn
-                        {
-                            Success = true,
-                            Validated = false,
-                        };
+                        result.Content = JsonSerializer.Serialize<SignInSuccess>(
+                            new SignInSuccess
+                            {
+                                Validated = true,
+                                SessionToken = token,
+                            },
+                            Utils.Utils.DefaultJsonOptions
+                        );
+                        result.ContentType = "application/json; charset=UTF-8";
+                        result.StatusCode = StatusCodes.Status200OK;
                     }
 
                 }
             }
 
-            var contentResult = new ContentResult {
-                Content = JsonSerializer.Serialize<SignIn>(result, Utils.Utils.DefaultJsonOptions),
-                ContentType = "application/json; charset=UTF-8",
-            };
-            return contentResult;
+            return result;
         }
     }
 }
