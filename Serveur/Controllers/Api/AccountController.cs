@@ -26,6 +26,7 @@ namespace Server.Controllers.Api
         {
             Captcha captcha = new Captcha(recaptcha_response);
             
+            String tempPwd;
             if (await Account.UserExistsEmail(email))
             {
                 return new RedirectResult("../../signup?error=emailexists", false);
@@ -40,12 +41,15 @@ namespace Server.Controllers.Api
             }
             else
             {
-                String tempPwd = await Account.CreateTemp(email, username);
+                tempPwd = await Account.CreateTemp(email, username);
 
                 Email message = new Email(
                     email,
                     "Mot de passe provisoire",
-                    Template.Get("signup_email.html").Render(username, tempPwd)
+                    new PageTemplate("signup_email").render(new {
+                        password = tempPwd,
+                        username = username,
+                    })
                 );
 
                 message.Send();
@@ -58,34 +62,57 @@ namespace Server.Controllers.Api
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn()
         {
-            String token = Util.RandomPassword(30);
-            String response;
-
-            try {
-                String username = HttpContext.User.Identity!.Name!;
-
-                if (await Account.CreateSession(UserIdentity.Get(username).Id, token))
-                {
-                    SignInSuccess data = new SignInSuccess(token);
-                    response = JsonSerializer.Serialize<SignInSuccess>(data);
-                }
-                else
-                {
-                    SignInFailure data = new SignInFailure("failed to create a session");
-                    response = JsonSerializer.Serialize<SignInFailure>(data);
-                }
-            }
-            catch (NullReferenceException)
+            String token = Utils.Utils.RandomPassword(30);
+            SignIn result = new SignIn
             {
-                SignInFailure data = new SignInFailure("unknown user");
-                response = JsonSerializer.Serialize<SignInFailure>(data);
+                Success = false,
+                Reason = "Invalid ticket",
+            }; 
+
+            int? maybeId = HttpContext.User.UserId();
+            bool? maybeValidated = HttpContext.User.IsValidated();
+
+            if (maybeId is int id)
+            {
+                if (maybeValidated is bool validated)
+                {
+                    if (validated)
+                    {
+                        if (await Account.CreateSession(id, token))
+                        {
+                            result = new SignIn
+                            {
+                                Success = true,
+                                Validated = true,
+                                SessionToken = token,
+                            };
+                        }
+                        else
+                        {
+                            result = new SignIn
+                            {
+                                Success = false,
+                                Reason = "Couldn't create session",
+                            };
+                        }
+                    }
+                    else
+                    {
+                        result = new SignIn
+                        {
+                            Success = true,
+                            Validated = false,
+                        };
+                    }
+
+                }
             }
 
-            var result = new ContentResult {
-                Content = response,
+            var contentResult = new ContentResult {
+                Content = JsonSerializer.Serialize<SignIn>(result, Utils.Utils.DefaultJsonOptions),
                 ContentType = "application/json; charset=UTF-8",
             };
-            return result;
+            return contentResult;
         }
     }
 }
