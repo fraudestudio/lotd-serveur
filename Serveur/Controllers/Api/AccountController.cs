@@ -59,7 +59,6 @@ namespace Server.Controllers.Api
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn()
         {
-            String token = Utils.Utils.RandomPassword(30);
             ContentResult result = new ContentResult
             {
                 StatusCode = StatusCodes.Status500InternalServerError,
@@ -76,6 +75,8 @@ namespace Server.Controllers.Api
                 {
                     if (validated)
                     {
+                        String token = Utils.Utils.RandomPassword(30);
+
                         if (await Account.CreateSession(id, token))
                         {
                             result.Content = JsonSerializer.Serialize<SignInSuccess>(
@@ -100,8 +101,7 @@ namespace Server.Controllers.Api
                         result.Content = JsonSerializer.Serialize<SignInSuccess>(
                             new SignInSuccess
                             {
-                                Validated = true,
-                                SessionToken = token,
+                                Validated = false,
                             },
                             Utils.Utils.DefaultJsonOptions
                         );
