@@ -43,16 +43,18 @@ namespace Server.Auth
                 return AuthenticateResult.Fail("Invalid Authorization Header");
             }
 
-            int? userId = await Account.CheckUsernamePassword(username, password);
-            if (userId == null)
+            (int? maybeUserId, bool validated) = await Account.CheckUsernamePassword(username, password);
+            if (maybeUserId is int userId)
+            {
+                var identity = new UserIdentity("Basic", userId, validated);
+                var principal = new ClaimsPrincipal(identity);
+                var ticket = new AuthenticationTicket(principal, Scheme.Name);
+                return AuthenticateResult.Success(ticket);
+            }
+            else
             {
                 return AuthenticateResult.Fail("Invalid Username or Password");
             }
-
-            var identity = new UserIdentity("Basic", userId ?? -1, username);
-            var principal = new ClaimsPrincipal(identity);
-            var ticket = new AuthenticationTicket(principal, Scheme.Name);
-            return AuthenticateResult.Success(ticket);
         }
 
     }

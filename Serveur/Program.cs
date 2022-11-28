@@ -8,21 +8,24 @@ using Server.Auth;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(opt => {
-    opt.ListenAnyIP(8080, opt => { });
-    opt.ListenAnyIP(8443, opt =>
+    opt.ListenAnyIP(5080, opt => { });
+    opt.ListenAnyIP(5443, opt =>
     {
         opt.UseHttps(
-            /*
             System.Environment.GetEnvironmentVariable("CERTIFICATE_FILE") ?? "",
             System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD" ?? "")
-            //*/
         );
     });
 });
 
 builder.Services.AddControllers();
 
-builder.Services.AddAuthentication("Basic").AddScheme<AuthOptions, BasicAuthenticationHandler>("Basic", null);
+builder.Services
+    .AddAuthentication("Basic")
+    .AddScheme<AuthOptions, BasicAuthenticationHandler>("Basic", null);
+builder.Services
+    .AddAuthentication("Bearer")
+    .AddScheme<AuthOptions, BearerAuthenticationHandler>("Bearer", null);
 
 var app = builder.Build();
 

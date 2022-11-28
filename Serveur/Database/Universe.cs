@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
@@ -13,7 +13,7 @@ namespace Serveur.Database
         /// </summary>
         /// <param name="mdp">mot de passe de l'univers</param>
         /// <param name="nom_univers">nom de l'univers</param>
-        static public async Task<bool> InsertUnivers(string nom_univers, string? mdp, int owner)
+        static public async Task<bool> InsertUniverse(Model.Universe universe, int owner)
         {
             bool result = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -25,8 +25,8 @@ namespace Serveur.Database
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@nom", nom_univers);
-                    cmd.Parameters.AddWithValue("@mdp", mdp);
+                    cmd.Parameters.AddWithValue("@nom", universe.Name);
+                    cmd.Parameters.AddWithValue("@mdp", universe.Password);
                     cmd.Parameters.AddWithValue("@owner", owner);
                     await cmd.ExecuteNonQueryAsync();
                     result = true;
@@ -45,10 +45,10 @@ namespace Serveur.Database
         /// retourne la liste des univers
         /// </summary>
         /// <returns>une liste a deux dimensions se composant de la façons suivant [univers,0(id_univers) 1(nom univers)]</returns>
-       static public async Task<List<(int, string)>> ReturnUniverse()
+       static public async Task<List<Model.Universe>> ReturnUniverse()
        {
-            List<(int, string)> res = new List<(int, string)>();
-
+            int i = 0;
+            List<Model.Universe> res =  new List<Model.Universe>();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {

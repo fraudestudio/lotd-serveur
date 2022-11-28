@@ -9,33 +9,68 @@ namespace Serveur.Controllers.Api
 {
     [ApiController]
     [Route("api/universe")]
-    //[Authorize(AuthenticationSchemes = "Basic")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class UniverseController : Controller
     {
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(UniverseModel universe)
+        public async Task<IActionResult> Create(Model.Universe universe)
         {
-            string response = "";
-            //String userId = HttpContext.User.Identity!.Name!;
+            int? maybeId = HttpContext.User.UserId();
 
-            if (await Universe.InsertUniverse(name, password, owner))
-            {
-                CreateUniverseSuccess data = new CreateUniverseSuccess("Universe create successfully");
-                response = JsonSerializer.Serialize<CreateUniverseSuccess>(data);
+            if (maybeId is int id)
+                {
+                if (await Database.Universe.InsertUniverse(universe, id))
+                {
+                    return new StatusCodeResult(201);
+                }
+                else
+                {
+                    return new ContentResult {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        ContentType = "text/plain",
+                        Content = "can't create universe",
+                    };
+                }
             }
             else
             {
-                CreateUniverseFailure data = new CreateUniverseFailure("Universe could not be created");
-                response = JsonSerializer.Serialize<CreateUniverseFailure>(data);
+                return new ContentResult {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    ContentType = "text/plain",
+                    Content = "unknown user",
+                };
             }
+        }
 
-            var result = new ContentResult
+        [HttpGet("all")]
+        public async Task<IActionResult> All()
+        {
+            int? maybeId = HttpContext.User.UserId();
+
+            if (maybeId is int id)
+                {
+                if (await Database.Universe.ReturnUniverse()
+                {
+                    return new StatusCodeResult(201);
+                }
+                else
+                {
+                    return new ContentResult {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        ContentType = "text/plain",
+                        Content = "can't create universe",
+                    };
+                }
+            }
+            else
             {
-                Content = response,
-                ContentType = "application/json; charset=UTF-8",
-            };
-            return result;
+                return new ContentResult {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    ContentType = "text/plain",
+                    Content = "unknown user",
+                };
+            }
         }
     }
 }

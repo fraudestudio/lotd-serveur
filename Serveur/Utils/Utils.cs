@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Server.Utils
 {
     public class Utils
     {
+        public static JsonSerializerOptions DefaultJsonOptions => new JsonSerializerOptions {
+            AllowTrailingCommas = false,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true,
+        };
+
         private const String ALPHANUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
         static public String RandomPassword(int size)
