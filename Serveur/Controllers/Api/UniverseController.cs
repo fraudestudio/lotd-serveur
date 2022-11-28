@@ -18,18 +18,29 @@ namespace Serveur.Controllers.Api
         {
             string response = "";
             
-            int id = HttpContext.User.Id();
+            int? maybeId = HttpContext.User.UserId();
 
-            if (await Database.Universe.InsertUniverse(name, password, id))
-            {
-                return new StatusCodeResult(201);
+            if (maybeId is int id)
+                {
+                if (await Database.Universe.InsertUniverse(universe.Name, universe.Password, id))
+                {
+                    return new StatusCodeResult(201);
+                }
+                else
+                {
+                    return new ContentResult {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        ContentType = "text/plain",
+                        Content = "can't create universe",
+                    };
+                }
             }
             else
             {
                 return new ContentResult {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     ContentType = "text/plain",
-                    Content = "CAN'T CREATE UNIVERSE",
+                    Content = "unknown user",
                 };
             }
         }

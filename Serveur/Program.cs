@@ -8,8 +8,8 @@ using Server.Auth;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(opt => {
-    opt.ListenAnyIP(80, opt => { });
-    opt.ListenAnyIP(443, opt =>
+    opt.ListenAnyIP(5080, opt => { });
+    opt.ListenAnyIP(5443, opt =>
     {
         opt.UseHttps(
             System.Environment.GetEnvironmentVariable("CERTIFICATE_FILE") ?? "",
@@ -20,7 +20,12 @@ builder.WebHost.ConfigureKestrel(opt => {
 
 builder.Services.AddControllers();
 
-builder.Services.AddAuthentication("Basic").AddScheme<AuthOptions, BasicAuthenticationHandler>("Basic", null);
+builder.Services
+    .AddAuthentication("Basic")
+    .AddScheme<AuthOptions, BasicAuthenticationHandler>("Basic", null);
+builder.Services
+    .AddAuthentication("Bearer")
+    .AddScheme<AuthOptions, BearerAuthenticationHandler>("Bearer", null);
 
 var app = builder.Build();
 
