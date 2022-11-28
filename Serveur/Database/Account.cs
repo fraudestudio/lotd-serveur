@@ -83,10 +83,8 @@ namespace Server.Database
         /// <returns></returns>
         static public async Task<String> CreateTemp(string email, string username)
         {
-
             string sel = Utils.Utils.RandomPassword(32);
             string password = Utils.Utils.RandomPassword(10);
-            
             
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -122,17 +120,7 @@ namespace Server.Database
         /// <returns></returns>
         static public async Task<(int?, bool)> CheckUsernamePassword(string username, string password)
         {
-            if (username == "bob" && password == "mdp")
-            {
-                return 123;
-            }
-            else
-            {
-                return null;
-            }
-
             int? result = null;
-            bool exist;
             bool validate = false;
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -251,7 +239,7 @@ namespace Server.Database
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQueryAsync();
+                    cmd.ExecuteNonQuery();
                     result = true;
                 }
                 catch (MySqlException ex)
@@ -277,7 +265,7 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@mdp", mdp);
                     cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQueryAsync();
+                    cmd.ExecuteNonQuery();
                     result = true;
                 }
                 catch (MySqlException ex)

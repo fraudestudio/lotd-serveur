@@ -63,36 +63,49 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SignIn()
         {
             String token = Utils.Utils.RandomPassword(30);
-            SignIn result;
-
-            try {
-                int id = HttpContext.User.Id();
-
-                if (await Account.CreateSession(id, token))
-                {
-                    result = new SignIn
-                    {
-                        Success = true,
-                        Validated = true,
-                        SessionToken = token,
-                    };
-                }
-                else
-                {
-                    result = new SignIn
-                    {
-                        Success = false,
-                        Reason = "Couldn't create session",
-                    };
-                }
-            }
-            catch (NullReferenceException)
+            SignIn result = new SignIn
             {
-                result = new SignIn
+                Success = false,
+                Reason = "Invalid ticket",
+            }; 
+
+            int? maybeId = HttpContext.User.UserId();
+            bool? maybeValidated = HttpContext.User.IsValidated();
+
+            if (maybeId is int id)
+            {
+                if (maybeValidated is bool validated)
                 {
-                    Success = false,
-                    Reason = "User not found",
-                };
+                    if (validated)
+                    {
+                        if (await Account.CreateSession(id, token))
+                        {
+                            result = new SignIn
+                            {
+                                Success = true,
+                                Validated = true,
+                                SessionToken = token,
+                            };
+                        }
+                        else
+                        {
+                            result = new SignIn
+                            {
+                                Success = false,
+                                Reason = "Couldn't create session",
+                            };
+                        }
+                    }
+                    else
+                    {
+                        result = new SignIn
+                        {
+                            Success = true,
+                            Validated = false,
+                        };
+                    }
+
+                }
             }
 
             var contentResult = new ContentResult {
