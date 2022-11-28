@@ -19,39 +19,56 @@ namespace Server.Controllers.Api
     public class AccountController : Controller
     {
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp(
-            [FromForm] String email,
-            [FromForm] String username,
-            [FromForm(Name = "g-recaptcha-response")] String recaptcha_response)
+        public async Task<IActionResult> SignUp(SignUpRequest signUpRequest)
         {
-            Captcha captcha = new Captcha(recaptcha_response);
+            Captcha captcha = new Captcha(signUpRequest.CaptchaToken);
             
             String tempPwd;
-            if (await Account.UserExistsEmail(email))
+            if (await Account.UserExistsEmail(signUpRequest.Email))
             {
-                return new RedirectResult("../../signup?error=emailexists", false);
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain",
+                    Content = "EMAIL EXISTS",
+                };
             }
-            else if (await Account.UserExists(username))
+            else if (await Account.UserExists(signUpRequest.Username))
             {
-                return new RedirectResult("../../signup?error=usernameexists", false);
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain",
+                    Content = "USERNAME EXISTS",
+                };
             }
             else if (!(await captcha.IsValid()))
             {
-                return new RedirectResult("../../signup?error=invalidcaptcha", false);
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain",
+                    Content = "INVALID CAPTCHA",
+                };
             }
             else
             {
-                tempPwd = await Account.CreateTemp(email, username);
+                tempPwd = await Account.CreateTemp(signUpRequest.Email, signUpRequest.Username);
 
                 Email message = new Email(
                     email,
                     "Mot de passe provisoire",
-                    Template.Get("signup_email.html").Render(username, tempPwd)
+                    Template.Get("signup_email.html").Render(signUpRequest.Username, tempPwd)
                 );
 
                 message.Send();
 
-                return new RedirectResult("../../signup?success=true", false);
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status201Created,
+                    ContentType = "text/plain",
+                    Content = "OK",
+                };
             }
         }
 
