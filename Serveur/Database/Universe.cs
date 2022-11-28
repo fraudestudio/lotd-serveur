@@ -13,7 +13,7 @@ namespace Serveur.Database
         /// </summary>
         /// <param name="mdp">mot de passe de l'univers</param>
         /// <param name="nom_univers">nom de l'univers</param>
-        static public async Task<bool> InsertUnivers(string nom_univers, string? mdp, int owner)
+        static public async Task<bool> InsertUniverse(string nom_univers, string? mdp, int owner)
         {
             bool result = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())

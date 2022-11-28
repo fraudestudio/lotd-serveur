@@ -9,7 +9,7 @@ namespace Serveur.Controllers.Api
 {
     [ApiController]
     [Route("api/universe")]
-    //[Authorize(AuthenticationSchemes = "Basic")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class UniverseController : Controller
     {
 
@@ -17,25 +17,21 @@ namespace Serveur.Controllers.Api
         public async Task<IActionResult> Create(Model.Universe universe)
         {
             string response = "";
-            //String userId = HttpContext.User.Identity!.Name!;
+            
+            int id = HttpContext.User.Id();
 
-            /*if (await Universe.InsertUniverse(name, password, owner))
+            if (await Database.Universe.InsertUniverse(name, password, id))
             {
-                CreateUniverseSuccess data = new CreateUniverseSuccess("Universe create successfully");
-                response = JsonSerializer.Serialize<CreateUniverseSuccess>(data);
+                return new StatusCodeResult(201);
             }
             else
-            {*/
-                CreateUniverseFailure data = new CreateUniverseFailure("Universe could not be created");
-                response = JsonSerializer.Serialize<CreateUniverseFailure>(data);
-            //}
-
-            var result = new ContentResult
             {
-                Content = response,
-                ContentType = "application/json; charset=UTF-8",
-            };
-            return result;
+                return new ContentResult {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    ContentType = "text/plain",
+                    Content = "CAN'T CREATE UNIVERSE",
+                };
+            }
         }
     }
 }
