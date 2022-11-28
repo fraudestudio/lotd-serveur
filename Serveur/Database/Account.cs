@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 
 namespace Server.Database
 {
-	static public class Account
+	 public class Account
 	{
         static public async Task<bool> UserExists(string username)
         {
