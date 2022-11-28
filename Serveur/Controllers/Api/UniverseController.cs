@@ -16,13 +16,41 @@ namespace Serveur.Controllers.Api
         [HttpPost("create")]
         public async Task<IActionResult> Create(Model.Universe universe)
         {
-            string response = "";
-            
             int? maybeId = HttpContext.User.UserId();
 
             if (maybeId is int id)
                 {
-                if (await Database.Universe.InsertUniverse(universe.Name, universe.Password, id))
+                if (await Database.Universe.InsertUniverse(universe, id))
+                {
+                    return new StatusCodeResult(201);
+                }
+                else
+                {
+                    return new ContentResult {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        ContentType = "text/plain",
+                        Content = "can't create universe",
+                    };
+                }
+            }
+            else
+            {
+                return new ContentResult {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    ContentType = "text/plain",
+                    Content = "unknown user",
+                };
+            }
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> All()
+        {
+            int? maybeId = HttpContext.User.UserId();
+
+            if (maybeId is int id)
+                {
+                if (await Database.Universe.ReturnUniverse()
                 {
                     return new StatusCodeResult(201);
                 }

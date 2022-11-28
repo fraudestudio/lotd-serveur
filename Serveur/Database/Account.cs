@@ -206,7 +206,7 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "select ID_JOUEUR from SESSION where TOKEN = @session;";
+                string query = "select ID_JOUEUR from SESSION where TOKEN = @token;";
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
