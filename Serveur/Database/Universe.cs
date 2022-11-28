@@ -55,13 +55,17 @@ namespace Serveur.Database
                 await conn.OpenAsync();
                 try
                 { 
-                    string query = "select ID_UNIVERS , NOM_UNIVERS from UNIVERS;";
+                    string query = "select ID_UNIVERS, NOM_UNIVERS, MDP_SERVEUR from UNIVERS;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
                     
                     while (dataReader.Read())
                     {
-                        res.Add((dataReader.GetInt32(0), dataReader.GetString(1)));
+                        res.Add(new Model.Universe {
+                            Id = dataReader.GetInt32(0),
+                            Name = dataReader.GetString(1),
+                            HasPassword = !dataReader.IsDBNull(2),
+                        });
                         
                     }
                 }
@@ -78,22 +82,51 @@ namespace Serveur.Database
         /// </summary>
         /// <param name="playerId"></param>
         /// <returns></returns>
-        static public async Task<int[]?> UniversPlayer(int playerId)
+        static public async Task<List<Model.Universe>> UniversPlayer(int playerId)
         {
-            int[] result = new int[5];
+            List<Model.Universe> result = new List<Model.Universe>();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "select ID_UNIVERS from JOUE WHERE ID_JOUEUR = @id;";
+                    string query = "select ID_UNIVERS, NOM_UNIVERS from JOUE NATURAL JOIN UNIVERS WHERE ID_JOUEUR = @id;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@id", playerId);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    for (int i = 0; i < 4 ; i++)
-                    {
-                        result[i] = dataReader.GetInt32(0);
+                    while (dataReader.Read()) {
+                        result.Add(new Model.Universe {
+                            Id = dataReader.GetInt32(0),
+                            Name = dataReader.GetString(1),
+                        });
+                    }
+
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return result;
+        }
+
+        static public async Task<Model.Universe> UniversOwned(int playerId)
+        {
+            Model.Universe result = new Model.Universe { };
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "select ID_UNIVERS, NOM_UNIVERS from UNIVERS WHERE OWNER = @id;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", playerId);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read()) {
+                        result.Id = dataReader.GetInt32(0);
+                        result.Name = dataReader.GetString(1);
                     }
 
                 }
