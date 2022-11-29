@@ -8,8 +8,8 @@ using Server.Auth;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(opt => {
-    opt.ListenAnyIP(5080, opt => { });
-    opt.ListenAnyIP(5443, opt =>
+    opt.ListenAnyIP(80, opt => { });
+    opt.ListenAnyIP(443, opt =>
     {
         opt.UseHttps(
             System.Environment.GetEnvironmentVariable("CERTIFICATE_FILE") ?? "",
