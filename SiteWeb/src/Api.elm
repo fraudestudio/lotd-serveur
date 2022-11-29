@@ -1,8 +1,11 @@
-module Api exposing (Credentials(..), sendSignUpRequest)
+module Api exposing (Credentials(..), signUpRequest, Error(..), Result)
 
-import Http exposing (request, jsonBody, expectWhatever, Error)
+import Http exposing (request, jsonBody, expectStringResponse)
 import Json.Encode as Encode
 import Base64.Encode as Base64
+
+
+-- Requests
 
 type Credentials
   = Basic
@@ -68,7 +71,41 @@ noAuthRequest req =
     }
 
 
--- SIGN UP
+-- Expectations
+
+type Error
+  = Internal
+  | Network
+  | Message String
+
+
+type alias Result a = Result.Result Error a
+
+
+expectWhatever : (Result () -> msg) -> Http.Expect msg
+expectWhatever toMsg =
+  expectStringResponse toMsg <|
+    \response ->
+      case response of
+        Http.BadUrl_ url ->
+          Err Internal
+
+        Http.Timeout_ ->
+          Err Network
+
+        Http.NetworkError_ ->
+          Err Network
+
+        Http.BadStatus_ metadata body ->
+          case metadata.statusCode of
+            400 -> Err (Message body)
+            _ -> Err Internal
+
+        Http.GoodStatus_ metadata body ->
+          Ok ()
+
+
+-- Sign up
 
 type alias SignUpPayload =
   { username : String
@@ -86,8 +123,8 @@ encodeSignUpPayload payload =
     ]
 
 
-sendSignUpRequest : (Result Error () -> msg) -> SignUpPayload -> Cmd msg
-sendSignUpRequest response payload =
+signUpRequest : (Result () -> msg) -> SignUpPayload -> Cmd msg
+signUpRequest response payload =
   noAuthRequest
     { method = "POST"
     , endpoint = "/account/signup"

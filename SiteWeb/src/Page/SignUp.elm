@@ -18,7 +18,7 @@ import Session exposing (..)
 import Route exposing (Route, SignUpFragment(..))
 import Component
 import Port
-import Api exposing (sendSignUpRequest)
+import Api
 
 
 type alias Model = 
@@ -48,7 +48,7 @@ type Msg
   | CaptchaExpired
   | CaptchaError
   | SignUpRequest
-  | SignUpResponse (Result Http.Error ())
+  | SignUpResponse (Api.Result ())
 
 
 init : Session -> SignUpFragment -> ( Model, Cmd Msg )
@@ -126,8 +126,8 @@ update msg model =
     ( SignUpRequest, SignUpForm form ) ->
       if form.captchaFilled then
         ( model
-        , sendSignUpRequest SignUpResponse
-          { captcha = ""
+        , Api.signUpRequest SignUpResponse
+          { captcha = form.captchaToken
           , email = form.email
           , username = form.email }
         )
@@ -142,22 +142,21 @@ update msg model =
 
     ( SignUpResponse response, SignUpForm form ) ->
       case response of
-        Err err ->
+        Err Api.Internal ->
           ( { model | section = SignUpForm
-              { form | errorMessage =
-                ( case err of
-                    Http.BadUrl url ->
-                      "Invalid URL " ++ url
-                    Http.Timeout ->
-                      "Request timed out"
-                    Http.NetworkError ->
-                      "Network error"
-                    Http.BadStatus status ->
-                      "Got status code " ++ String.fromInt status
-                    Http.BadBody problem ->
-                      problem
-                )
-              }
+              { form | errorMessage = "Erreur interne" }
+            }
+          , Cmd.none
+          )
+        Err Api.Network ->
+          ( { model | section = SignUpForm
+              { form | errorMessage = "Impossible de se connecter au serveur" }
+            }
+          , Cmd.none
+          )
+        Err (Api.Message message) ->
+          ( { model | section = SignUpForm
+              { form | errorMessage = message }
             }
           , Cmd.none
           )
@@ -165,7 +164,6 @@ update msg model =
 
     _ ->
       ( model, Cmd.none )
-
 
 
 view : Model -> Html Msg
