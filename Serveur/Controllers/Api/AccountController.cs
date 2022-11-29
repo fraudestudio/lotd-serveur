@@ -62,7 +62,7 @@ namespace Server.Controllers.Api
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn()
         {
-            String token = Utils.Utils.RandomPassword(30);
+            String token = Util.RandomPassword(30);
             SignIn result = new SignIn
             {
                 Success = false,
@@ -109,7 +109,7 @@ namespace Server.Controllers.Api
             }
 
             var contentResult = new ContentResult {
-                Content = JsonSerializer.Serialize<SignIn>(result, Utils.Utils.DefaultJsonOptions),
+                Content = JsonSerializer.Serialize<SignIn>(result, Util.DefaultJsonOptions),
                 ContentType = "application/json; charset=UTF-8",
             };
             return contentResult;

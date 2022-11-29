@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Server.Utils
 {
-    public class Utils
+    public class Util
     {
         public static JsonSerializerOptions DefaultJsonOptions => new JsonSerializerOptions {
             AllowTrailingCommas = false,

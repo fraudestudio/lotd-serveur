@@ -2,10 +2,11 @@ using System;
 using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using Server.Utils;
 
 namespace Server.Database
 {
-	static public class Account
+	 public class Account
 	{
         static public async Task<bool> UserExists(string username)
         {
@@ -83,8 +84,8 @@ namespace Server.Database
         /// <returns></returns>
         static public async Task<String> CreateTemp(string email, string username)
         {
-            string sel = Utils.Utils.RandomPassword(32);
-            string password = Utils.Utils.RandomPassword(10);
+            string sel = Util.RandomPassword(32);
+            string password = Util.RandomPassword(10);
             
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -97,7 +98,7 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@adresse_mail",email );
                     cmd.Parameters.AddWithValue("@nom_compte", username);
-                    cmd.Parameters.AddWithValue("@password", Utils.Utils.BtoH(password, sel));
+                    cmd.Parameters.AddWithValue("@password", Util.BtoH(password, sel));
                     cmd.Parameters.AddWithValue("@date_creation", DateTime.Now);
                     cmd.Parameters.AddWithValue("@sel", sel);
 
@@ -135,10 +136,14 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
                     MySqlDataReader dataReader1 = cmd.ExecuteReader();
+                    dataReader1.Read();
                     string sel = dataReader1.GetString(0);
+                    dataReader1.Close();
                     cmd = new MySqlCommand(query2, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
-                    cmd.Parameters.AddWithValue("@mdp", Utils.Utils.BtoH(password,sel));
+                    cmd.Parameters.AddWithValue("@mdp", Util.BtoH(password,sel));
+                    dataReader1 = cmd.ExecuteReader();
+                    dataReader1.Read();
                     result = dataReader1.GetInt32(0);
                     validate = dataReader1.GetBoolean(1);
                 }
@@ -206,7 +211,7 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "select ID_JOUEUR from SESSION where TOKEN = @session;";
+                string query = "select ID_JOUEUR from SESSION where TOKEN = @token;";
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);

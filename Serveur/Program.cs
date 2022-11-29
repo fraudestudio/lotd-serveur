@@ -20,7 +20,12 @@ builder.WebHost.ConfigureKestrel(opt => {
 
 builder.Services.AddControllers();
 
-builder.Services.AddAuthentication("Basic").AddScheme<AuthOptions, BasicAuthenticationHandler>("Basic", null);
+builder.Services
+    .AddAuthentication("Basic")
+    .AddScheme<AuthOptions, BasicAuthenticationHandler>("Basic", null);
+builder.Services
+    .AddAuthentication("Bearer")
+    .AddScheme<AuthOptions, BearerAuthenticationHandler>("Bearer", null);
 
 var app = builder.Build();
 
