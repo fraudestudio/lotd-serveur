@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using Server.Utils;
 
 namespace Server.Database
 {
@@ -83,8 +84,8 @@ namespace Server.Database
         /// <returns></returns>
         static public async Task<String> CreateTemp(string email, string username)
         {
-            string sel = Utils.Utils.RandomPassword(32);
-            string password = Utils.Utils.RandomPassword(10);
+            string sel = Util.RandomPassword(32);
+            string password = Util.RandomPassword(10);
             
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -97,7 +98,7 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@adresse_mail",email );
                     cmd.Parameters.AddWithValue("@nom_compte", username);
-                    cmd.Parameters.AddWithValue("@password", Utils.Utils.BtoH(password, sel));
+                    cmd.Parameters.AddWithValue("@password", Util.BtoH(password, sel));
                     cmd.Parameters.AddWithValue("@date_creation", DateTime.Now);
                     cmd.Parameters.AddWithValue("@sel", sel);
 
@@ -140,7 +141,7 @@ namespace Server.Database
                     dataReader1.Close();
                     cmd = new MySqlCommand(query2, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
-                    cmd.Parameters.AddWithValue("@mdp", Utils.Utils.BtoH(password,sel));
+                    cmd.Parameters.AddWithValue("@mdp", Util.BtoH(password,sel));
                     dataReader1 = cmd.ExecuteReader();
                     dataReader1.Read();
                     result = dataReader1.GetInt32(0);

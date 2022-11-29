@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Auth;
-using Serveur.Database;
-using Serveur.Model;
+using Server.Database;
+using Server.Model;
+using Server.Utils;
 using System.Text.Json;
 
-namespace Serveur.Controllers.Api
+namespace Server.Controllers.Api
 {
     [ApiController]
     [Route("api/universe")]
@@ -53,7 +54,7 @@ namespace Serveur.Controllers.Api
                 var result = await Database.Universe.ReturnUniverse();
 
                 return new ContentResult {
-                    Content = JsonSerializer.Serialize<List<Model.Universe>>(result, Utils.Utils.DefaultJsonOptions),
+                    Content = JsonSerializer.Serialize<List<Model.Universe>>(result, Util.DefaultJsonOptions),
                     ContentType = "application/json; charset=UTF-8",
                 };
             }
@@ -74,10 +75,10 @@ namespace Serveur.Controllers.Api
 
             if (maybeId is int id)
             {
-                var result = await Database.Universe.UniversPlayer();
+                var result = await Database.Universe.UniversPlayer(id);
 
                 return new ContentResult {
-                    Content = JsonSerializer.Serialize<List<Model.Universe>>(result, Utils.Utils.DefaultJsonOptions),
+                    Content = JsonSerializer.Serialize<List<Model.Universe>>(result, Util.DefaultJsonOptions),
                     ContentType = "application/json; charset=UTF-8",
                 };
             }
@@ -98,10 +99,10 @@ namespace Serveur.Controllers.Api
 
             if (maybeId is int id)
             {
-                var result = await Database.Universe.UniversOwned();
+                var result = await Database.Universe.UniversOwned(id);
 
                 return new ContentResult {
-                    Content = JsonSerializer.Serialize<Model.Universe>(result, Utils.Utils.DefaultJsonOptions),
+                    Content = JsonSerializer.Serialize<Model.Universe>(result, Util.DefaultJsonOptions),
                     ContentType = "application/json; charset=UTF-8",
                 };
             }

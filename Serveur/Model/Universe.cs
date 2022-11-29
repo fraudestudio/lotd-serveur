@@ -1,4 +1,4 @@
-﻿namespace Serveur.Model
+﻿namespace Server.Model
 {
     public class Universe
     {

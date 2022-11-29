@@ -4,7 +4,7 @@ using MySql.Data;
 using MySql.Data.MySqlClient;
 using Server.Database;
 
-namespace Serveur.Database
+namespace Server.Database
 {
     public class Universe
     {
@@ -47,7 +47,6 @@ namespace Serveur.Database
         /// <returns>une liste a deux dimensions se composant de la façons suivant [univers,0(id_univers) 1(nom univers)]</returns>
        static public async Task<List<Model.Universe>> ReturnUniverse()
        {
-            int i = 0;
             List<Model.Universe> res =  new List<Model.Universe>();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -196,7 +195,7 @@ namespace Serveur.Database
             return res;
         }
 
-        static public async Task<string> MajoritaryFaction(int idU)
+        static public async Task<string?> MajoritaryFaction(int idU)
         {
             string? res = null;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
