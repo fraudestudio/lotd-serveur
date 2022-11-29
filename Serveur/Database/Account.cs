@@ -135,10 +135,14 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
                     MySqlDataReader dataReader1 = cmd.ExecuteReader();
+                    dataReader1.Read();
                     string sel = dataReader1.GetString(0);
+                    dataReader1.Close();
                     cmd = new MySqlCommand(query2, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
                     cmd.Parameters.AddWithValue("@mdp", Utils.Utils.BtoH(password,sel));
+                    dataReader1 = cmd.ExecuteReader();
+                    dataReader1.Read();
                     result = dataReader1.GetInt32(0);
                     validate = dataReader1.GetBoolean(1);
                 }
