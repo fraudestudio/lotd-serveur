@@ -19,42 +19,51 @@ namespace Server.Controllers.Api
     public class AccountController : Controller
     {
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp(
-            [FromForm] String email,
-            [FromForm] String username,
-            [FromForm(Name = "g-recaptcha-response")] String recaptcha_response)
+        public async Task<IActionResult> SignUp(SignUpRequest signUpRequest)
         {
-            Captcha captcha = new Captcha(recaptcha_response);
+            Captcha captcha = new Captcha(signUpRequest.CaptchaToken);
             
             String tempPwd;
-            if (await Account.UserExistsEmail(email))
+            if (await Account.UserExistsEmail(signUpRequest.Email))
             {
-                return new RedirectResult("../../signup?error=emailexists", false);
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain",
+                    Content = "Cette adresse mail est déja utilisée",
+                };
             }
-            else if (await Account.UserExists(username))
+            else if (await Account.UserExists(signUpRequest.Username))
             {
-                return new RedirectResult("../../signup?error=usernameexists", false);
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain",
+                    Content = "Ce nom d'utilisateur est déja utilisé",
+                };
             }
             else if (!(await captcha.IsValid()))
             {
-                return new RedirectResult("../../signup?error=invalidcaptcha", false);
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain",
+                    Content = "Le CAPTCHA n'a pas été validé ou a expiré",
+                };
             }
             else
             {
-                tempPwd = await Account.CreateTemp(email, username);
+                tempPwd = await Account.CreateTemp(signUpRequest.Email, signUpRequest.Username);
 
                 Email message = new Email(
-                    email,
+                    signUpRequest.Email,
                     "Mot de passe provisoire",
-                    new PageTemplate("signup_email").render(new {
-                        password = tempPwd,
-                        username = username,
-                    })
+                    Template.Get("signup_email.html").Render(signUpRequest.Username, tempPwd)
                 );
 
                 message.Send();
 
-                return new RedirectResult("../../signup?success=true", false);
+                return new StatusCodeResult(201);
             }
         }
 
@@ -62,12 +71,12 @@ namespace Server.Controllers.Api
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn()
         {
-            String token = Util.RandomPassword(30);
-            SignIn result = new SignIn
+            ContentResult result = new ContentResult
             {
-                Success = false,
-                Reason = "Invalid ticket",
-            }; 
+                StatusCode = StatusCodes.Status500InternalServerError,
+                ContentType = "text/plain",
+                Content = "No result",
+            };
 
             int? maybeId = HttpContext.User.UserId();
             bool? maybeValidated = HttpContext.User.IsValidated();
@@ -78,41 +87,44 @@ namespace Server.Controllers.Api
                 {
                     if (validated)
                     {
+                        String token = Utils.Utils.RandomPassword(30);
+
                         if (await Account.CreateSession(id, token))
                         {
-                            result = new SignIn
-                            {
-                                Success = true,
-                                Validated = true,
-                                SessionToken = token,
-                            };
+                            result.Content = JsonSerializer.Serialize<SignInSuccess>(
+                                new SignInSuccess
+                                {
+                                    Validated = true,
+                                    SessionToken = token,
+                                },
+                                Utils.Utils.DefaultJsonOptions
+                            );
+                            result.ContentType = "application/json; charset=UTF-8";
+                            result.StatusCode = StatusCodes.Status200OK;
                         }
                         else
                         {
-                            result = new SignIn
-                            {
-                                Success = false,
-                                Reason = "Couldn't create session",
-                            };
+                            result.Content = "Couldn't create session";
+                            result.StatusCode = StatusCodes.Status503ServiceUnavailable;
                         }
                     }
                     else
                     {
-                        result = new SignIn
-                        {
-                            Success = true,
-                            Validated = false,
-                        };
+                        result.Content = JsonSerializer.Serialize<SignInSuccess>(
+                            new SignInSuccess
+                            {
+                                Validated = false,
+                            },
+                            Utils.Utils.DefaultJsonOptions
+                        );
+                        result.ContentType = "application/json; charset=UTF-8";
+                        result.StatusCode = StatusCodes.Status200OK;
                     }
 
                 }
             }
 
-            var contentResult = new ContentResult {
-                Content = JsonSerializer.Serialize<SignIn>(result, Util.DefaultJsonOptions),
-                ContentType = "application/json; charset=UTF-8",
-            };
-            return contentResult;
+            return result;
         }
     }
 }

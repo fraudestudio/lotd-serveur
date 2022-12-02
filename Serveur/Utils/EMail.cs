@@ -30,6 +30,7 @@ namespace Server.Utils
 				catch (Exception e)
 				{
 					Console.WriteLine("Couldn't send email: {0}", e);
+					Email._messageQueue.Add(message);
 				}
 			}
 		}
