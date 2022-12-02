@@ -143,7 +143,7 @@ namespace Server.Database
                     }
                     cmd = new MySqlCommand(query2, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
-                    cmd.Parameters.AddWithValue("@mdp", Utils.Utils.BtoH(password,sel));
+                    cmd.Parameters.AddWithValue("@mdp", Util.BtoH(password,sel));
                     using (MySqlDataReader dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();

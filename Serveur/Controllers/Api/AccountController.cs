@@ -87,7 +87,7 @@ namespace Server.Controllers.Api
                 {
                     if (validated)
                     {
-                        String token = Utils.Utils.RandomPassword(30);
+                        String token = Util.RandomPassword(30);
 
                         if (await Account.CreateSession(id, token))
                         {
@@ -97,7 +97,7 @@ namespace Server.Controllers.Api
                                     Validated = true,
                                     SessionToken = token,
                                 },
-                                Utils.Utils.DefaultJsonOptions
+                                Util.DefaultJsonOptions
                             );
                             result.ContentType = "application/json; charset=UTF-8";
                             result.StatusCode = StatusCodes.Status200OK;
@@ -115,7 +115,7 @@ namespace Server.Controllers.Api
                             {
                                 Validated = false,
                             },
-                            Utils.Utils.DefaultJsonOptions
+                            Util.DefaultJsonOptions
                         );
                         result.ContentType = "application/json; charset=UTF-8";
                         result.StatusCode = StatusCodes.Status200OK;
