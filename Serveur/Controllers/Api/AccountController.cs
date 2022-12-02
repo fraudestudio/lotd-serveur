@@ -30,7 +30,7 @@ namespace Server.Controllers.Api
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     ContentType = "text/plain",
-                    Content = "EMAIL EXISTS",
+                    Content = "Cette adresse mail est déja utilisée",
                 };
             }
             else if (await Account.UserExists(signUpRequest.Username))
@@ -39,7 +39,7 @@ namespace Server.Controllers.Api
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     ContentType = "text/plain",
-                    Content = "USERNAME EXISTS",
+                    Content = "Ce nom d'utilisateur est déja utilisé",
                 };
             }
             else if (!(await captcha.IsValid()))
@@ -48,7 +48,7 @@ namespace Server.Controllers.Api
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     ContentType = "text/plain",
-                    Content = "INVALID CAPTCHA",
+                    Content = "Le CAPTCHA n'a pas été validé ou a expiré",
                 };
             }
             else
@@ -56,19 +56,14 @@ namespace Server.Controllers.Api
                 tempPwd = await Account.CreateTemp(signUpRequest.Email, signUpRequest.Username);
 
                 Email message = new Email(
-                    email,
+                    signUpRequest.Email,
                     "Mot de passe provisoire",
                     Template.Get("signup_email.html").Render(signUpRequest.Username, tempPwd)
                 );
 
                 message.Send();
 
-                return new ContentResult
-                {
-                    StatusCode = StatusCodes.Status201Created,
-                    ContentType = "text/plain",
-                    Content = "OK",
-                };
+                return new StatusCodeResult(201);
             }
         }
 
