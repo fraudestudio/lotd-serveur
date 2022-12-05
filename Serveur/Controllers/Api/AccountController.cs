@@ -21,6 +21,10 @@ namespace Server.Controllers.Api
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(SignUpRequest signUpRequest)
         {
+            Console.WriteLine($"SignUpRequest.Email: \"{signUpRequest.Email}\"");
+            Console.WriteLine($"SignUpRequest.Username: \"{signUpRequest.Username}\"");
+            Console.WriteLine($"SignUpRequest.CaptchaToken: \"{signUpRequest.CaptchaToken}\"");
+        
             Captcha captcha = new Captcha(signUpRequest.CaptchaToken);
             
             String tempPwd;
