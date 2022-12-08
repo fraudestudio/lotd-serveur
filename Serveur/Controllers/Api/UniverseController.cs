@@ -117,7 +117,7 @@ namespace Server.Controllers.Api
         }
 
 
-        [HttpGet("v/{idUniv}")]
+        [HttpGet("{idUniv}")]
         public async Task<IActionResult> HasVillage(int idUniv)
         {
             int? maybeId = HttpContext.User.UserId();
