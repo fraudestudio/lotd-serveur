@@ -66,7 +66,7 @@ namespace Serveur.Database
         static public async Task<bool> initBatiment(int idV)
         {
             bool res = false;
-            string[] bat = { "TAVERNE", "FORGERON", "ENTREPOT", "CAMP D'ENTRAINEMENT", "INFIRMERIE" };
+            string[] bat = { "TAVERNE", "FORGERON", "ENTREPOT", "CAMP_DENTRAINEMENT", "INFIRMERIE" };
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {

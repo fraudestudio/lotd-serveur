@@ -80,9 +80,9 @@ namespace Server.Database
         /// retourne la liste des univers
         /// </summary>
         /// <returns>une liste a deux dimensions se composant de la façons suivant [univers,0(id_univers) 1(nom univers)]</returns>
-        static public async Task<List<Model.Universe>> ReturnUniverseById(int id)
+        static public async Task<Model.Universe> ReturnUniverseById(int id)
         {
-            List<Model.Universe> res = new List<Model.Universe>();
+            Model.Universe res = new Model.Universe();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -95,12 +95,11 @@ namespace Server.Database
 
                     while (dataReader.Read())
                     {
-                        res.Add(new Model.Universe
-                        {
-                            Id = dataReader.GetInt32(0),
-                            Name = dataReader.GetString(1),
-                            HasPassword = !dataReader.IsDBNull(2),
-                        });
+                        res = new Model.Universe{
+                            Id = id,
+                            Name = dataReader.GetString(0),
+                            HasPassword = !dataReader.IsDBNull(1)
+                        };
 
                     }
                 }
