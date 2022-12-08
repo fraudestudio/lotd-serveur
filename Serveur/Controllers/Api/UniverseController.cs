@@ -155,38 +155,6 @@ namespace Server.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Send the village name
-        /// </summary>
-        /// <param name="idVill"></param>
-        /// <returns></returns>
-        [HttpGet("{idVill}Village")]
-        public async Task<IActionResult> GetVillageName(int idVill)
-        {
-            int? maybeId = HttpContext.User.UserId();
-
-            if (maybeId is int id)
-            {
-
-                var result = new { Name = await Database.Universe.PlayerVillageName(id, idVill) };
-
-                return new ContentResult
-                {
-                    Content = JsonSerializer.Serialize(result),
-                    ContentType = "application/json; charset=UTF-8",
-                };
-            }
-            else
-            {
-                return new ContentResult
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    ContentType = "text/plain",
-                    Content = "unknown user",
-                };
-            }
-        }
-
 
         /// <summary>
         /// Send the major faction of an universe
