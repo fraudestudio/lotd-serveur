@@ -115,5 +115,36 @@ namespace Server.Controllers.Api
                 };
             }
         }
+
+
+        [HttpGet("v/{idUniv}")]
+        public async Task<IActionResult> HasVillage(int idUniv)
+        {
+            int? maybeId = HttpContext.User.UserId();
+
+            if (maybeId is int id)
+            {
+                var result = new Model.Universe()
+                {
+                    Town = await Database.Universe.PlayerHaveVillageInUnivers(id, idUniv),
+                };
+
+                return new ContentResult
+                {
+                    Content = JsonSerializer.Serialize<Model.Universe>(result, Util.DefaultJsonOptions),
+                    ContentType = "application/json; charset=UTF-8",
+                };
+            }
+            else
+            {
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    ContentType = "text/plain",
+                    Content = "unknown user",
+                };
+            }
+        }
+
     }
 }
