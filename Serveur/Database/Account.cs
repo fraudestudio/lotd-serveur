@@ -23,15 +23,6 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@compte", username);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
                     result = await dataReader.ReadAsync();
-                    Console.WriteLine(result);
-                    if (result)
-                    {
-                        result = true;
-                    }
-                    else
-                    {
-                        result = false;
-                    }
                 }
                 catch (MySqlException ex)
                 {
@@ -41,9 +32,10 @@ namespace Server.Database
             return result;
         }
 
-		static public async Task<bool> UserExistsEmail(string emailAddress)
+		static public async Task<int?> UserExistsEmail(string emailAddress)
         {
-            bool result = true;
+            int? result = null;
+
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
@@ -56,16 +48,10 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@mail", emailAddress);
 
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    result = await dataReader.ReadAsync();
-
-                    if (result)
+                    if (dataReader.Read())
                     {
-                        result = true;
+                        result = dataReader.GetInt32(0);
                     } 
-                    else
-                    {
-                        result = false;
-                    }
                 }
                 catch (MySqlException ex)
                 {
@@ -250,6 +236,40 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@id", id);
                     cmd.ExecuteNonQuery();
                     result = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return result;
+        }
+
+        static public async Task<Model.Account?> UserInfo(int id)
+        {
+            Model.Account? result = null;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "SELECT NOM_COMPTE, ADDRESS_MAIL, VALIDE FROM JOUEUR WHERE ID_JOUEUR = @id; ";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    using (MySqlDataReader reader = cmd.ExecuteReader()) 
+                    {
+                        if (reader.Read())
+                        {
+                            result = new Model.Account(
+                                reader.GetString(0),
+                                reader.GetString(1),
+                                reader.GetBoolean(2)
+                            );
+                        }
+                    }
                 }
                 catch (MySqlException ex)
                 {

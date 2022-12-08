@@ -22,18 +22,34 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SignUp(SignUpRequest signUpRequest)
         {
             Captcha captcha = new Captcha(signUpRequest.CaptchaToken);
-            
-            String tempPwd;
-            if (await Account.UserExistsEmail(signUpRequest.Email))
+            int? maybeId = await Database.Account.UserExistsEmail(signUpRequest.Email);
+
+            if (maybeId is int id)
             {
-                return new ContentResult
+                if (await Database.Account.UserInfo(id) is Model.Account info)
                 {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    ContentType = "text/plain",
-                    Content = "Cette adresse mail est déja utilisée",
-                };
+                    if (info.IsValidated || info.Username != signUpRequest.Username)
+                    {
+                        return new ContentResult
+                        {
+                            StatusCode = StatusCodes.Status400BadRequest,
+                            ContentType = "text/plain",
+                            Content = "Cette adresse mail est déja utilisée",
+                        };
+                    }
+                }
+                else
+                {
+                    return new ContentResult
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        ContentType = "text/plain",
+                        Content = "Cette adresse mail est déja utilisée",
+                    };
+                }
             }
-            else if (await Account.UserExists(signUpRequest.Username))
+            
+            if (await Database.Account.UserExists(signUpRequest.Username))
             {
                 return new ContentResult
                 {
@@ -42,7 +58,8 @@ namespace Server.Controllers.Api
                     Content = "Ce nom d'utilisateur est déja utilisé",
                 };
             }
-            else if (!(await captcha.IsValid()))
+            
+            if (!(await captcha.IsValid()))
             {
                 return new ContentResult
                 {
@@ -51,20 +68,18 @@ namespace Server.Controllers.Api
                     Content = "Le CAPTCHA n'a pas été validé ou a expiré",
                 };
             }
-            else
-            {
-                tempPwd = await Account.CreateTemp(signUpRequest.Email, signUpRequest.Username);
+            
+            String tempPwd = await Database.Account.CreateTemp(signUpRequest.Email, signUpRequest.Username);
 
-                Email message = new Email(
-                    signUpRequest.Email,
-                    "Mot de passe provisoire",
-                    Template.Get("signup_email.html").Render(signUpRequest.Username, tempPwd)
-                );
+            Email message = new Email(
+                signUpRequest.Email,
+                "Mot de passe provisoire",
+                Template.Get("signup_email.html").Render(signUpRequest.Username, tempPwd)
+            );
 
-                message.Send();
+            message.Send();
 
-                return new StatusCodeResult(201);
-            }
+            return new StatusCodeResult(201);
         }
 
         [Authorize(AuthenticationSchemes="Basic")]
@@ -89,7 +104,7 @@ namespace Server.Controllers.Api
                     {
                         String token = Util.RandomPassword(30);
 
-                        if (await Account.CreateSession(id, token))
+                        if (await Database.Account.CreateSession(id, token))
                         {
                             result.Content = JsonSerializer.Serialize<SignInSuccess>(
                                 new SignInSuccess
