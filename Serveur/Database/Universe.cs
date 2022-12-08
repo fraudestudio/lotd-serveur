@@ -181,6 +181,7 @@ namespace Server.Database
         static public async Task<int?> PlayerHaveVillageInUnivers(int idJ, int idU)
         {
             int? res = null;
+
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
