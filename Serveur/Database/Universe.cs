@@ -205,6 +205,42 @@ namespace Server.Database
             return res;
         }
 
+
+
+        /// <summary>
+        /// Return the number of village in a universe
+        /// </summary>
+        /// <param name="idU">ID of the universe</param>
+        /// <returns>Number of village in the universe</returns>
+        static public async Task<int?> GetVillageCountInUniverse(int idU)
+        {
+            int? res = null;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT COUNT(ID_UNIVERS) FROM VILLAGE WHERE ID_UNIVERS = @idU;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idU", idU);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetInt32(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+
+
+
         /// <summary>
         /// renvoie le nom du village du joueur 
         /// </summary>
