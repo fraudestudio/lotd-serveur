@@ -209,7 +209,7 @@ namespace Server.Database
         /// renvoie le nom du village du joueur 
         /// </summary>
         /// <param name="idJ"></param>
-        /// <param name="idU"></param>
+        /// <param name="idV"></param>
         /// <returns></returns>
         static public async Task<string?> PlayerVillageName(int idJ, int idV)
         {
@@ -224,7 +224,10 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@idJ", idJ);
                     cmd.Parameters.AddWithValue("@idV", idV);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    res = dataReader.GetString(0);
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetString(0);
+                    }
                 }
                 catch (MySqlException ex)
                 {
@@ -242,11 +245,14 @@ namespace Server.Database
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "select FACTION from VILLAGE WHERE ID_UNIVERS = @idU and COUNT(FACTION) = MAX(COUNT(FACTION));";
+                    string query = "select MAX(FACTION) from VILLAGE WHERE ID_UNIVERS = @idU;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idU", idU);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    res = dataReader.GetString(0);
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetString(0);
+                    }
                 }
                 catch (MySqlException ex)
                 {
