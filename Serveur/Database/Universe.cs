@@ -77,6 +77,41 @@ namespace Server.Database
        }
 
         /// <summary>
+        /// retourne la liste des univers
+        /// </summary>
+        /// <returns>une liste a deux dimensions se composant de la façons suivant [univers,0(id_univers) 1(nom univers)]</returns>
+        static public async Task<Model.Universe> ReturnUniverseById(int id)
+        {
+            Model.Universe res = new Model.Universe();
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "select NOM_UNIVERS, MDP_SERVEUR from UNIVERS WHERE ID_UNIVERS = @id;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+
+                    while (dataReader.Read())
+                    {
+                        res = new Model.Universe{
+                            Id = id,
+                            Name = dataReader.GetString(0),
+                            HasPassword = !dataReader.IsDBNull(1)
+                        };
+
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="playerId"></param>
@@ -146,6 +181,7 @@ namespace Server.Database
         static public async Task<int?> PlayerHaveVillageInUnivers(int idJ, int idU)
         {
             int? res = null;
+
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
@@ -156,7 +192,10 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@idJ", idJ);
                     cmd.Parameters.AddWithValue("@idU", idU);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    res = dataReader.GetInt32(0);  
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetInt32(0);
+                    }
                 }
                 catch (MySqlException ex)
                 {
