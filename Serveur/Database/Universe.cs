@@ -191,7 +191,10 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@idJ", idJ);
                     cmd.Parameters.AddWithValue("@idU", idU);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    res = dataReader.GetInt32(0);  
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetInt32(0);
+                    }
                 }
                 catch (MySqlException ex)
                 {
