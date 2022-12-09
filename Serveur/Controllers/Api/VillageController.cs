@@ -15,9 +15,46 @@ namespace Server.Controllers.Api
     {
 
         /// <summary>
+        /// Send a request to create a village
+        /// </summary>
+        /// <param name="village">Village paramater</param>
+        /// <returns></returns>
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateVillage(Model.Village village)
+        {
+            int? maybeId = HttpContext.User.UserId();
+
+            if (maybeId is int id)
+            {
+                if (await Database.VillageDB.InsertVillage(village, id))
+                {
+                    return new StatusCodeResult(201);
+                }
+                else
+                {
+                    return new ContentResult
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        ContentType = "text/plain",
+                        Content = "can't create universe",
+                    };
+                }
+            }
+            else
+            {
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    ContentType = "text/plain",
+                    Content = "unknown user",
+                };
+            }
+        }
+
+        /// <summary>
         /// Send the village name
         /// </summary>
-        /// <param name="idVill"></param>
+        /// <param name="idVill">id of the village</param>
         /// <returns></returns>
         [HttpGet("/name/{idVill}")]
         public async Task<IActionResult> GetVillageName(int idVill)
