@@ -161,7 +161,7 @@ namespace Server.Controllers.Api
         /// </summary>
         /// <param name="idUniv"></param>
         /// <returns></returns>
-        [HttpGet("{idUniv}Faction")]
+        [HttpGet("Faction/{idUniv}")]
         public async Task<IActionResult> GetMajorFaction(int idUniv)
         {
             var result = new { Faction = await Database.Universe.MajoritaryFaction(idUniv) };
@@ -171,6 +171,24 @@ namespace Server.Controllers.Api
                 Content = JsonSerializer.Serialize(result),
                 ContentType = "application/json; charset=UTF-8",
 
+            };
+        }
+
+
+        /// <summary>
+        /// Send the major faction of an universe
+        /// </summary>
+        /// <param name="idUniv"></param>
+        /// <returns></returns>
+        [HttpGet("CountVillage/{idUniv}")]
+        public async Task<IActionResult> GetCountVillage(int idUniv)
+        {
+            var result = new { NumberVillage = await Database.Universe.GetVillageCountInUniverse(idUniv) };
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
             };
         }
 
