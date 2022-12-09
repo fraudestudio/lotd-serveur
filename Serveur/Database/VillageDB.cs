@@ -4,13 +4,19 @@ using MySql.Data;
 using MySql.Data.MySqlClient;
 using Server.Database;
 
-namespace Serveur.Database
+namespace Server.Database
 {
     public class VillageDB
     {
 
 
-        static public async Task<bool> InsertVillage(int idU, int idJ, string faction, string nomV)
+        /// <summary>
+        /// Create the village of the player in a universe 
+        /// </summary>
+        /// <param name="v">Village</param>
+        /// <param name="idJ">ID of the player</param>
+        /// <returns></returns>
+        static public async Task<bool> InsertVillage(Model.Village v,  int idJ)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -21,10 +27,10 @@ namespace Serveur.Database
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@faction", faction);
+                    cmd.Parameters.AddWithValue("@faction", v.Faction);
                     cmd.Parameters.AddWithValue("@idJ", idJ);
-                    cmd.Parameters.AddWithValue("@idU", idU);
-                    cmd.Parameters.AddWithValue("@nomV", nomV);
+                    cmd.Parameters.AddWithValue("@idU", v.IdUnivers);
+                    cmd.Parameters.AddWithValue("@nomV", v.Name);
                     await cmd.ExecuteNonQueryAsync();
                     res = true;
                 }

@@ -68,6 +68,7 @@ namespace Server.Controllers.Api
             }
         }
 
+
         [HttpGet("joined")]
         public async Task<IActionResult> Joined()
         {
@@ -92,6 +93,10 @@ namespace Server.Controllers.Api
             }
         }
 
+        /// <summary>
+        /// Sends back the universe of the player
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("owned")]
         public async Task<IActionResult> Owned()
         {
@@ -116,7 +121,11 @@ namespace Server.Controllers.Api
             }
         }
 
-
+        /// <summary>
+        /// Send back if the users had a village 
+        /// </summary>
+        /// <param name="idUniv"></param>
+        /// <returns></returns>
         [HttpGet("{idUniv}")]
         public async Task<IActionResult> HasVillage(int idUniv)
         {
@@ -144,6 +153,43 @@ namespace Server.Controllers.Api
                     Content = "unknown user",
                 };
             }
+        }
+
+
+        /// <summary>
+        /// Send the major faction of an universe
+        /// </summary>
+        /// <param name="idUniv"></param>
+        /// <returns></returns>
+        [HttpGet("Faction/{idUniv}")]
+        public async Task<IActionResult> GetMajorFaction(int idUniv)
+        {
+            var result = new { Faction = await Database.Universe.MajoritaryFaction(idUniv) };
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+
+            };
+        }
+
+
+        /// <summary>
+        /// Send the major faction of an universe
+        /// </summary>
+        /// <param name="idUniv"></param>
+        /// <returns></returns>
+        [HttpGet("CountVillage/{idUniv}")]
+        public async Task<IActionResult> GetCountVillage(int idUniv)
+        {
+            var result = new { NumberVillage = await Database.Universe.GetVillageCountInUniverse(idUniv) };
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
         }
 
     }
