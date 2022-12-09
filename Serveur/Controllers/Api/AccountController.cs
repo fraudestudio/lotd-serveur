@@ -23,12 +23,19 @@ namespace Server.Controllers.Api
         {
             Captcha captcha = new Captcha(signUpRequest.CaptchaToken);
             int? maybeId = await Database.Account.UserExistsEmail(signUpRequest.Email);
+            bool regeneratePassword = false;
 
             if (maybeId is int id)
             {
                 if (await Database.Account.UserInfo(id) is Model.Account info)
                 {
-                    if (info.IsValidated || info.Username != signUpRequest.Username)
+                    // Si un compte temporaire existe déjà avec le même nom d'utilisateur
+                    // et addresse mail, le compte est remplacé par un nouveau
+                    if (!info.IsValidated && info.Username == signUpRequest.Username)
+                    {
+                        regeneratePassword = true;
+                    }
+                    else
                     {
                         return new ContentResult
                         {
@@ -48,8 +55,7 @@ namespace Server.Controllers.Api
                     };
                 }
             }
-            
-            if (await Database.Account.UserExists(signUpRequest.Username))
+            else if (await Database.Account.UserExists(signUpRequest.Username))
             {
                 return new ContentResult
                 {
@@ -69,7 +75,21 @@ namespace Server.Controllers.Api
                 };
             }
             
-            String tempPwd = await Database.Account.CreateTemp(signUpRequest.Email, signUpRequest.Username);
+            String tempPwd = Util.RandomPassword(10);
+            if (regeneratePassword)
+            {
+                if (!await Database.Account.UpdateMDP(tempPwd, maybeId.Value))
+                {
+                    return new StatusCodeResult(503);
+                }
+            }
+            else
+            {
+                if (!await Database.Account.CreateTemp(signUpRequest.Email, signUpRequest.Username, tempPwd))
+                {
+                    return new StatusCodeResult(503);
+                }
+            }
 
             Email message = new Email(
                 signUpRequest.Email,

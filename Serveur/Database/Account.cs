@@ -68,10 +68,9 @@ namespace Server.Database
         /// <param name="email"></param>
         /// <param name="username"></param>
         /// <returns></returns>
-        static public async Task<String> CreateTemp(string email, string username)
+        static public async Task<bool> CreateTemp(string email, string username, string password)
         {
             string sel = Util.RandomPassword(32);
-            string password = Util.RandomPassword(10);
             
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -89,6 +88,7 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@sel", sel);
 
                     await cmd.ExecuteNonQueryAsync();
+                    return true;
                 }
                 catch (MySqlException ex)
                 {
@@ -96,7 +96,7 @@ namespace Server.Database
                 }
             }
 
-            return password;
+            return false;
         }
 
         /// <summary>
@@ -132,9 +132,11 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@mdp", Util.BtoH(password,sel));
                     using (MySqlDataReader dataReader = cmd.ExecuteReader())
                     {
-                        dataReader.Read();
-                        result = dataReader.GetInt32(0);
-                        validate = dataReader.GetBoolean(1);
+                        if (dataReader.Read())
+                        {
+                            result = dataReader.GetInt32(0);
+                            validate = dataReader.GetBoolean(1);
+                        }
                     }
                 }
                 catch (MySqlException ex)
@@ -254,7 +256,7 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "SELECT NOM_COMPTE, ADDRESS_MAIL, VALIDE FROM JOUEUR WHERE ID_JOUEUR = @id; ";
+                string query = "SELECT NOM_COMPTE, ADRESS_MAIL, VALIDE FROM JOUEUR WHERE ID_JOUEUR = @id; ";
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
@@ -283,18 +285,20 @@ namespace Server.Database
         static public async Task<bool> UpdateMDP(string mdp, int id)
         {
             bool result = false;
+            string salt = Util.RandomPassword(32);
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
 
-                string query = "UPDATE JOUEUR SET MDP = @mdp WHERE ID_JOUEUR = @id; ";
+                string query = "UPDATE JOUEUR SET MDP = @mdp, SEL = @salt WHERE ID_JOUEUR = @id;";
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@mdp", mdp);
+                    cmd.Parameters.AddWithValue("@mdp", Util.BtoH(mdp, salt));
+                    cmd.Parameters.AddWithValue("@salt", salt);
                     cmd.Parameters.AddWithValue("@id", id);
-                    cmd.ExecuteNonQuery();
+                    await cmd.ExecuteNonQueryAsync();
                     result = true;
                 }
                 catch (MySqlException ex)
