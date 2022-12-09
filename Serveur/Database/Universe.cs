@@ -285,9 +285,13 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idU", idU);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
+
                     if (dataReader.Read())
                     {
-                        res = dataReader.GetString(0);
+                        if (!dataReader.IsDBNull(0))
+                        {
+                            res = dataReader.GetString(0);
+                        }
                     }
                 }
                 catch (MySqlException ex)
