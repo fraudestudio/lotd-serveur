@@ -132,9 +132,11 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@mdp", Util.BtoH(password,sel));
                     using (MySqlDataReader dataReader = cmd.ExecuteReader())
                     {
-                        dataReader.Read();
-                        result = dataReader.GetInt32(0);
-                        validate = dataReader.GetBoolean(1);
+                        if (dataReader.Read())
+                        {
+                            result = dataReader.GetInt32(0);
+                            validate = dataReader.GetBoolean(1);
+                        }
                     }
                 }
                 catch (MySqlException ex)
