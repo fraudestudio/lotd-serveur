@@ -112,6 +112,34 @@ namespace Server.Database
         }
 
         /// <summary>
+        /// retourne la liste des univers
+        /// </summary>
+        /// <returns>une liste a deux dimensions se composant de la façons suivant [univers,0(id_univers) 1(nom univers)]</returns>
+        static public async Task<Model.Universe> DeleteUnviers(Model.Universe uni)
+        {
+            Model.Universe res = new Model.Universe();
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "DELET from UNIVERS WHERE ID_UNIVERS = @id;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id" , uni.Id);
+                    cmd.ExecuteNonQueryAsync();
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="playerId"></param>
@@ -224,7 +252,10 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@idJ", idJ);
                     cmd.Parameters.AddWithValue("@idV", idV);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    res = dataReader.GetString(0);
+                    if(dataReader.Read())
+                    {
+                        res = dataReader.GetString(0);
+                    }
                 }
                 catch (MySqlException ex)
                 {
@@ -246,7 +277,11 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idU", idU);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    res = dataReader.GetString(0);
+                    if(dataReader.Read())
+                    { 
+                        res = dataReader.GetString(0); 
+                    }
+                    
                 }
                 catch (MySqlException ex)
                 {
