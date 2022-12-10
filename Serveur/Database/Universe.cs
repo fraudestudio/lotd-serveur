@@ -125,7 +125,7 @@ namespace Server.Database
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "select ID_UNIVERS, NOM_UNIVERS from JOUE NATURAL JOIN UNIVERS WHERE ID_JOUEUR = @id;";
+                    string query = "SELECT ID_UNIVERS, NOM_UNIVERS FROM UNIVERS NATURAL JOIN VILLAGE WHERE ID_JOUEUR = @id AND OWNER != @id;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@id", playerId);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
