@@ -23,7 +23,7 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "INSERT INTO VILLAGE (FACTION,BOIS,PIERRE,ORS,ID_JOUEUR,ID_UNIVERS?NOM_VILLAGE) VALUES (@faction,250,250,250,@idJ,@idU,@nomV);";
+                string query = "INSERT INTO VILLAGE (FACTION,BOIS,PIERRE,ORS,ID_JOUEUR,ID_UNIVERS,NOM_VILLAGE) VALUES (@faction,250,250,250,@idJ,@idU,@nomV);";
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);

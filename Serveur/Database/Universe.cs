@@ -300,6 +300,47 @@ namespace Server.Database
                 }
             }
             return res;
-        } 
+        }
+
+        /// <summary>
+        /// Verify if an user can access to a universe
+        /// </summary>
+        /// <param name="idU">id of the universe</param>
+        /// <param name="mdp">password entered</param>
+        /// <returns>bool that tells if the player can have access to it</returns>
+        static public async Task<bool> VerifyAccess(int idU, string mdp)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = " SELECT NOM_UNIVERS FROM UNIVERS WHERE ID_UNIVERS = @idU AND MDP_SERVEUR = @mdp;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idU", idU);
+                    cmd.Parameters.AddWithValue("@mdp", mdp);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                        {
+                            if (!string.IsNullOrEmpty(dataReader.GetString(0)))
+                            {
+                                res = true;
+                            }
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
     }
 }
+
+    

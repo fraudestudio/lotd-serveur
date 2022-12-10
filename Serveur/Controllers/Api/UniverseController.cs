@@ -192,5 +192,41 @@ namespace Server.Controllers.Api
             };
         }
 
+
+
+        [HttpPost("access/{idUniv}")]
+        public async Task<IActionResult> AccessUniverse(int idUniv,Model.Universe u)
+        {
+
+            string mdp = "";
+
+            if (!string.IsNullOrEmpty(u.Password))
+            {
+                mdp += u.Password;
+            }
+
+            ContentResult result = new ContentResult
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+                ContentType = "text/plain",
+            };
+
+            if (await Database.Universe.VerifyAccess(idUniv, mdp))
+            {
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Content = "Success";
+
+            }
+            else
+            {
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Content = "Error";
+            }
+
+            return result;
+
+
+        }
+
     }
 }
