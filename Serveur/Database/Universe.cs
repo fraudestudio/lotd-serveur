@@ -112,6 +112,33 @@ namespace Server.Database
         }
 
         /// <summary>
+        /// delete l'univers choisi
+        /// </summary>
+        /// <returns>si la requete a été correctement executé</returns>
+        static public async Task<bool> DeleteUnviers(int idU)
+        {
+            bool res = false;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "DELETE from UNIVERS WHERE ID_UNIVERS = @id;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", idU);
+                    await cmd.ExecuteNonQueryAsync();
+                    res = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="playerId"></param>
