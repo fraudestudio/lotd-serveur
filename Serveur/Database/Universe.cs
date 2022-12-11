@@ -115,19 +115,20 @@ namespace Server.Database
         /// retourne la liste des univers
         /// </summary>
         /// <returns>une liste a deux dimensions se composant de la façons suivant [univers,0(id_univers) 1(nom univers)]</returns>
-        static public async Task<Model.Universe> DeleteUnviers(Model.Universe uni)
+        static public async Task<bool> DeleteUnviers(int idU)
         {
-            Model.Universe res = new Model.Universe();
+            bool res = false;
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "DELET from UNIVERS WHERE ID_UNIVERS = @id;";
+                    string query = "DELETE from UNIVERS WHERE ID_UNIVERS = @id;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@id" , uni.Id);
-                    cmd.ExecuteNonQueryAsync();
+                    cmd.Parameters.AddWithValue("@id" , idU);
+                    await cmd.ExecuteNonQueryAsync();
+                    res = true;
                 }
                 catch (MySqlException ex)
                 {
