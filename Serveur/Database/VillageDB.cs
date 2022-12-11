@@ -127,5 +127,83 @@ namespace Server.Database
             return res;
         }
 
+        /// <summary>
+        /// retourne plusieurs liste contenant l'id l'heure d'arriver et le slot des personnage contenu dans un batiment
+        /// </summary>
+        /// <param name="idB"></param>
+        /// <returns></returns>
+        static public async Task<List<(int, int, int)>> GetPersoInBatiment(int idB)
+        {
+            List<(int, int, int)> res = new List<(int, int, int)>();
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "SELECT ID_PERSO,ENTREE,SLOT FROM BATIMENT WHERE ID_BATIMENT = @idB;";
+
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idB", idB);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        TimeSpan sec = (DateTime.Now - dataReader.GetDateTime(1));
+                        res.Add((dataReader.GetInt32(0), (int)sec.TotalSeconds, dataReader.GetInt32(2)));
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// ajoute un perso dans un batiement au slot spécifié, si le personnage est déjà dedans ne fait rien 
+        /// </summary>
+        /// <param name="idP"></param>
+        /// <param name="idB"></param>
+        /// <param name="slot"></param>
+        /// <returns></returns>
+        static public async Task<bool> InsertPersoInBatiment(int idP, int idB, int slot)
+        {
+            bool result = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                try
+                {
+                    string queryVerif = "SELECT ID_BATIMENT FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
+                    MySqlCommand cmd = new MySqlCommand(queryVerif, conn);
+                    cmd.Parameters.AddWithValue("@idP", idB);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read() && dataReader.GetInt32(0) != idB)
+                    {
+                        string queryDelete = "DELETE FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
+                        cmd = new MySqlCommand(queryDelete, conn);
+                        await cmd.ExecuteNonQueryAsync();
+                        string query = "INSERT INTO STOCK_PERSONNAGE (ID_PERSONNAGE,ID_BATIMENT,ENTREE,SLOT) VALUES (@idP,@idB,@hEntree,@slot);";
+                        cmd = new MySqlCommand(query, conn);
+                        cmd.Parameters.AddWithValue("@idP", idP);
+                        cmd.Parameters.AddWithValue("@mdp",idB);
+                        cmd.Parameters.AddWithValue("@hEntree", DateTime.Now);
+                        cmd.Parameters.AddWithValue("@slot", slot);
+                        await cmd.ExecuteNonQueryAsync();
+                        result = true;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return result;
+        }
+
     }
 }
