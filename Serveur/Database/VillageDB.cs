@@ -172,7 +172,7 @@ namespace Serveur.Database
                 {
                     string queryVerif = "SELECT ID_PERSONNAGE, ID_BATIMENT FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                     MySqlCommand cmd = new MySqlCommand(queryVerif, conn);
-                    cmd.Parameters.AddWithValue("@idP", Perso.id);
+                    cmd.Parameters.AddWithValue("@idP", Perso.Id);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
                     if (dataReader.Read() && dataReader.GetInt32(1) != batiment.Id)
                     {
