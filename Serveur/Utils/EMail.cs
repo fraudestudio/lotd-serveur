@@ -27,7 +27,6 @@ namespace Server.Utils
 				Email.smtpClient.Connect("iut-dijon.u-bourgogne.fr", 25, SecureSocketOptions.StartTls);
 				Email.smtpClient.Authenticate(Email.ADDRESS, Email.PASSWORD);
 
-				Console.WriteLine("[EMAIL] Waiting for emails to send ...");
 				do
 				{
 					try
