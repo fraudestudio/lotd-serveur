@@ -9,12 +9,17 @@ using Server.Controllers;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(opt => {
-    opt.ListenAnyIP(8080, opt => { });
-    opt.ListenAnyIP(8443, opt =>
+    int httpPort = 8080;
+    Int32.TryParse(Environment.GetEnvironmentVariable("HTTP_PORT"), out httpPort);
+    int httpsPort = 8443;
+    Int32.TryParse(Environment.GetEnvironmentVariable("HTTPS_PORT"), out httpsPort);
+
+    opt.ListenAnyIP(httpPort);
+    opt.ListenAnyIP(httpsPort, opt =>
     {
         opt.UseHttps(
-            System.Environment.GetEnvironmentVariable("CERTIFICATE_FILE") ?? "",
-            System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD" ?? "")
+            Environment.GetEnvironmentVariable("CERTIFICATE_FILE") ?? "",
+            Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD" ?? "")
         );
     });
 });
