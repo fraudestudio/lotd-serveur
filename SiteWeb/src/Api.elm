@@ -118,8 +118,8 @@ encodeSignUpPayload : SignUpPayload -> Encode.Value
 encodeSignUpPayload payload =
   Encode.object
     [ ( "Username", Encode.string payload.username )
-    , ( "Email ", Encode.string payload.email )
-    , ( "Captcha", Encode.string payload.captcha )
+    , ( "Email", Encode.string payload.email )
+    , ( "CaptchaToken", Encode.string payload.captcha )
     ]
 
 
