@@ -112,6 +112,33 @@ namespace Server.Database
         }
 
         /// <summary>
+        /// delete l'univers choisi
+        /// </summary>
+        /// <returns>si la requete a été correctement executé</returns>
+        static public async Task<bool> DeleteUnviers(int idU)
+        {
+            bool res = false;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "DELETE from UNIVERS WHERE ID_UNIVERS = @id;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", idU);
+                    await cmd.ExecuteNonQueryAsync();
+                    res = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="playerId"></param>
@@ -125,7 +152,7 @@ namespace Server.Database
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "select ID_UNIVERS, NOM_UNIVERS from JOUE NATURAL JOIN UNIVERS WHERE ID_JOUEUR = @id;";
+                    string query = "SELECT ID_UNIVERS, NOM_UNIVERS FROM UNIVERS NATURAL JOIN VILLAGE WHERE ID_JOUEUR = @id AND OWNER != @id;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@id", playerId);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
@@ -285,9 +312,13 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idU", idU);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
+
                     if (dataReader.Read())
                     {
-                        res = dataReader.GetString(0);
+                        if (!dataReader.IsDBNull(0))
+                        {
+                            res = dataReader.GetString(0);
+                        }
                     }
                 }
                 catch (MySqlException ex)
@@ -296,6 +327,47 @@ namespace Server.Database
                 }
             }
             return res;
-        } 
+        }
+
+        /// <summary>
+        /// Verify if an user can access to a universe
+        /// </summary>
+        /// <param name="idU">id of the universe</param>
+        /// <param name="mdp">password entered</param>
+        /// <returns>bool that tells if the player can have access to it</returns>
+        static public async Task<bool> VerifyAccess(int idU, string mdp)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = " SELECT NOM_UNIVERS FROM UNIVERS WHERE ID_UNIVERS = @idU AND MDP_SERVEUR = @mdp;";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idU", idU);
+                    cmd.Parameters.AddWithValue("@mdp", mdp);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+
+                    if (dataReader.Read())
+                    {
+                        if (!dataReader.IsDBNull(0))
+                        {
+                            if (!string.IsNullOrEmpty(dataReader.GetString(0)))
+                            {
+                                res = true;
+                            }
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
     }
 }
+
+    

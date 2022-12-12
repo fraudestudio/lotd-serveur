@@ -56,7 +56,7 @@ namespace Server.Controllers.Api
         /// </summary>
         /// <param name="idVill">id of the village</param>
         /// <returns></returns>
-        [HttpGet("/name/{idVill}")]
+        [HttpGet("name/{idVill}")]
         public async Task<IActionResult> GetVillageName(int idVill)
         {
             int? maybeId = HttpContext.User.UserId();

@@ -161,7 +161,7 @@ namespace Server.Controllers.Api
         /// </summary>
         /// <param name="idUniv"></param>
         /// <returns></returns>
-        [HttpGet("Faction/{idUniv}")]
+        [HttpGet("faction/{idUniv}")]
         public async Task<IActionResult> GetMajorFaction(int idUniv)
         {
             var result = new { Faction = await Database.Universe.MajoritaryFaction(idUniv) };
@@ -180,7 +180,7 @@ namespace Server.Controllers.Api
         /// </summary>
         /// <param name="idUniv"></param>
         /// <returns></returns>
-        [HttpGet("CountVillage/{idUniv}")]
+        [HttpGet("count/{idUniv}")]
         public async Task<IActionResult> GetCountVillage(int idUniv)
         {
             var result = new { NumberVillage = await Database.Universe.GetVillageCountInUniverse(idUniv) };
@@ -190,6 +190,42 @@ namespace Server.Controllers.Api
                 Content = JsonSerializer.Serialize(result),
                 ContentType = "application/json; charset=UTF-8",
             };
+        }
+
+
+
+        [HttpPost("access/{idUniv}")]
+        public async Task<IActionResult> AccessUniverse(int idUniv,Model.Universe u)
+        {
+
+            string mdp = "";
+
+            if (!string.IsNullOrEmpty(u.Password))
+            {
+                mdp += u.Password;
+            }
+
+            ContentResult result = new ContentResult
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+                ContentType = "text/plain",
+            };
+
+            if (await Database.Universe.VerifyAccess(idUniv, mdp))
+            {
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Content = "Success";
+
+            }
+            else
+            {
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Content = "Error";
+            }
+
+            return result;
+
+
         }
 
     }
