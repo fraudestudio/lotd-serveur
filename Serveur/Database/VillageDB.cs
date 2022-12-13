@@ -209,28 +209,103 @@ namespace Server.Database
         /// </summary>
         /// <param name="idB"></param>
         /// <returns></returns>
-        static public async Task<List<(int, int, int)>> GetPersoInBatiment(int idB)
+        static public async Task<List<(Server.Model.Perso, int, int)>> GetPersoInBatiment(int idB)
         {
-            List<(int, int, int)> res = new List<(int, int, int)>();
+            List<(Server.Model.Perso, int, int)> res = new List<(Server.Model.Perso, int, int)>();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
 
                 string query = "SELECT ID_PERSO,ENTREE,SLOT FROM BATIMENT WHERE ID_BATIMENT = @idB;";
-
+                Server.Model.Perso perso = new Server.Model.Perso();
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
+                    MySqlCommand cmd2 = null;
                     cmd.Parameters.AddWithValue("@idB", idB);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
                     while (dataReader.Read())
                     {
+                        string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
+                        cmd2 = new MySqlCommand(query2, conn);
+                        cmd2.Parameters.AddWithValue("@idP", dataReader.GetInt32(0));
+                        MySqlDataReader dataReader2 = cmd2.ExecuteReader();
+                        if(dataReader2.Read())
+                        {
+                            perso.Id = dataReader2.GetInt32(0);
+                            perso.Level = dataReader2.GetInt32(1);
+                            perso.PV = dataReader2.GetInt32(2);
+                            perso.PV_MAX = dataReader2.GetInt32(3);
+                            perso.Name = dataReader2.GetString(4);
+                            perso.PM_MAX = dataReader2.GetInt32(5);
+                            perso.PA_MAX = dataReader2.GetInt32(6);
+                            perso.ID_VILLAGE = dataReader2.GetInt32(7);
+                            perso.IMG = dataReader2.GetInt32(8);
+                            perso.RACE = dataReader2.GetString(9);
+                            perso.CLASSE = dataReader2.GetInt32(10);
+                            perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
+                        }
                         TimeSpan sec = (DateTime.Now - dataReader.GetDateTime(1));
-                        res.Add((dataReader.GetInt32(0), (int)sec.TotalSeconds, dataReader.GetInt32(2)));
+                        res.Add((perso, (int)sec.TotalSeconds, dataReader.GetInt32(2)));
                     }
                 }
                 catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        static public async Task<List<Server.Model.Perso>> GetPersoInVillage(int idV)
+        {
+            List<Server.Model.Perso> res = new List<Server.Model.Perso>();
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "SELECT ID_BATIMENT FROM VILLAGE WHERE ID_VILLAGE = @idV;";
+                Server.Model.Perso perso = new Server.Model.Perso();
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@idV", idV);
+                MySqlDataReader dataReader = cmd.ExecuteReader();
+                try
+                {
+                    while(dataReader.Read())
+                    {
+                        string query3 = "SELECT ID_PERSO,ENTREE,SLOT FROM BATIMENT WHERE ID_BATIMENT = @idB;";
+                        MySqlCommand cmd3 = new MySqlCommand(query3, conn);
+                        MySqlCommand cmd2 = null;
+                        cmd3.Parameters.AddWithValue("@idB", dataReader.GetInt32(0));
+                        MySqlDataReader dataReader3 = cmd.ExecuteReader();
+                        while (dataReader3.Read())
+                        {
+                            string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
+                            cmd2 = new MySqlCommand(query2, conn);
+                            cmd2.Parameters.AddWithValue("@idP", dataReader3.GetInt32(0));
+                            MySqlDataReader dataReader2 = cmd2.ExecuteReader();
+                            if (dataReader2.Read())
+                            {
+                                perso.Id = dataReader2.GetInt32(0);
+                                perso.Level = dataReader2.GetInt32(1);
+                                perso.PV = dataReader2.GetInt32(2);
+                                perso.PV_MAX = dataReader2.GetInt32(3);
+                                perso.Name = dataReader2.GetString(4);
+                                perso.PM_MAX = dataReader2.GetInt32(5);
+                                perso.PA_MAX = dataReader2.GetInt32(6);
+                                perso.ID_VILLAGE = dataReader2.GetInt32(7);
+                                perso.IMG = dataReader2.GetInt32(8);
+                                perso.RACE = dataReader2.GetString(9);
+                                perso.CLASSE = dataReader2.GetInt32(10);
+                                perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
+                            }
+                            res.Add(perso);
+                        }
+                    }
+                }
+                catch(MySqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
