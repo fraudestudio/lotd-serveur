@@ -205,7 +205,7 @@ namespace Server.Database
         }
 
         /// <summary>
-        /// retourne plusieurs liste contenant l'id l'heure d'arriver et le slot des personnage contenu dans un batiment
+        /// retourne plusieurs liste contenant le personnage, l'heure d'arriver et le slot des personnage contenu dans un batiment
         /// </summary>
         /// <param name="idB"></param>
         /// <returns></returns>
@@ -458,8 +458,38 @@ namespace Server.Database
                             await cmd.ExecuteNonQueryAsync();
                             res = true;
                         }
-
                     }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// remet la vie d'un personnage au maximum
+        /// </summary>
+        /// <param name="idP"></param>
+        /// <returns></returns>
+        static public async Task<bool> HealPerso(int idP)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "UPDATE PERSONNAGE SET "+
+                                "PV = (SELECT PV_MAX FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP) "+
+                                "WHERE ID_PERSONNAGE = @idP;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idP", idP);
+                    cmd.Parameters.AddWithValue("@idP",idP);
+                    await cmd.ExecuteNonQueryAsync();
+                    res = true;
                 }
                 catch (MySqlException ex)
                 {

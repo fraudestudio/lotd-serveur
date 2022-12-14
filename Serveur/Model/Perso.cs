@@ -11,5 +11,9 @@
         public int PA_MAX { get; set; }
         public int PM_MAX { get; set;}
         public int IMG { get; set; }
+        public int ID_VILLAGE { get; set; }
+        public int CLASSE { get; set; }
+        public string RACE { get; set; }
+        public int ID_EQUIPEMENT { get; set; }
     }
 }
