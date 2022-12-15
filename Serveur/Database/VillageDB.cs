@@ -257,6 +257,64 @@ namespace Server.Database
             return res;
         }
 
+
+        /// <summary>
+        /// retourne une liste contenant les personnages qui sont dans l'inventaire
+        /// </summary>
+        /// <param name="idB"></param>
+        /// <returns></returns>
+        static public async Task<List<Server.Model.Perso>> GetPersoInInventaire(int idB)
+        {
+            List<Server.Model.Perso> res = new List<Server.Model.Perso>();
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "select ID_PERSONNAGE from PERSONNAGE WHERE ID_PERSONNAGE NOT IN (SELECT ID_PERSONNAGE FROM STOCK_PERSONNAGE);";
+                string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
+                Server.Model.Perso perso = new Server.Model.Perso();
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idB", idB);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        MySqlCommand cmd2 = new MySqlCommand(query2, conn);
+                        cmd2.Parameters.AddWithValue("@idP", dataReader.GetInt32(0));
+                        MySqlDataReader dataReader2 = cmd2.ExecuteReader();
+                        if (dataReader2.Read())
+                        {
+                            perso.Id = dataReader2.GetInt32(0);
+                            perso.Level = dataReader2.GetInt32(1);
+                            perso.PV = dataReader2.GetInt32(2);
+                            perso.PV_MAX = dataReader2.GetInt32(3);
+                            perso.Name = dataReader2.GetString(4);
+                            perso.PM_MAX = dataReader2.GetInt32(5);
+                            perso.PA_MAX = dataReader2.GetInt32(6);
+                            perso.ID_VILLAGE = dataReader2.GetInt32(7);
+                            perso.IMG = dataReader2.GetInt32(8);
+                            perso.RACE = dataReader2.GetString(9);
+                            perso.CLASSE = dataReader2.GetInt32(10);
+                            perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
+                        }
+                        res.Add(perso);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// retourne une liste de tout les perso présent dans le village
+        /// </summary>
+        /// <param name="idV"></param>
+        /// <returns></returns>
         static public async Task<List<Server.Model.Perso>> GetPersoInVillage(int idV)
         {
             List<Server.Model.Perso> res = new List<Server.Model.Perso>();
@@ -310,6 +368,8 @@ namespace Server.Database
             }
             return res;
         }
+
+        
 
         /// <summary>
         /// ajoute un perso dans un batiement au slot spécifié, si le personnage est déjà dedans ne fait rien 
