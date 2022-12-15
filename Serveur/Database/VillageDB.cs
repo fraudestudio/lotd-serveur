@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Runtime.Intrinsics.Arm;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using Server.Database;
@@ -79,7 +80,7 @@ namespace Server.Database
         /// </summary>
         /// <param name="idV"></param>
         /// <returns></returns>
-        static public async Task<bool> initBatiment(int idV)
+        static public async Task<bool> InitBatiment(int idV)
         {
             bool res = false;
             string[] bat = { "TAVERNE", "GUNSMITH", "ENTREPOT", "TRANING_CAMP", "HEALER_HUT" };
@@ -88,14 +89,13 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "INSERT INTO BATIMENT (TYPE_BATIMENT,NIVEAU,ID_VILLAGE) VALUES (@TB,1,@idV);";
-                
+                string query = "INSERT INTO BATIMENT (TYPE_BATIMENT,NIVEAU,ID_VILLAGE,EN_CONSTRUCTION) VALUES (@TB,1,@idV,FALSE);";
                 try
                 {
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idV", idV);
                     for (int i = 0; i < 5; i++)
                     {
+                        MySqlCommand cmd = new MySqlCommand(query, conn);
+                        cmd.Parameters.AddWithValue("@idV", idV);
                         cmd.Parameters.AddWithValue("@TB", bat[i]);
                         await cmd.ExecuteNonQueryAsync();
                         res = true;
@@ -176,15 +176,15 @@ namespace Server.Database
         /// </summary>
         /// <param name="idV"></param>
         /// <returns></returns>
-        static public async Task<List<(int, string)>> GetLevelBatiment(int idV)
+        static public async Task<Dictionary<string, int>> GetLevelBatiment(int idV)
         {
-            List<(int, string)> res = new List<(int, string)>();
+            Dictionary<string, int> res = new Dictionary<string, int>();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
 
-                string query = "SELECT NIVEAU_BATIMENT,TYPE_BATIMENT FROM BATIMENT WHERE ID_VILLAGE = @idV;";
+                string query = "SELECT NIVEAU,TYPE_BATIMENT FROM BATIMENT WHERE ID_VILLAGE = @idV;";
 
                 try
                 {
@@ -193,7 +193,7 @@ namespace Server.Database
                     MySqlDataReader dataReader = cmd.ExecuteReader();
                     while (dataReader.Read())
                     {
-                        res.Add((dataReader.GetInt32(0), dataReader.GetString(1)));
+                        res.Add(dataReader.GetString(1), dataReader.GetInt32(0));
                     }
                 }
                 catch (MySqlException ex)
@@ -628,6 +628,34 @@ namespace Server.Database
             }
             return idE;
         }
+
+
+        static public async Task<bool> GetBuildingInConstruction(int idV, string building)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT EN_CONSTRUCTION FROM BATIMENT WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    cmd.Parameters.AddWithValue("@building", building);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetBoolean(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
     }
 
 }
