@@ -82,20 +82,20 @@ namespace Server.Database
         static public async Task<bool> initBatiment(int idV)
         {
             bool res = false;
-            string[] bat = { "TAVERNE", "FORGERON", "ENTREPOT", "CAMP_DENTRAINEMENT", "INFIRMERIE" };
+            string[] bat = { "TAVERNE", "GUNSMITH", "ENTREPOT", "TRANING_CAMP", "HEALER_HUT" };
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
 
                 string query = "INSERT INTO BATIMENT (TYPE_BATIMENT,NIVEAU,ID_VILLAGE) VALUES (@TB,1,@idV);";
+                
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-
+                    cmd.Parameters.AddWithValue("@idV", idV);
                     for (int i = 0; i < 5; i++)
                     {
-                        cmd.Parameters.AddWithValue("@idV", idV);
                         cmd.Parameters.AddWithValue("@TB", bat[i]);
                         await cmd.ExecuteNonQueryAsync();
                         res = true;
@@ -499,5 +499,76 @@ namespace Server.Database
             return res;
         }
 
+        /// <summary>
+        /// intialise un personnage aléatoire
+        /// </summary>
+        /// <param name="idP"></param>
+        /// <returns>l'id du PERSONNAGE</returns>
+        static public async Task<int?> InitRandomPerso(int idV)
+        {
+            string[] classe = {"ARCHER","GUERRIER","SORCIER","TANK"};
+            string[] race = { "ELFE", "NAIN", "HUMAIN", "HOBBIT" };
+            int? idPR = null;
+            Random random = new Random();
+            int raceI = random.Next(3);
+            int classeI = random.Next(3);
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "INSERT INTO PERSONNAGE (LEVEL,PV,PV_MAX,NOM,CLASSE,RACE,PA_MAX,PM_MAX,ID_EQUIPEMENT,ID_VILLAGE,IMG) VALUES (1,250,250,@name,@classe,@race,6,@PM,@idE,@idV,@img);";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@name", Utils.Util.GenerationNom());
+                    cmd.Parameters.AddWithValue("@classe",classe[classeI]);
+                    cmd.Parameters.AddWithValue("@race",race[raceI]);
+                    int PM = 3;
+                    if(race[raceI] == "NAIN")
+                    {
+                        PM = 2;
+                    }
+                    cmd.Parameters.AddWithValue("@PM", PM);
+                    cmd.Parameters.AddWithValue("@idE",await InitEquipement(classe[classeI]));
+                    cmd.Parameters.AddWithValue("@idV",idV);
+                    cmd.Parameters.AddWithValue("@img", raceI + classeI);
+                    await cmd.ExecuteNonQueryAsync();
+                    string query2 = "SELECT ID_PERSONNAGE FROM PERSONNAGE WHERE ID_PERSONNAGE = ID_LAST_INSERT();";
+                    MySqlCommand cmd2 = new MySqlCommand(query2, conn);
+
+
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return idPR;
+        }
+
+        static public async Task<int?> InitEquipement(string classe)
+        {
+            int? idE = null;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                string query = "INSERT INTO EQUIPEMENT (NIVEAU_ARME,NIVEAU_ARMURE,IMG_ARME,IMG_ARMURE,BONUS_ARME,BONUS_ARMURE) VALUES (1,1,1,1,10,10);";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    await cmd.ExecuteNonQueryAsync();
+                    string query2 = "SELECT ID_EQUIPEMENT FROM EQUIPEMENT WHERE ID_EQUIPEMENT = ID_LAST_INSERT();";
+                    MySqlCommand cmd2 = new MySqlCommand(query2, conn);
+                    await cmd2.ExecuteNonQueryAsync();
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return idE;
+        }
     }
+
 }
