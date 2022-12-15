@@ -159,7 +159,7 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpBatiment(int idB, int coutB, int coutP, int coutO)
+        static public async Task<bool> UpBatiment(int idB)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -168,42 +168,14 @@ namespace Server.Database
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "SELECT BOIS,PIERRE,ORS,ID_VILLAGE FROM VILLAGE WHERE ID_VILLAGE = (SELECT ID_VILLAGE FROM BATIMENT WHERE ID_BATIMENT = @idB);";
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idB", idB);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    if (dataReader.Read())
-                    {
-                        for (int i = 0; i < 4; i++)
-                        {
-                            temp[i]=dataReader.GetInt32(i);
-                        }
-                        if (temp[0] <= coutB &&
-                        temp[1] <= coutP &&
-                        temp[2] <= coutO)
-                        {
-                            string query2 = "UPDATE VILLAGE SET " +
-                                          "BOIS = @bois - @coutbois, PIERRE = @pierre - @coutpierre, ORS = @ors - @coutors " +
-                                          "WHERE ID_VILLAGE = @idVillage;";
-                            cmd = new MySqlCommand(query2, conn);
-                            cmd.Parameters.AddWithValue("@bois", temp[0]);
-                            cmd.Parameters.AddWithValue("@coutbois", coutB);
-                            cmd.Parameters.AddWithValue("@pierre", temp[1]);
-                            cmd.Parameters.AddWithValue("@coutpierre", coutP);
-                            cmd.Parameters.AddWithValue("@ors", temp[2]);
-                            cmd.Parameters.AddWithValue("@coutors", coutO);
-                            cmd.Parameters.AddWithValue("@idVillage", temp[3]);
-                            await cmd.ExecuteNonQueryAsync();
-                            string query3 = "UPDATE BATIMENT SET " +
-                                            "LEVEL = LEVEL + 1 " +
-                                            "WHERE ID_BATIMENT = @idB;";
-                            cmd = new MySqlCommand(query3, conn);
+                    string query3 = "UPDATE BATIMENT SET " +
+                                    "LEVEL = LEVEL + 1 " +
+                                    "WHERE ID_BATIMENT = @idB;";
+                    MySqlCommand cmd = new MySqlCommand(query3, conn);
                             cmd.Parameters.AddWithValue("@idB", idB);
                             await cmd.ExecuteNonQueryAsync();
                             res = true;
-                        }
 
-                    }
                 }
                 catch(MySqlException ex)
                 {
