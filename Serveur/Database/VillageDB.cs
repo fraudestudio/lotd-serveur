@@ -437,45 +437,21 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpArmePerso(int idPerso, int coutO)
+        static public async Task<bool> UpArmePerso(int idPerso)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
-                int[] temp = new int[2];
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "SELECT ORS,ID_VILLAGE FROM VILLAGE WHERE ID_VILLAGE = (SELECT ID_VILLAGE FROM PERSONANGE WHERE ID_VILLAGE = @idV);";
+                    string query = "UPDATE EQUIPEMENT SET" +
+                                 "NIVEAU_ARME = NIVEAU_ARME + 1 ," +
+                                 "BONUS_ARME = BONUS_ARME + 10 " +
+                                 "WHERE ID_EQUIPEMENT = (SELECT ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idB", idPerso);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    if (dataReader.Read())
-                    {
-                        for (int i = 0; i < 2; i++)
-                        {
-                            temp[i] = dataReader.GetInt32(i);
-                        }
-                        if (temp[0] <= coutO)
-                        {
-                            string query2 = "UPDATE VILLAGE SET " +
-                                          "ORS = @ors - @coutors " +
-                                          "WHERE ID_VILLAGE = @idVillage;";
-                            cmd = new MySqlCommand(query2, conn);
-                            cmd.Parameters.AddWithValue("@ors", temp[0]);
-                            cmd.Parameters.AddWithValue("@coutors", coutO);
-                            cmd.Parameters.AddWithValue("@idVillage",temp[1]);
-                            await cmd.ExecuteNonQueryAsync();
-                            string query3 = "UPDATE PERSONNAGE SET " +
-                                            "LEVEL_ARME = LEVEL_ARME + 1 " +
-                                            "WHERE ID_PERSONNAGE = @idP;";
-                            cmd = new MySqlCommand(query3, conn);
-                            cmd.Parameters.AddWithValue("@idP", idPerso);
-                            await cmd.ExecuteNonQueryAsync();
-                            res = true;
-                        }
-
-                    }
+                    cmd.Parameters.AddWithValue("@idP", idPerso);
+                    await cmd.ExecuteNonQueryAsync();
                 }
                 catch (MySqlException ex)
                 {
