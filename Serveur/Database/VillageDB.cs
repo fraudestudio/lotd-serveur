@@ -49,9 +49,9 @@ namespace Server.Database
         /// </summary>
         /// <param name="idV"></param>
         /// <returns></returns>
-        static public async Task<int[]> GetRessource(int idV)
+        static public async Task<Model.Ressources> GetRessource(int idV)
         {
-            int[] res = new int[3];
+            Model.Ressources res = new Model.Ressources();
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -63,9 +63,11 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idV", idV);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
-                    for (int i = 0; i < 3; i++)
+                    while (dataReader.Read())
                     {
-                        res[i] = dataReader.GetInt32(i);
+                        res.Bois = dataReader.GetInt32(0);
+                        res.Pierre = dataReader.GetInt32(1);
+                        res.Or = dataReader.GetInt32(2);
                     }
                 }
                 catch (MySqlException ex)
@@ -79,34 +81,23 @@ namespace Server.Database
         static public async Task<bool> UpdateRessources(int idV,int Bois,int Pierre, int Or)
         {
             bool res = false;
-            int[] temp = new int[3];
+
+
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
 
-                string query = "SELECT BOIS,PIERRE,ORS FROM VILLAGE WHERE ID_VILLAGE = @idV;";
-                string query2 = "UPDATE VILLAGE SET " +
-                                "BOIS = @bois + @coutbois, PIERRE = @pierre + @coutpierre, ORS = @ors + @coutors " +
-                                "WHERE ID_VILLAGE = @idVillage;";
+                string query = "UPDATE VILLAGE SET BOIS = @bois, PIERRE = @pierre, ORS = @ors WHERE ID_VILLAGE = @idVillage";
+
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idV", idV);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    for (int i = 0; i < 3; i++)
-                    {
-                        temp[i] = dataReader.GetInt32(i);
-                    }
-                    cmd = new MySqlCommand(query2, conn);
-                    cmd.Parameters.AddWithValue("@bois", temp[0]);
-                    cmd.Parameters.AddWithValue("@coutbois", Bois);
-                    cmd.Parameters.AddWithValue("@pierre", temp[1]);
-                    cmd.Parameters.AddWithValue("@coutpierre", Pierre);
-                    cmd.Parameters.AddWithValue("@ors", temp[2]);
-                    cmd.Parameters.AddWithValue("@coutors", Or);
-                    cmd.Parameters.AddWithValue("@idVillage", temp[3]);
+                    cmd.Parameters.AddWithValue("@bois", Bois);
+                    cmd.Parameters.AddWithValue("@pierre", Pierre);
+                    cmd.Parameters.AddWithValue("@ors", Or);
+                    cmd.Parameters.AddWithValue("@idVillage", idV);
                     await cmd.ExecuteNonQueryAsync();
-
+                    res = true;
 
                 }
                 catch (MySqlException ex)
@@ -159,7 +150,7 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpBatiment(int idB)
+        static public async Task<bool> UpBatiment(int idV, string building)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -169,10 +160,11 @@ namespace Server.Database
                 try
                 {
                     string query3 = "UPDATE BATIMENT SET " +
-                                    "LEVEL = LEVEL + 1 " +
-                                    "WHERE ID_BATIMENT = @idB;";
+                                    "NIVEAU = NIVEAU + 1 " +
+                                    "WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building;";
                     MySqlCommand cmd = new MySqlCommand(query3, conn);
-                            cmd.Parameters.AddWithValue("@idB", idB);
+                            cmd.Parameters.AddWithValue("@idV", idV);
+                            cmd.Parameters.AddWithValue("@building", building);
                             await cmd.ExecuteNonQueryAsync();
                             res = true;
 
@@ -337,7 +329,7 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "SELECT ID_BATIMENT FROM VILLAGE WHERE ID_VILLAGE = @idV;";
+                string query = "SELECT ID_BATIMENT FROM BATIMENT WHERE ID_VILLAGE = @idV;";
                 Server.Model.Perso perso = new Server.Model.Perso();
                 MySqlCommand cmd = new MySqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@idV", idV);
