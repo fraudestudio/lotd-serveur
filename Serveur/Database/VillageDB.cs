@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Runtime.Intrinsics.Arm;
+using Google.Protobuf.WellKnownTypes;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using Server.Database;
@@ -83,7 +84,7 @@ namespace Server.Database
         static public async Task<bool> InitBatiment(int idV)
         {
             bool res = false;
-            string[] bat = { "TAVERNE", "GUNSMITH", "ENTREPOT", "TRANING_CAMP", "HEALER_HUT" };
+            string[] bat = { "TAVERN", "GUNSMITH", "WAREHOUSE", "TRAINING_CAMP", "HEALER_HUT" };
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -586,6 +587,57 @@ namespace Server.Database
                     if (dataReader.Read())
                     {
                         res = dataReader.GetBoolean(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+
+        static public async Task<bool> SetBuildingInConstruction(int idV, string building)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "UPDATE BATIMENT SET EN_CONSTRUCTION = TRUE, START_CONSTRUCTION = @date WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@date", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    cmd.Parameters.AddWithValue("@building", building);
+                    await cmd.ExecuteNonQueryAsync();
+                    res = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        static public async Task<int> GetBuildingInConstructionTime(int idV, string building)
+        {
+            int res = 0;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT START_CONSTRUCTION FROM BATIMENT WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    cmd.Parameters.AddWithValue("@building", building);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res = (int)Math.Round(DateTime.Now.TimeOfDay.TotalSeconds - dataReader.GetMySqlDateTime(0).GetDateTime().TimeOfDay.TotalSeconds);
                     }
                 }
                 catch (MySqlException ex)

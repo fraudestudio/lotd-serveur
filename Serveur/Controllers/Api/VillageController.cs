@@ -128,10 +128,46 @@ namespace Server.Controllers.Api
         /// </summary>
         /// <param name="idVill">id of the village</param>
         /// <returns></returns>
-        [HttpGet("{idVill}/{building}/construction")]
+        [HttpGet("{idVill}/{building}/construction/get")]
         public async Task<IActionResult> GetInConstruction(string building,int idVill)
         {
             bool result = await Database.VillageDB.GetBuildingInConstruction(idVill, building);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/{building}/construction/set")]
+        public async Task<IActionResult> SetInConstruction(string building, int idVill)
+        {
+            bool result = await Database.VillageDB.SetBuildingInConstruction(idVill, building);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/{building}/construction/gettime")]
+        public async Task<IActionResult> GetInConstructionTime(string building, int idVill)
+        {
+            int result = await Database.VillageDB.GetBuildingInConstructionTime(idVill, building);
 
             return new ContentResult
             {
