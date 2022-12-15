@@ -159,7 +159,7 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpBatiment(int idB)
+        static public async Task<bool> UpBatiment(int idV, string building)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -169,10 +169,11 @@ namespace Server.Database
                 try
                 {
                     string query3 = "UPDATE BATIMENT SET " +
-                                    "LEVEL = LEVEL + 1 " +
-                                    "WHERE ID_BATIMENT = @idB;";
+                                    "NIVEAU = NIVEAU + 1 " +
+                                    "WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building;";
                     MySqlCommand cmd = new MySqlCommand(query3, conn);
-                            cmd.Parameters.AddWithValue("@idB", idB);
+                            cmd.Parameters.AddWithValue("@idV", idV);
+                            cmd.Parameters.AddWithValue("@building", building);
                             await cmd.ExecuteNonQueryAsync();
                             res = true;
 

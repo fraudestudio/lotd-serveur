@@ -175,5 +175,23 @@ namespace Server.Controllers.Api
                 ContentType = "application/json; charset=UTF-8",
             };
         }
+
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/{building}/construction/up")]
+        public async Task<IActionResult> LevelUpBuilding(string building, int idVill)
+        {
+            bool result = await Database.VillageDB.UpBatiment(idVill, building);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
     }
 }
