@@ -666,6 +666,11 @@ namespace Server.Database
             return res;
         }
 
+        /// <summary>
+        /// update l'attribut Start_TIme de stock perso et le set à l'heure actuel pour le perso préciser
+        /// </summary>
+        /// <param name="idP"></param>
+        /// <returns></returns>
         static public async Task<bool> StartBatimentFunction(int idP)
         {
             bool res = false;
@@ -689,7 +694,8 @@ namespace Server.Database
             return res;
         }
 
-        static public async Task<int> TimeBeforeBatimentFonctionEnd(int idP)
+
+        static public async Task<int> GetTimeBatimentFonction(int idP)
         {
             int res = 0;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
