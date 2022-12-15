@@ -56,7 +56,7 @@ namespace Server.Database
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
-
+             
                 string query = "SELECT BOIS,PIERRE,ORS FROM VILLAGE WHERE ID_VILLAGE = @idV;";
                 try
                 {
@@ -67,6 +67,47 @@ namespace Server.Database
                     {
                         res[i] = dataReader.GetInt32(i);
                     }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        static public async Task<bool> UpdateRessources(int idV,int Bois,int Pierre, int Or)
+        {
+            bool res = false;
+            int[] temp = new int[3];
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "SELECT BOIS,PIERRE,ORS FROM VILLAGE WHERE ID_VILLAGE = @idV;";
+                string query2 = "UPDATE VILLAGE SET " +
+                                "BOIS = @bois + @coutbois, PIERRE = @pierre + @coutpierre, ORS = @ors + @coutors " +
+                                "WHERE ID_VILLAGE = @idVillage;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        temp[i] = dataReader.GetInt32(i);
+                    }
+                    cmd = new MySqlCommand(query2, conn);
+                    cmd.Parameters.AddWithValue("@bois", temp[0]);
+                    cmd.Parameters.AddWithValue("@coutbois", Bois);
+                    cmd.Parameters.AddWithValue("@pierre", temp[1]);
+                    cmd.Parameters.AddWithValue("@coutpierre", Pierre);
+                    cmd.Parameters.AddWithValue("@ors", temp[2]);
+                    cmd.Parameters.AddWithValue("@coutors", Or);
+                    cmd.Parameters.AddWithValue("@idVillage", temp[3]);
+                    await cmd.ExecuteNonQueryAsync();
+
+
                 }
                 catch (MySqlException ex)
                 {
@@ -258,6 +299,64 @@ namespace Server.Database
             return res;
         }
 
+
+        /// <summary>
+        /// retourne une liste contenant les personnages qui sont dans l'inventaire
+        /// </summary>
+        /// <param name="idB"></param>
+        /// <returns></returns>
+        static public async Task<List<Server.Model.Perso>> GetPersoInInventaire(int idB)
+        {
+            List<Server.Model.Perso> res = new List<Server.Model.Perso>();
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "select ID_PERSONNAGE from PERSONNAGE WHERE ID_PERSONNAGE NOT IN (SELECT ID_PERSONNAGE FROM STOCK_PERSONNAGE);";
+                string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
+                Server.Model.Perso perso = new Server.Model.Perso();
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idB", idB);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        MySqlCommand cmd2 = new MySqlCommand(query2, conn);
+                        cmd2.Parameters.AddWithValue("@idP", dataReader.GetInt32(0));
+                        MySqlDataReader dataReader2 = cmd2.ExecuteReader();
+                        if (dataReader2.Read())
+                        {
+                            perso.Id = dataReader2.GetInt32(0);
+                            perso.Level = dataReader2.GetInt32(1);
+                            perso.PV = dataReader2.GetInt32(2);
+                            perso.PV_MAX = dataReader2.GetInt32(3);
+                            perso.Name = dataReader2.GetString(4);
+                            perso.PM_MAX = dataReader2.GetInt32(5);
+                            perso.PA_MAX = dataReader2.GetInt32(6);
+                            perso.ID_VILLAGE = dataReader2.GetInt32(7);
+                            perso.IMG = dataReader2.GetInt32(8);
+                            perso.RACE = dataReader2.GetString(9);
+                            perso.CLASSE = dataReader2.GetInt32(10);
+                            perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
+                        }
+                        res.Add(perso);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// retourne une liste de tout les perso présent dans le village
+        /// </summary>
+        /// <param name="idV"></param>
+        /// <returns></returns>
         static public async Task<List<Server.Model.Perso>> GetPersoInVillage(int idV)
         {
             List<Server.Model.Perso> res = new List<Server.Model.Perso>();
@@ -311,6 +410,8 @@ namespace Server.Database
             }
             return res;
         }
+
+        
 
         /// <summary>
         /// ajoute un perso dans un batiement au slot spécifié, si le personnage est déjà dedans ne fait rien 
