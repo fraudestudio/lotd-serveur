@@ -55,7 +55,7 @@ namespace Server.Database
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
                 await conn.OpenAsync();
-
+             
                 string query = "SELECT BOIS,PIERRE,ORS FROM VILLAGE WHERE ID_VILLAGE = @idV;";
                 try
                 {
@@ -66,6 +66,47 @@ namespace Server.Database
                     {
                         res[i] = dataReader.GetInt32(i);
                     }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        static public async Task<bool> UpdateRessources(int idV,int Bois,int Pierre, int Or)
+        {
+            bool res = false;
+            int[] temp = new int[3];
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+
+                string query = "SELECT BOIS,PIERRE,ORS FROM VILLAGE WHERE ID_VILLAGE = @idV;";
+                string query2 = "UPDATE VILLAGE SET " +
+                                "BOIS = @bois + @coutbois, PIERRE = @pierre + @coutpierre, ORS = @ors + @coutors " +
+                                "WHERE ID_VILLAGE = @idVillage;";
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        temp[i] = dataReader.GetInt32(i);
+                    }
+                    cmd = new MySqlCommand(query2, conn);
+                    cmd.Parameters.AddWithValue("@bois", temp[0]);
+                    cmd.Parameters.AddWithValue("@coutbois", Bois);
+                    cmd.Parameters.AddWithValue("@pierre", temp[1]);
+                    cmd.Parameters.AddWithValue("@coutpierre", Pierre);
+                    cmd.Parameters.AddWithValue("@ors", temp[2]);
+                    cmd.Parameters.AddWithValue("@coutors", Or);
+                    cmd.Parameters.AddWithValue("@idVillage", temp[3]);
+                    await cmd.ExecuteNonQueryAsync();
+
+
                 }
                 catch (MySqlException ex)
                 {
