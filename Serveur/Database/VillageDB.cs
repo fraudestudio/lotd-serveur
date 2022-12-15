@@ -557,14 +557,15 @@ namespace Server.Database
                     await cmd.ExecuteNonQueryAsync();
                     string query2 = "SELECT ID_EQUIPEMENT FROM EQUIPEMENT WHERE ID_EQUIPEMENT = ID_LAST_INSERT();";
                     MySqlCommand cmd2 = new MySqlCommand(query2, conn);
-                    await cmd2.ExecuteNonQueryAsync();
+                    MySqlDataReader dataReader = cmd2.ExecuteReader();
+                    dataReader.Read();
+                    idE = dataReader.GetInt32(0);
                 }
                 catch (MySqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
             }
-
             return idE;
         }
     }
