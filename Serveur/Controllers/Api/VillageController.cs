@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI.Common;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Server.Auth;
 using Server.Database;
 using Server.Model;
 using Server.Utils;
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace Server.Controllers.Api
 {
@@ -142,6 +143,22 @@ namespace Server.Controllers.Api
 
 
         /// <summary>
+        /// Get
+        /// </summary>
+        /// <param name="idVill"></param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/ressources/get")]
+        public async Task<IActionResult> GetRessources(int idVill)
+        {
+            Model.Ressources result = await Database.VillageDB.GetRessource(idVill);
+            
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
         /// Send
         /// </summary>
         /// <param name="idVill">id of the village</param>
@@ -150,7 +167,6 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SetInConstruction(string building, int idVill)
         {
             bool result = await Database.VillageDB.SetBuildingInConstruction(idVill, building);
-
             return new ContentResult
             {
                 Content = JsonSerializer.Serialize(result),
@@ -158,6 +174,24 @@ namespace Server.Controllers.Api
             };
         }
 
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill"></param>
+        /// <param name="gold"></param>
+        /// <param name="wood"></param>
+        /// <param name="stone"></param>
+        /// <returns></returns>
+        [HttpPost("{idVill}/ressources/set")]
+        public async Task<IActionResult> SetRessources(int idVill, Model.Ressources r)
+        {
+            bool result = await Database.VillageDB.UpdateRessources(idVill, r.Bois, r.Pierre, r.Or);
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
 
         /// <summary>
         /// Send
@@ -175,7 +209,6 @@ namespace Server.Controllers.Api
                 ContentType = "application/json; charset=UTF-8",
             };
         }
-
 
         /// <summary>
         /// Send
