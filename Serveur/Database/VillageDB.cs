@@ -530,7 +530,7 @@ namespace Server.Database
                 {
                     string query = "UPDATE EQUIPEMENT SET" +
                                  "NIVEAU_ARMURE = NIVEAU_ARMURE + 1 ," +
-                                 "BONUS_ARMURE = BONUS_ARMURE + 1 " +
+                                 "BONUS_ARMURE = BONUS_ARMURE + 10 " +
                                  "WHERE ID_EQUIPEMENT = (SELECT ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idP", idPerso);
