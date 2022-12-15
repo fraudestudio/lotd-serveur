@@ -4,6 +4,7 @@ using Server.Auth;
 using Server.Database;
 using Server.Model;
 using Server.Utils;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Server.Controllers.Api
@@ -56,7 +57,7 @@ namespace Server.Controllers.Api
         /// </summary>
         /// <param name="idVill">id of the village</param>
         /// <returns></returns>
-        [HttpGet("name/{idVill}")]
+        [HttpGet("{idVill}/name")]
         public async Task<IActionResult> GetVillageName(int idVill)
         {
             int? maybeId = HttpContext.User.UserId();
@@ -81,6 +82,62 @@ namespace Server.Controllers.Api
                     Content = "unknown user",
                 };
             }
+        }
+
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/init")]
+        public async Task<IActionResult> InitBat(int idVill)
+        {
+
+            bool result = await Database.VillageDB.InitBatiment(idVill);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/level")]
+        public async Task<IActionResult> GetBuildingLevel(int idVill)
+        {
+
+            Dictionary<string,int> result = await Database.VillageDB.GetLevelBatiment(idVill); ;
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/{building}/construction")]
+        public async Task<IActionResult> GetInConstruction(string building,int idVill)
+        {
+            bool result = await Database.VillageDB.GetBuildingInConstruction(idVill, building);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
         }
     }
 }
