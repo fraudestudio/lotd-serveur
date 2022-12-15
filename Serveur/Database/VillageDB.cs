@@ -218,17 +218,16 @@ namespace Server.Database
                 await conn.OpenAsync();
 
                 string query = "SELECT ID_PERSO,ENTREE,SLOT FROM BATIMENT WHERE ID_BATIMENT = @idB;";
+                string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                 Server.Model.Perso perso = new Server.Model.Perso();
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    MySqlCommand cmd2 = null;
+                    MySqlCommand cmd2 = new MySqlCommand(query2, conn); ;
                     cmd.Parameters.AddWithValue("@idB", idB);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
                     while (dataReader.Read())
                     {
-                        string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
-                        cmd2 = new MySqlCommand(query2, conn);
                         cmd2.Parameters.AddWithValue("@idP", dataReader.GetInt32(0));
                         MySqlDataReader dataReader2 = cmd2.ExecuteReader();
                         if(dataReader2.Read())
@@ -275,15 +274,14 @@ namespace Server.Database
                 {
                     while(dataReader.Read())
                     {
+                        string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                         string query3 = "SELECT ID_PERSO,ENTREE,SLOT FROM BATIMENT WHERE ID_BATIMENT = @idB;";
                         MySqlCommand cmd3 = new MySqlCommand(query3, conn);
-                        MySqlCommand cmd2 = null;
+                        MySqlCommand cmd2 = new MySqlCommand(query2, conn);
                         cmd3.Parameters.AddWithValue("@idB", dataReader.GetInt32(0));
                         MySqlDataReader dataReader3 = cmd.ExecuteReader();
                         while (dataReader3.Read())
                         {
-                            string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
-                            cmd2 = new MySqlCommand(query2, conn);
                             cmd2.Parameters.AddWithValue("@idP", dataReader3.GetInt32(0));
                             MySqlDataReader dataReader2 = cmd2.ExecuteReader();
                             if (dataReader2.Read())
