@@ -121,7 +121,8 @@ input {
 div.box {
 	padding: 30px;
 	margin: 20px;
-	background-color: #ffffff77;
+	background-color: #fff;
+	box-shadow: 2px 2px 6px black;
 }
 
 div.input, div.captcha {

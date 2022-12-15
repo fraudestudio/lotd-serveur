@@ -148,10 +148,7 @@ changeRoute session newRoute =
 
 signOut : Session -> ( Model, Cmd Msg )
 signOut session =
-  let
-    newSession = { session | user = Visitor }
-  in
-    Page.Home.init newSession
+    Page.Home.init (visitor session)
       |> toUpdate Home MsgHome
 
 

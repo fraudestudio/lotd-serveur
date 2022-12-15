@@ -16,7 +16,7 @@ import Http
 
 import Session exposing (..)
 import Route exposing (Route, SignUpFragment(..))
-import Component
+import Helpers exposing (..)
 import Port
 import Api
 
@@ -160,7 +160,8 @@ update msg model =
             }
           , Cmd.none
           )
-        Ok () -> ( { model | section = Success }, Cmd.none )
+        Ok () ->
+          ( { model | section = Success }, Cmd.none )
 
     _ ->
       ( model, Cmd.none )
@@ -194,15 +195,15 @@ viewForm form =
     ]
     [ Html.text form.errorMessage
     ]
-  , Html.form [ Attr.id "signin", Events.onSubmit SignUpRequest ]
-    [ Lazy.lazy Component.formInput
+  , Html.form [ Attr.id "signup", Events.onSubmit SignUpRequest ]
+    [ Lazy.lazy formInput
         { id = "username"
         , type_ = "text"
         , label = "Nom d'utilisateur"
         , required = True
         , onInput = Username
         }
-    , Lazy.lazy Component.formInput
+    , Lazy.lazy formInput
         { id = "email"
         , type_ = "email"
         , label = "Addresse mail"

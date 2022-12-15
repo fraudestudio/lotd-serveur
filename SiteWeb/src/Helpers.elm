@@ -1,4 +1,4 @@
-module Component exposing (formInput)
+module Helpers exposing (formInput, isStrong)
 
 import Html exposing (Html, div, label, text, input)
 import Html.Attributes exposing (id, for, type_, required, class)
@@ -23,3 +23,12 @@ formInput args =
             ]
             [ ]
         ]
+
+
+isStrong : String -> Bool
+isStrong password =
+    String.length password >= 8
+    && String.any Char.isLower password
+    && String.any Char.isUpper password
+    && String.any Char.isDigit password
+    && String.any (\char -> not (Char.isAlphaNum char)) password
