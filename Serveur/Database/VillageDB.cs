@@ -582,7 +582,7 @@ namespace Server.Database
                     cmd.Parameters.AddWithValue("@idV",idV);
                     cmd.Parameters.AddWithValue("@img", raceI + classeI);
                     await cmd.ExecuteNonQueryAsync();
-                    string query2 = "SELECT ID_PERSONNAGE FROM PERSONNAGE WHERE ID_PERSONNAGE = ID_LAST_INSERT();";
+                    string query2 = "SELECT MAX(ID_PERSONNAGE) FROM PERSONNAGE;";
                     MySqlCommand cmd2 = new MySqlCommand(query2, conn);
 
 
@@ -606,11 +606,14 @@ namespace Server.Database
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     await cmd.ExecuteNonQueryAsync();
-                    string query2 = "SELECT ID_EQUIPEMENT FROM EQUIPEMENT WHERE ID_EQUIPEMENT = ID_LAST_INSERT();";
+                    string query2 = "SELECT MAX(ID_EQUIPEMENT) FROM EQUIPEMENT";
                     MySqlCommand cmd2 = new MySqlCommand(query2, conn);
                     MySqlDataReader dataReader = cmd2.ExecuteReader();
-                    dataReader.Read();
-                    idE = dataReader.GetInt32(0);
+                
+                    while (dataReader.Read()) 
+                    { 
+                        idE = dataReader.GetInt32(0);
+                    }
                 }
                 catch (MySqlException ex)
                 {
