@@ -89,7 +89,6 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-<<<<<<< HEAD
                 string query = "INSERT INTO BATIMENT (TYPE_BATIMENT,NIVEAU,ID_VILLAGE,EN_CONSTRUCTION) VALUES (@TB,1,@idV,FALSE);";
                 try
                 {
@@ -97,16 +96,6 @@ namespace Server.Database
                     {
                         MySqlCommand cmd = new MySqlCommand(query, conn);
                         cmd.Parameters.AddWithValue("@idV", idV);
-=======
-                string query = "INSERT INTO BATIMENT (TYPE_BATIMENT,NIVEAU,ID_VILLAGE) VALUES (@TB,1,@idV);";
-                
-                try
-                {
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idV", idV);
-                    for (int i = 0; i < 5; i++)
-                    {
->>>>>>> 17e6d2041a59e0589021f7f088139f3fb4c6f654
                         cmd.Parameters.AddWithValue("@TB", bat[i]);
                         await cmd.ExecuteNonQueryAsync();
                         res = true;
@@ -508,27 +497,6 @@ namespace Server.Database
             return res;
         }
 
-<<<<<<< HEAD
-
-
-        static public async Task<bool> GetBuildingInConstruction(int idV, string building)
-        {
-            bool res = false;
-            using (MySqlConnection conn = DatabaseConnection.NewConnection())
-            {
-                await conn.OpenAsync();
-                try
-                {
-                    string query = "SELECT EN_CONSTRUCTION FROM BATIMENT WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building";
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idV", idV);
-                    cmd.Parameters.AddWithValue("@building", building);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    if (dataReader.Read())
-                    {
-                        res = dataReader.GetBoolean(0);
-                    }
-=======
         /// <summary>
         /// intialise un personnage aléatoire
         /// </summary>
@@ -567,18 +535,12 @@ namespace Server.Database
                     MySqlCommand cmd2 = new MySqlCommand(query2, conn);
 
 
->>>>>>> 17e6d2041a59e0589021f7f088139f3fb4c6f654
                 }
                 catch (MySqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
             }
-<<<<<<< HEAD
-            return res;
-        }
-
-=======
             return idPR;
         }
 
@@ -606,7 +568,34 @@ namespace Server.Database
             }
             return idE;
         }
->>>>>>> 17e6d2041a59e0589021f7f088139f3fb4c6f654
+
+
+        static public async Task<bool> GetBuildingInConstruction(int idV, string building)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT EN_CONSTRUCTION FROM BATIMENT WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    cmd.Parameters.AddWithValue("@building", building);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetBoolean(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
     }
 
 }
