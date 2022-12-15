@@ -11,6 +11,7 @@ using System.Text;
 using System.Security.Principal;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.Drawing.Printing;
 
 namespace Server.Controllers.Api
 {
@@ -157,6 +158,43 @@ namespace Server.Controllers.Api
                     }
 
                 }
+            }
+
+            return result;
+        }
+
+        [Authorize(AuthenticationSchemes = "Basic")]
+        [HttpPost("validate")]
+        public async Task<IActionResult> Validation([FromBody] string newPwd)
+        {
+            ContentResult result = new ContentResult
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+                ContentType = "text/plain",
+                Content = "No result",
+            };
+
+            int id = HttpContext.User.UserId()!.Value;
+            bool validated = HttpContext.User.IsValidated()!.Value;
+
+            if (validated)
+            {
+                result.Content = "T'est déja valider par la street mon reuf";
+            }
+            else
+            {
+                Console.WriteLine($"nouveau mot de passe: \"{newPwd}\"");
+                bool updated = await Database.Account.UpdateMDP(newPwd, id);
+                bool userValidated =await Database.Account.ValidateUser(id);
+
+                if (userValidated && updated)
+                {
+                    return new StatusCodeResult(200);
+                }
+                else
+                {
+                    result.Content = "impossible de valider le compte";
+                }                
             }
 
             return result;
