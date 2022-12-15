@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI.Common;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Auth;
 using Server.Database;
@@ -142,6 +145,20 @@ namespace Server.Controllers.Api
 
 
         /// <summary>
+        /// Get
+        /// </summary>
+        /// <param name="idVill"></param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/resources/get")]
+        public async Task<IActionResult> GetRessources(int idVill)
+        {
+            int[] result = await Database.VillageDB.GetRessource(idVill);
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+
         /// Send
         /// </summary>
         /// <param name="idVill">id of the village</param>
@@ -150,7 +167,6 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SetInConstruction(string building, int idVill)
         {
             bool result = await Database.VillageDB.SetBuildingInConstruction(idVill, building);
-
             return new ContentResult
             {
                 Content = JsonSerializer.Serialize(result),
@@ -158,6 +174,24 @@ namespace Server.Controllers.Api
             };
         }
 
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill"></param>
+        /// <param name="gold"></param>
+        /// <param name="wood"></param>
+        /// <param name="stone"></param>
+        /// <returns></returns>
+        [HttpPost("{idVill}/resources/set")]
+        public async Task<IActionResult> SetRessources(int idVill, int gold, int wood, int stone)
+        {
+            bool result = await Database.VillageDB.UpdateRessources(idVill, wood, stone, gold);
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
 
         /// <summary>
         /// Send
@@ -175,7 +209,6 @@ namespace Server.Controllers.Api
                 ContentType = "application/json; charset=UTF-8",
             };
         }
-
 
         /// <summary>
         /// Send
