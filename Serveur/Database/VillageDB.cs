@@ -329,7 +329,7 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "SELECT ID_BATIMENT FROM VILLAGE WHERE ID_VILLAGE = @idV;";
+                string query = "SELECT ID_BATIMENT FROM BATIMENT WHERE ID_VILLAGE = @idV;";
                 Server.Model.Perso perso = new Server.Model.Perso();
                 MySqlCommand cmd = new MySqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@idV", idV);
