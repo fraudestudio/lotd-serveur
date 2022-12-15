@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Runtime.Intrinsics.Arm;
+using Google.Protobuf.WellKnownTypes;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using Server.Database;
@@ -124,7 +125,7 @@ namespace Server.Database
         static public async Task<bool> InitBatiment(int idV)
         {
             bool res = false;
-            string[] bat = { "TAVERNE", "GUNSMITH", "ENTREPOT", "TRANING_CAMP", "HEALER_HUT" };
+            string[] bat = { "TAVERN", "GUNSMITH", "WAREHOUSE", "TRAINING_CAMP", "HEALER_HUT" };
 
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
@@ -158,7 +159,7 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpBatiment(int idB, int coutB, int coutP, int coutO)
+        static public async Task<bool> UpBatiment(int idV, string building)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -167,42 +168,15 @@ namespace Server.Database
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "SELECT BOIS,PIERRE,ORS,ID_VILLAGE FROM VILLAGE WHERE ID_VILLAGE = (SELECT ID_VILLAGE FROM BATIMENT WHERE ID_BATIMENT = @idB);";
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idB", idB);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    if (dataReader.Read())
-                    {
-                        for (int i = 0; i < 4; i++)
-                        {
-                            temp[i]=dataReader.GetInt32(i);
-                        }
-                        if (temp[0] <= coutB &&
-                        temp[1] <= coutP &&
-                        temp[2] <= coutO)
-                        {
-                            string query2 = "UPDATE VILLAGE SET " +
-                                          "BOIS = @bois - @coutbois, PIERRE = @pierre - @coutpierre, ORS = @ors - @coutors " +
-                                          "WHERE ID_VILLAGE = @idVillage;";
-                            cmd = new MySqlCommand(query2, conn);
-                            cmd.Parameters.AddWithValue("@bois", temp[0]);
-                            cmd.Parameters.AddWithValue("@coutbois", coutB);
-                            cmd.Parameters.AddWithValue("@pierre", temp[1]);
-                            cmd.Parameters.AddWithValue("@coutpierre", coutP);
-                            cmd.Parameters.AddWithValue("@ors", temp[2]);
-                            cmd.Parameters.AddWithValue("@coutors", coutO);
-                            cmd.Parameters.AddWithValue("@idVillage", temp[3]);
-                            await cmd.ExecuteNonQueryAsync();
-                            string query3 = "UPDATE BATIMENT SET " +
-                                            "LEVEL = LEVEL + 1 " +
-                                            "WHERE ID_BATIMENT = @idB;";
-                            cmd = new MySqlCommand(query3, conn);
-                            cmd.Parameters.AddWithValue("@idB", idB);
+                    string query3 = "UPDATE BATIMENT SET " +
+                                    "NIVEAU = NIVEAU + 1 " +
+                                    "WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building;";
+                    MySqlCommand cmd = new MySqlCommand(query3, conn);
+                            cmd.Parameters.AddWithValue("@idV", idV);
+                            cmd.Parameters.AddWithValue("@building", building);
                             await cmd.ExecuteNonQueryAsync();
                             res = true;
-                        }
 
-                    }
                 }
                 catch(MySqlException ex)
                 {
@@ -520,44 +494,21 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpArmurePerso(int idPerso, int coutO)
+        static public async Task<bool> UpArmurePerso(int idPerso)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
-                int[] temp = new int[2];
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "SELECT ORS,ID_VILLAGE FROM VILLAGE WHERE ID_VILLAGE = (SELECT ID_VILLAGE FROM PERSONANGE WHERE ID_VILLAGE = @idV);";
+                    string query = "UPDATE EQUIPEMENT SET" +
+                                 "NIVEAU_ARMURE = NIVEAU_ARMURE + 1 ," +
+                                 "BONUS_ARMURE = BONUS_ARMURE + 10 " +
+                                 "WHERE ID_EQUIPEMENT = (SELECT ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idB", idPerso);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    if (dataReader.Read())
-                    {
-                        for (int i = 0; i < 2; i++)
-                        {
-                            temp[i]=dataReader.GetInt32(i);
-                        }
-                        if (temp[0] <= coutO)
-                        {
-                            string query2 = "UPDATE VILLAGE SET " +
-                                          "ORS = @ors - @coutors " +
-                                          "WHERE ID_VILLAGE = @idVillage;";
-                            cmd = new MySqlCommand(query2, conn);
-                            cmd.Parameters.AddWithValue("@ors", temp[0]);
-                            cmd.Parameters.AddWithValue("@coutors", coutO);
-                            cmd.Parameters.AddWithValue("@idVillage", temp[1]);
-                            await cmd.ExecuteNonQueryAsync();
-                            string query3 = "UPDATE PERSONNAGE SET " +
-                                            "LEVEL_ARMURE = LEVEL_ARMURE + 1 " +
-                                            "WHERE ID_PERSONNAGE = @idP;";
-                            cmd = new MySqlCommand(query3, conn);
-                            cmd.Parameters.AddWithValue("@idP", idPerso);
-                            await cmd.ExecuteNonQueryAsync();
-                            res = true;
-                        }
-                    }
+                    cmd.Parameters.AddWithValue("@idP", idPerso);
+                    await cmd.ExecuteNonQueryAsync();
                 }
                 catch (MySqlException ex)
                 {
@@ -687,6 +638,57 @@ namespace Server.Database
                     if (dataReader.Read())
                     {
                         res = dataReader.GetBoolean(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+
+        static public async Task<bool> SetBuildingInConstruction(int idV, string building)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "UPDATE BATIMENT SET EN_CONSTRUCTION = TRUE, START_CONSTRUCTION = @date WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@date", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    cmd.Parameters.AddWithValue("@building", building);
+                    await cmd.ExecuteNonQueryAsync();
+                    res = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        static public async Task<int> GetBuildingInConstructionTime(int idV, string building)
+        {
+            int res = 0;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT START_CONSTRUCTION FROM BATIMENT WHERE ID_VILLAGE = @idV AND TYPE_BATIMENT = @building";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    cmd.Parameters.AddWithValue("@building", building);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res = (int)Math.Round(DateTime.Now.TimeOfDay.TotalSeconds - dataReader.GetMySqlDateTime(0).GetDateTime().TimeOfDay.TotalSeconds);
                     }
                 }
                 catch (MySqlException ex)

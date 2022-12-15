@@ -131,7 +131,7 @@ namespace Server.Controllers.Api
         /// </summary>
         /// <param name="idVill">id of the village</param>
         /// <returns></returns>
-        [HttpGet("{idVill}/{building}/construction")]
+        [HttpGet("{idVill}/{building}/construction/get")]
         public async Task<IActionResult> GetInConstruction(string building,int idVill)
         {
             bool result = await Database.VillageDB.GetBuildingInConstruction(idVill, building);
@@ -153,7 +153,20 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> GetRessources(int idVill)
         {
             int[] result = await Database.VillageDB.GetRessource(idVill);
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
 
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/{building}/construction/set")]
+        public async Task<IActionResult> SetInConstruction(string building, int idVill)
+        {
+            bool result = await Database.VillageDB.SetBuildingInConstruction(idVill, building);
             return new ContentResult
             {
                 Content = JsonSerializer.Serialize(result),
@@ -173,12 +186,45 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> SetRessources(int idVill, int gold, int wood, int stone)
         {
             bool result = await Database.VillageDB.UpdateRessources(idVill, wood, stone, gold);
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/{building}/construction/gettime")]
+        public async Task<IActionResult> GetInConstructionTime(string building, int idVill)
+        {
+            int result = await Database.VillageDB.GetBuildingInConstructionTime(idVill, building);
 
             return new ContentResult
             {
                 Content = JsonSerializer.Serialize(result),
                 ContentType = "application/json; charset=UTF-8",
             };
-        }        
+        }
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/{building}/construction/up")]
+        public async Task<IActionResult> LevelUpBuilding(string building, int idVill)
+        {
+            bool result = await Database.VillageDB.UpBatiment(idVill, building);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
     }
 }
