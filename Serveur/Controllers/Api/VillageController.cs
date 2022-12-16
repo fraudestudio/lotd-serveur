@@ -251,11 +251,60 @@ namespace Server.Controllers.Api
             {
                 return new ContentResult
                 {
-                    StatusCode = StatusCodes.Status404NotFound,
+                    StatusCode = StatusCodes.Status204NoContent,
                 };
             }
+        }
 
 
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("character/get/{idPerso}")]
+        public async Task<IActionResult> GetCharacterById(int idPerso)
+        {
+            Model.Perso result = await Database.VillageDB.GetPersoById(idPerso);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("character/equipement/get/{idEquipement}")]
+        public async Task<IActionResult> GetEquipementById(int idEquipement)
+        {
+            Model.Equipement result = await Database.VillageDB.GetEquipement(idEquipement);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVillage}/character/get")]
+        public async Task<IActionResult> GerCharacterByVillage(int idVillage)
+        {
+            List<Model.Perso> result = await Database.VillageDB.GetPersoInVillage(idVillage);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
         }
     }
 }
