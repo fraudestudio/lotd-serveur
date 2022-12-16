@@ -226,5 +226,36 @@ namespace Server.Controllers.Api
                 ContentType = "application/json; charset=UTF-8",
             };
         }
+
+
+
+        /// <summary>
+        /// Send
+        /// </summary>
+        /// <param name="idVill">id of the village</param>
+        /// <returns></returns>
+        [HttpGet("{idVill}/character/create")]
+        public async Task<IActionResult> GenerateCharacter(int idVill)
+        {
+            int? result = await Database.VillageDB.InitRandomPerso(idVill);
+
+            if (result is int id)
+            {
+                return new ContentResult
+                {
+                    Content = JsonSerializer.Serialize(id),
+                    ContentType = "application/json; charset=UTF-8",
+                };
+            }
+            else
+            {
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+
+
+        }
     }
 }

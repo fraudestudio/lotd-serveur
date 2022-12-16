@@ -183,7 +183,6 @@ namespace Server.Controllers.Api
             }
             else
             {
-                Console.WriteLine($"nouveau mot de passe: \"{newPwd}\"");
                 bool updated = await Database.Account.UpdateMDP(newPwd, id);
                 bool userValidated =await Database.Account.ValidateUser(id);
 
