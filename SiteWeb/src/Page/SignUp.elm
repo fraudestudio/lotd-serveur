@@ -129,7 +129,7 @@ update msg model =
         , Api.signUpRequest SignUpResponse
           { captcha = form.captchaToken
           , email = form.email
-          , username = form.email }
+          , username = form.username }
         )
       else
         ( { model | section = SignUpForm
