@@ -563,7 +563,7 @@ namespace Server.Database
             return idPR;
         }
 
-        static public async Task<int?> InitEquipement(string classe)
+        static public async Task<int?> InitEquipement()
         {
             int? idE = null;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -577,7 +577,6 @@ namespace Server.Database
                     string query2 = "SELECT MAX(ID_EQUIPEMENT) FROM EQUIPEMENT";
                     MySqlCommand cmd2 = new MySqlCommand(query2, conn);
                     MySqlDataReader dataReader = cmd2.ExecuteReader();
-                
                     while (dataReader.Read()) 
                     { 
                         idE = dataReader.GetInt32(0);
