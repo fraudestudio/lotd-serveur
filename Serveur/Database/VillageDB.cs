@@ -395,8 +395,10 @@ namespace Server.Database
                 {
                     string queryVerif = "SELECT ID_BATIMENT FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                     MySqlCommand cmd = new MySqlCommand(queryVerif, conn);
-                    cmd.Parameters.AddWithValue("@idP", idB);
+                    cmd.Parameters.AddWithValue("@idP", idP);
+                    
                     MySqlDataReader dataReader = cmd.ExecuteReader();
+                    
                     if (dataReader.Read() && dataReader.GetInt32(0) != idB)
                     {
                         string queryDelete = "DELETE FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
