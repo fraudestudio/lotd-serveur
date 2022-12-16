@@ -1,10 +1,12 @@
 using System;
 using System.Data;
 using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Serialization;
 using Google.Protobuf.WellKnownTypes;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using Server.Database;
+using Server.Model;
 
 namespace Server.Database
 {
@@ -248,7 +250,7 @@ namespace Server.Database
                             perso.ID_VILLAGE = dataReader2.GetInt32(7);
                             perso.IMG = dataReader2.GetInt32(8);
                             perso.RACE = dataReader2.GetString(9);
-                            perso.CLASSE = dataReader2.GetInt32(10);
+                            perso.CLASSE = dataReader2.GetString(10);
                             perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
                         }
                         TimeSpan sec = (DateTime.Now - dataReader.GetDateTime(1));
@@ -302,7 +304,7 @@ namespace Server.Database
                             perso.ID_VILLAGE = dataReader2.GetInt32(7);
                             perso.IMG = dataReader2.GetInt32(8);
                             perso.RACE = dataReader2.GetString(9);
-                            perso.CLASSE = dataReader2.GetInt32(10);
+                            perso.CLASSE = dataReader2.GetString(10);
                             perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
                         }
                         res.Add(perso);
@@ -329,42 +331,28 @@ namespace Server.Database
             {
                 await conn.OpenAsync();
 
-                string query = "SELECT ID_BATIMENT FROM BATIMENT WHERE ID_VILLAGE = @idV;";
-                Server.Model.Perso perso = new Server.Model.Perso();
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@idV", idV);
-                MySqlDataReader dataReader = cmd.ExecuteReader();
+                string query = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_VILLAGE = @idV";
                 try
                 {
-                    while(dataReader.Read())
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idV);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    while (dataReader.Read())
                     {
-                        string query2 = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,PM_MAX,PA_MAX,ID_VILLAGE,IMG,RACE,CLASSE,ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
-                        string query3 = "SELECT ID_PERSO,ENTREE,SLOT FROM BATIMENT WHERE ID_BATIMENT = @idB;";
-                        MySqlCommand cmd3 = new MySqlCommand(query3, conn);
-                        MySqlCommand cmd2 = new MySqlCommand(query2, conn);
-                        cmd3.Parameters.AddWithValue("@idB", dataReader.GetInt32(0));
-                        MySqlDataReader dataReader3 = cmd.ExecuteReader();
-                        while (dataReader3.Read())
-                        {
-                            cmd2.Parameters.AddWithValue("@idP", dataReader3.GetInt32(0));
-                            MySqlDataReader dataReader2 = cmd2.ExecuteReader();
-                            if (dataReader2.Read())
-                            {
-                                perso.Id = dataReader2.GetInt32(0);
-                                perso.Level = dataReader2.GetInt32(1);
-                                perso.PV = dataReader2.GetInt32(2);
-                                perso.PV_MAX = dataReader2.GetInt32(3);
-                                perso.Name = dataReader2.GetString(4);
-                                perso.PM_MAX = dataReader2.GetInt32(5);
-                                perso.PA_MAX = dataReader2.GetInt32(6);
-                                perso.ID_VILLAGE = dataReader2.GetInt32(7);
-                                perso.IMG = dataReader2.GetInt32(8);
-                                perso.RACE = dataReader2.GetString(9);
-                                perso.CLASSE = dataReader2.GetInt32(10);
-                                perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
-                            }
-                            res.Add(perso);
-                        }
+                        Perso perso = new Perso();
+                        perso.Id = dataReader.GetInt32(0);
+                        perso.Level = dataReader.GetInt32(1);
+                        perso.PV = dataReader.GetInt32(2);
+                        perso.PV_MAX = dataReader.GetInt32(3);
+                        perso.Name = dataReader.GetString(4);
+                        perso.PM_MAX = dataReader.GetInt32(5);
+                        perso.PA_MAX = dataReader.GetInt32(6);
+                        perso.ID_VILLAGE = dataReader.GetInt32(7);
+                        perso.IMG = dataReader.GetInt32(8);
+                        perso.RACE = dataReader.GetString(9);
+                        perso.CLASSE = dataReader.GetString(10);
+                        perso.ID_EQUIPEMENT = dataReader.GetInt32(11);
+                        res.Add(perso);
                     }
                 }
                 catch(MySqlException ex)
@@ -395,8 +383,10 @@ namespace Server.Database
                 {
                     string queryVerif = "SELECT ID_BATIMENT FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
                     MySqlCommand cmd = new MySqlCommand(queryVerif, conn);
-                    cmd.Parameters.AddWithValue("@idP", idB);
+                    cmd.Parameters.AddWithValue("@idP", idP);
+                    
                     MySqlDataReader dataReader = cmd.ExecuteReader();
+                    
                     if (dataReader.Read() && dataReader.GetInt32(0) != idB)
                     {
                         string queryDelete = "DELETE FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
@@ -429,45 +419,20 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpArmePerso(int idPerso, int coutO)
+        static public async Task<bool> UpArmePerso(int idEquipement)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
             {
-                int[] temp = new int[2];
                 await conn.OpenAsync();
                 try
                 {
-                    string query = "SELECT ORS,ID_VILLAGE FROM VILLAGE WHERE ID_VILLAGE = (SELECT ID_VILLAGE FROM PERSONANGE WHERE ID_VILLAGE = @idV);";
+                    string query = "UPDATE EQUIPEMENT SET" +
+                                 "NIVEAU_ARME = NIVEAU_ARME + 1"+ 
+                                 "WHERE ID_EQUIPEMENT = @idE";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idB", idPerso);
-                    MySqlDataReader dataReader = cmd.ExecuteReader();
-                    if (dataReader.Read())
-                    {
-                        for (int i = 0; i < 2; i++)
-                        {
-                            temp[i] = dataReader.GetInt32(i);
-                        }
-                        if (temp[0] <= coutO)
-                        {
-                            string query2 = "UPDATE VILLAGE SET " +
-                                          "ORS = @ors - @coutors " +
-                                          "WHERE ID_VILLAGE = @idVillage;";
-                            cmd = new MySqlCommand(query2, conn);
-                            cmd.Parameters.AddWithValue("@ors", temp[0]);
-                            cmd.Parameters.AddWithValue("@coutors", coutO);
-                            cmd.Parameters.AddWithValue("@idVillage",temp[1]);
-                            await cmd.ExecuteNonQueryAsync();
-                            string query3 = "UPDATE PERSONNAGE SET " +
-                                            "LEVEL_ARME = LEVEL_ARME + 1 " +
-                                            "WHERE ID_PERSONNAGE = @idP;";
-                            cmd = new MySqlCommand(query3, conn);
-                            cmd.Parameters.AddWithValue("@idP", idPerso);
-                            await cmd.ExecuteNonQueryAsync();
-                            res = true;
-                        }
-
-                    }
+                    cmd.Parameters.AddWithValue("@idE", idEquipement);
+                    await cmd.ExecuteNonQueryAsync();
                 }
                 catch (MySqlException ex)
                 {
@@ -485,7 +450,7 @@ namespace Server.Database
         /// <param name="coutP"></param>
         /// <param name="coutO"></param>
         /// <returns></returns>
-        static public async Task<bool> UpArmurePerso(int idPerso)
+        static public async Task<bool> UpArmurePerso(int idEquipement)
         {
             bool res = false;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -494,11 +459,10 @@ namespace Server.Database
                 try
                 {
                     string query = "UPDATE EQUIPEMENT SET" +
-                                 "NIVEAU_ARMURE = NIVEAU_ARMURE + 1 ," +
-                                 "BONUS_ARMURE = BONUS_ARMURE + 10 " +
-                                 "WHERE ID_EQUIPEMENT = (SELECT ID_EQUIPEMENT FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP;";
+                                 "NIVEAU_ARMURE = NIVEAU_ARMURE + 1" +
+                                 "WHERE ID_EQUIPEMENT = @idE";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idP", idPerso);
+                    cmd.Parameters.AddWithValue("@idE", idEquipement);
                     await cmd.ExecuteNonQueryAsync();
                 }
                 catch (MySqlException ex)
@@ -570,13 +534,17 @@ namespace Server.Database
                         PM = 2;
                     }
                     cmd.Parameters.AddWithValue("@PM", PM);
-                    cmd.Parameters.AddWithValue("@idE",await InitEquipement(classe[classeI]));
+                    cmd.Parameters.AddWithValue("@idE",await InitEquipement());
                     cmd.Parameters.AddWithValue("@idV",idV);
                     cmd.Parameters.AddWithValue("@img", raceI + classeI);
                     await cmd.ExecuteNonQueryAsync();
-                    string query2 = "SELECT ID_PERSONNAGE FROM PERSONNAGE WHERE ID_PERSONNAGE = ID_LAST_INSERT();";
+                    string query2 = "SELECT MAX(ID_PERSONNAGE) FROM PERSONNAGE;";
                     MySqlCommand cmd2 = new MySqlCommand(query2, conn);
-
+                    MySqlDataReader dataReader = cmd2.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        idPR = dataReader.GetInt32(0);
+                    }
 
                 }
                 catch (MySqlException ex)
@@ -587,7 +555,8 @@ namespace Server.Database
             return idPR;
         }
 
-        static public async Task<int?> InitEquipement(string classe)
+
+        static public async Task<int?> InitEquipement()
         {
             int? idE = null;
             using (MySqlConnection conn = DatabaseConnection.NewConnection())
@@ -598,11 +567,13 @@ namespace Server.Database
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     await cmd.ExecuteNonQueryAsync();
-                    string query2 = "SELECT ID_EQUIPEMENT FROM EQUIPEMENT WHERE ID_EQUIPEMENT = ID_LAST_INSERT();";
+                    string query2 = "SELECT MAX(ID_EQUIPEMENT) FROM EQUIPEMENT";
                     MySqlCommand cmd2 = new MySqlCommand(query2, conn);
                     MySqlDataReader dataReader = cmd2.ExecuteReader();
-                    dataReader.Read();
-                    idE = dataReader.GetInt32(0);
+                    while (dataReader.Read()) 
+                    { 
+                        idE = dataReader.GetInt32(0);
+                    }
                 }
                 catch (MySqlException ex)
                 {
@@ -611,6 +582,74 @@ namespace Server.Database
             }
             return idE;
         }
+
+        static public async Task<Model.Equipement> GetEquipement(int idEquipement)
+        {
+            Model.Equipement equipement = new Model.Equipement();
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT ID_EQUIPEMENT,BONUS_ARMURE, BONUS_ARME, IMG_ARMURE, IMG_ARME, NIVEAU_ARME, NIVEAU_ARMURE FROM EQUIPEMENT WHERE ID_EQUIPEMENT = @idE";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idE", idEquipement);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        equipement.Id = dataReader.GetInt32(0);
+                        equipement.BonusArmor = dataReader.GetInt32(1);
+                        equipement.BonusWeapon = dataReader.GetInt32(2);
+                        equipement.ImgArmor = dataReader.GetInt32(3);
+                        equipement.ImgWeapon = dataReader.GetInt32(4);
+                        equipement.LevelWeapon = dataReader.GetInt32(5);
+                        equipement.LevelArmor = dataReader.GetInt32(6);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return equipement;
+        }
+
+        static public async Task<Model.Perso> GetPersoById(int idP)
+        {
+            Model.Perso res = new Model.Perso();
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT ID_PERSONNAGE,LEVEL,PV,PV_MAX,NOM,CLASSE,RACE,PA_MAX,PM_MAX,ID_EQUIPEMENT,ID_VILLAGE,IMG FROM PERSONNAGE WHERE ID_PERSONNAGE = @idP";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idP", idP);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res.Id = dataReader.GetInt32(0);
+                        res.Level = dataReader.GetInt32(1);
+                        res.PV = dataReader.GetInt32(2);
+                        res.PV_MAX = dataReader.GetInt32(3);
+                        res.Name = dataReader.GetString(4);
+                        res.CLASSE = dataReader.GetString(5);
+                        res.RACE = dataReader.GetString(6);
+                        res.PA_MAX = dataReader.GetInt32(7);
+                        res.PM_MAX = dataReader.GetInt32(8);
+                        res.ID_EQUIPEMENT = dataReader.GetInt32(9);
+                        res.ID_VILLAGE = dataReader.GetInt32(10);
+                        res.IMG = dataReader.GetInt32(11);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
 
 
         static public async Task<bool> GetBuildingInConstruction(int idV, string building)
@@ -676,6 +715,60 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idV", idV);
                     cmd.Parameters.AddWithValue("@building", building);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res = (int)Math.Round(DateTime.Now.TimeOfDay.TotalSeconds - dataReader.GetMySqlDateTime(0).GetDateTime().TimeOfDay.TotalSeconds);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// update l'attribut Start_TIme de stock perso et le set à l'heure actuel pour le perso préciser
+        /// </summary>
+        /// <param name="idP"></param>
+        /// <returns></returns>
+        static public async Task<bool> StartBatimentFunction(int idP)
+        {
+            bool res = false;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "UPDATE STOCK_BATIMENT SET START_TIME = @date WHERE ID_PERSONNAGE = @idP ";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@date", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@idP", idP);
+                    await cmd.ExecuteNonQueryAsync();
+                    res = true;
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return res;
+        }
+
+
+        static public async Task<int> GetTimeBatimentFonction(int idP)
+        {
+            int res = 0;
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT START_TIME FROM STOCK_PERSONNAGE WHERE ID_PERSONNAGE = @idP";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@idV", idP);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
                     if (dataReader.Read())
                     {
