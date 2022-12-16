@@ -154,6 +154,12 @@ update msg model =
             }
           , Cmd.none
           )
+        Err Api.Unauthorized ->
+          ( { model | section = SignUpForm
+              { form | errorMessage = "Erreur interne" }
+            }
+          , Cmd.none
+          )
         Err (Api.Message message) ->
           ( { model | section = SignUpForm
               { form | errorMessage = message }

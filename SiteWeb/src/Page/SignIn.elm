@@ -77,6 +77,10 @@ update msg model =
           ( { model | status = Failed "Impossible de se connecter au serveur" }
           , Cmd.none
           )
+        Err Api.Unauthorized ->
+          ( { model | status = Failed "Identifiant ou mot de passe invalide" }
+          , Cmd.none
+          )
         Err (Api.Message message) ->
           ( { model | status = Failed message }
           , Cmd.none

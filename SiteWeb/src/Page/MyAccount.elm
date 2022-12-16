@@ -31,5 +31,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
   Html.main_ [ ]
-    [ Html.h2 [ ] [ Html.text "Mon compte" ]
+    [ Html.div [ Attr.class "box" ]
+      [ Html.h1 [ ] [ Html.text "Mon compte" ]
+      , Html.p [ ] [ Html.text "Cette fonctionnalité n'est pas encore disponible" ]
+      ]
     ]

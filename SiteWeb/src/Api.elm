@@ -60,6 +60,7 @@ type Error
   = Internal
   | Network
   | Message String
+  | Unauthorized
 
 
 type alias Result a = Result.Result Error a
@@ -85,6 +86,7 @@ expectBase toMsg fromString =
         Http.BadStatus_ metadata body ->
           case metadata.statusCode of
             400 -> Err (Message body)
+            401 -> Err Unauthorized
             _ -> Err Internal
 
         Http.GoodStatus_ metadata body ->

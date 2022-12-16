@@ -65,13 +65,16 @@ update msg model =
       )
 
     PasswordAgain passwordAgain ->
-      ( { model | passwordAgain = passwordAgain, status = checkPasswords model }
+      ( { model
+        | passwordAgain = passwordAgain
+        , status = checkPasswords model.password passwordAgain 
+        }
       , Cmd.none
       )
 
     ValidationRequest ->
       let
-        status = checkPasswords model
+        status = checkPasswords model.password model.passwordAgain
       in
         if status == Initial then
           ( { model | status = InProgress }
@@ -98,16 +101,25 @@ update msg model =
           ( { model | status = Failed message }
           , Cmd.none
           )
+        Err Api.Unauthorized ->
+          ( { model | session = visitor model.session }
+          , Nav.pushUrl model.session.key "/signin"
+          )
         Ok _ ->
           ( { model | session = visitor model.session }
           , Nav.pushUrl model.session.key "/"
           )
 
 
-checkPasswords : Model -> Status
-checkPasswords model =
-  if model.password /= model.passwordAgain then
+checkPasswords : String -> String -> Status
+checkPasswords password1 password2 =
+  if password1 /= password2 then
     Failed "Les mots de passe ne correspondent pas"
+  else if not (isStrong password1) then
+    Failed (
+      "Le mot de passe doit faire au moins 8 caractères et contenir "
+      ++ "au moins une minuscule, une majuscule, un chiffre et un symbole"
+    )
   else
     Initial
 
