@@ -8,6 +8,7 @@ module Page.SignUp exposing (
   view )
 
 import Browser exposing (Document)
+import Browser.Navigation as Nav
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Lazy as Lazy
@@ -16,7 +17,7 @@ import Http
 
 import Session exposing (..)
 import Route exposing (Route, SignUpFragment(..))
-import Component
+import Helpers exposing (..)
 import Port
 import Api
 
@@ -29,7 +30,7 @@ type alias Model =
 
 type Section
   = SignUpForm FormModel
-  | Success
+  | Success SuccessModel
 
 
 type alias FormModel =
@@ -38,6 +39,11 @@ type alias FormModel =
   , captchaFilled : Bool
   , captchaToken : String
   , errorMessage : String
+  }
+
+
+type alias SuccessModel =
+  { email : Maybe String
   }
 
 
@@ -66,7 +72,9 @@ init oldSession fragment =
               }
 
           SignUpSuccess ->
-            Success 
+            Success
+              { email = Nothing
+              }
       )
     }
   , if fragment == JustSignUp then
@@ -129,7 +137,7 @@ update msg model =
         , Api.signUpRequest SignUpResponse
           { captcha = form.captchaToken
           , email = form.email
-          , username = form.email }
+          , username = form.username }
         )
       else
         ( { model | section = SignUpForm
@@ -154,13 +162,23 @@ update msg model =
             }
           , Cmd.none
           )
+        Err Api.Unauthorized ->
+          ( { model | section = SignUpForm
+              { form | errorMessage = "Erreur interne" }
+            }
+          , Cmd.none
+          )
         Err (Api.Message message) ->
           ( { model | section = SignUpForm
               { form | errorMessage = message }
             }
           , Cmd.none
           )
-        Ok () -> ( { model | section = Success }, Cmd.none )
+        Ok () ->
+          ( { model | section = Success
+              { email = Just form.email }
+            }
+          , Nav.replaceUrl model.session.key "/myaccount" )
 
     _ ->
       ( model, Cmd.none )
@@ -175,11 +193,8 @@ view model =
             SignUpForm form ->
               viewForm form
 
-            Success ->
-              [ Html.p [ ]
-                [ Html.text "Inscription réussie !"
-                ]
-              ]
+            Success success ->
+              viewSuccess success
         )
       )
     ]
@@ -194,15 +209,15 @@ viewForm form =
     ]
     [ Html.text form.errorMessage
     ]
-  , Html.form [ Attr.id "signin", Events.onSubmit SignUpRequest ]
-    [ Lazy.lazy Component.formInput
+  , Html.form [ Attr.id "signup", Events.onSubmit SignUpRequest ]
+    [ Lazy.lazy formInput
         { id = "username"
         , type_ = "text"
         , label = "Nom d'utilisateur"
         , required = True
         , onInput = Username
         }
-    , Lazy.lazy Component.formInput
+    , Lazy.lazy formInput
         { id = "email"
         , type_ = "email"
         , label = "Addresse mail"
@@ -214,6 +229,30 @@ viewForm form =
       ]
     , Html.div [ Attr.class "input" ]
       [ Html.input [ Attr.type_ "submit", Attr.value "S'inscrire" ] [ ]
+      ]
+    ]
+  ]
+
+viewSuccess : SuccessModel -> List (Html Msg)
+viewSuccess model =
+  [ Html.p [ ] [ Html.text "Inscription réussie !" ]
+  , Html.p [ ]
+    [ Html.text (
+        "Un e-mail de confirmation vous a été envoyé"
+        ++ (
+          Maybe.withDefault ""
+            (Maybe.map (\email -> " à l'adresse " ++ email) model.email)
+        )
+        ++ "."
+      )
+    ]
+  , Html.p [ ]
+    [ Html.i [ ]
+      [ Html.text (
+          "Si vous ne recevez pas d'e-mail, pensez à regarder "
+          ++ "votre boîte de spam. Vous pouvez aussi essayer de vous "
+          ++ "réinscrire avec le même nom d'utilisateur."
+        )
       ]
     ]
   ]

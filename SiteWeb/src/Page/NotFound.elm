@@ -31,8 +31,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
   Html.main_ [ ]
-    [ Html.p [ ] [ Html.text "Page introuvable" ]
-    , Html.p [ ]
-      [ Html.a [ Attr.href "/" ] [ Html.text "revenir à l'accueil" ]
+    [ Html.div [ Attr.class "box" ]
+      [ Html.h1 [ ] [ Html.text "Page introuvable" ]
+      , Html.a [ Attr.href "/" ] [ Html.text "Retour à l'accueil" ]
       ]
     ]

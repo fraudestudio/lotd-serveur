@@ -1,4 +1,4 @@
-module Session exposing (Session, User(..), withUser)
+module Session exposing (Session, User(..), validated, notValidated, visitor)
 
 import Browser.Navigation as Nav
 
@@ -11,12 +11,33 @@ type alias Session =
   }
 
 
+type alias BasicCredentials =
+  { userId : String
+  , password : String
+  }
+
+
+type alias BearerCredentials =
+  { token : String
+  }
+
+
 type User
-  = Validated { sessionToken : String }
-  | NotValidated { userId : String, password : String }
+  = Validated BearerCredentials
+  | NotValidated BasicCredentials
   | Visitor
 
 
-withUser : Session -> User -> Session
-withUser session user =
-  { session | user = user }
+validated : Session -> BearerCredentials -> Session
+validated session creds =
+  { session | user = Validated creds }
+
+
+notValidated : Session -> BasicCredentials -> Session
+notValidated session creds =
+  { session | user = NotValidated creds }
+
+
+visitor : Session -> Session
+visitor session =
+  { session | user = Visitor }

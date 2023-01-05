@@ -148,10 +148,7 @@ changeRoute session newRoute =
 
 signOut : Session -> ( Model, Cmd Msg )
 signOut session =
-  let
-    newSession = { session | user = Visitor }
-  in
-    Page.Home.init newSession
+    Page.Home.init (visitor session)
       |> toUpdate Home MsgHome
 
 
@@ -226,7 +223,7 @@ toView session toMsg title body =
   , body = 
     [ Html.header [ ]
       [ Html.a [ Attr.href "/" ]
-        [ Html.img [ Attr.src "/static/image.png" ] [ ]
+        [ Html.img [ Attr.src "/static/image.png", Attr.alt "Lord Of The Dungeons" ] [ ]
         ]
       , viewHeader session 
       ]
