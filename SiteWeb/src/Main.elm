@@ -223,7 +223,7 @@ toView session toMsg title body =
   , body = 
     [ Html.header [ ]
       [ Html.a [ Attr.href "/" ]
-        [ Html.img [ Attr.src "/static/image.png" ] [ ]
+        [ Html.img [ Attr.src "/static/image.png", Attr.alt "Lord Of The Dungeons" ] [ ]
         ]
       , viewHeader session 
       ]

@@ -114,7 +114,7 @@ view model =
           Initial ->
             Html.p [ Attr.class "no-error" ] [ ]
           InProgress ->
-            Html.p [ Attr.class "error" ] [Html.text "Connexion..." ]
+            Html.p [ Attr.class "loading" ] [Html.text "Connexion" ]
           Failed msg ->
             Html.p [ Attr.class "error" ] [ Html.text msg ]
       , viewForm model

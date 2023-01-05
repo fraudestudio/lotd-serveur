@@ -8,6 +8,7 @@ module Page.SignUp exposing (
   view )
 
 import Browser exposing (Document)
+import Browser.Navigation as Nav
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Lazy as Lazy
@@ -29,7 +30,7 @@ type alias Model =
 
 type Section
   = SignUpForm FormModel
-  | Success
+  | Success SuccessModel
 
 
 type alias FormModel =
@@ -38,6 +39,11 @@ type alias FormModel =
   , captchaFilled : Bool
   , captchaToken : String
   , errorMessage : String
+  }
+
+
+type alias SuccessModel =
+  { email : Maybe String
   }
 
 
@@ -66,7 +72,9 @@ init oldSession fragment =
               }
 
           SignUpSuccess ->
-            Success 
+            Success
+              { email = Nothing
+              }
       )
     }
   , if fragment == JustSignUp then
@@ -167,7 +175,10 @@ update msg model =
           , Cmd.none
           )
         Ok () ->
-          ( { model | section = Success }, Cmd.none )
+          ( { model | section = Success
+              { email = Just form.email }
+            }
+          , Nav.replaceUrl model.session.key "/myaccount" )
 
     _ ->
       ( model, Cmd.none )
@@ -182,11 +193,8 @@ view model =
             SignUpForm form ->
               viewForm form
 
-            Success ->
-              [ Html.p [ ]
-                [ Html.text "Inscription réussie !"
-                ]
-              ]
+            Success success ->
+              viewSuccess success
         )
       )
     ]
@@ -221,6 +229,30 @@ viewForm form =
       ]
     , Html.div [ Attr.class "input" ]
       [ Html.input [ Attr.type_ "submit", Attr.value "S'inscrire" ] [ ]
+      ]
+    ]
+  ]
+
+viewSuccess : SuccessModel -> List (Html Msg)
+viewSuccess model =
+  [ Html.p [ ] [ Html.text "Inscription réussie !" ]
+  , Html.p [ ]
+    [ Html.text (
+        "Un e-mail de confirmation vous a été envoyé"
+        ++ (
+          Maybe.withDefault ""
+            (Maybe.map (\email -> " à l'adresse " ++ email) model.email)
+        )
+        ++ "."
+      )
+    ]
+  , Html.p [ ]
+    [ Html.i [ ]
+      [ Html.text (
+          "Si vous ne recevez pas d'e-mail, pensez à regarder "
+          ++ "votre boîte de spam. Vous pouvez aussi essayer de vous "
+          ++ "réinscrire avec le même nom d'utilisateur."
+        )
       ]
     ]
   ]

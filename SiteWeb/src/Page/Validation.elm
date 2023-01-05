@@ -129,11 +129,12 @@ view model =
   Html.main_ [ ]
     [ Html.div [ Attr.class "box" ]
       [ Html.h1 [ ] [ Html.text "Validation du compte" ]
+      , Html.p [ ] [ Html.text "Première connexion: veuillez changer votre mot de passe afin de valider votre compte." ]
       , case model.status of
           Initial ->
             Html.p [ Attr.class "no-error" ] [ ]
           InProgress ->
-            Html.p [ Attr.class "error" ] [Html.text "Validation..." ]
+            Html.p [ Attr.class "loading" ] [Html.text "Validation" ]
           Failed msg ->
             Html.p [ Attr.class "error" ] [ Html.text msg ]
       , viewForm model
@@ -145,14 +146,14 @@ viewForm : Model -> Html Msg
 viewForm model =
   Html.form [ Attr.id "validation", Events.onSubmit ValidationRequest ]
     [ Lazy.lazy formInput
-        { id = "password"
+        { id = "newPassword"
         , type_ = "password"
         , label = "Mot de passe"
         , required = True
         , onInput = Password
         }
     , Lazy.lazy formInput
-        { id = "passwordAgain"
+        { id = "newPasswordAgain"
         , type_ = "password"
         , label = "Répéter le mot de passe"
         , required = True
