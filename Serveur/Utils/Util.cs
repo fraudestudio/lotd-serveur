@@ -31,25 +31,19 @@ namespace Server.Utils
             return result;
         }
 
-        static public byte[] StoB(string s, string sel)
-        {
-            Byte[] b = Encoding.UTF8.GetBytes(s + sel);
-            return b;
-        }
-
-        static public byte[] BtoH(string mdp, string sel)
+        static public byte[] ComputeHash(string password, string salt)
         {
             Byte[] res = new Byte[32];
             using (SHA256 sha256Hash = SHA256.Create())
             {
-                res = sha256Hash.ComputeHash(StoB(mdp, sel));
+                res = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password, salt));
             }
             return res;
         }
 
-        static public bool VerifyH(string mdp, string sel, Byte[] hash)
+        static public bool CompareHash(string password, string salt, Byte[] hash)
         {
-            Byte[] temp = BtoH(mdp, sel);
+            Byte[] temp = ComputeHash(password, salt);
             return Enumerable.SequenceEqual(temp, hash);
         }
 
