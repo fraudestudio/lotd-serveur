@@ -306,5 +306,18 @@ namespace Server.Controllers.Api
                 ContentType = "application/json; charset=UTF-8",
             };
         }
+
+        [HttpGet("{idVillage}/character/get/inventaire")]
+        public async Task<IActionResult> GetInventaire(int idVillage)
+        {
+            List<Model.Perso> result = await Database.VillageDB.GetPersoInInventaire(idVillage);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
     }
 }

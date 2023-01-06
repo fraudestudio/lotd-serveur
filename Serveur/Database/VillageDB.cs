@@ -287,28 +287,39 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@idB", idB);
                     MySqlDataReader dataReader = cmd.ExecuteReader();
+                    
+                    int[] idTemp = new int[dataReader.FieldCount];
+                    int i = 0;
+                    
                     while (dataReader.Read())
                     {
-                        MySqlCommand cmd2 = new MySqlCommand(query2, conn);
-                        cmd2.Parameters.AddWithValue("@idP", dataReader.GetInt32(0));
-                        MySqlDataReader dataReader2 = cmd2.ExecuteReader();
-                        if (dataReader2.Read())
-                        {
-                            perso.Id = dataReader2.GetInt32(0);
-                            perso.Level = dataReader2.GetInt32(1);
-                            perso.PV = dataReader2.GetInt32(2);
-                            perso.PV_MAX = dataReader2.GetInt32(3);
-                            perso.Name = dataReader2.GetString(4);
-                            perso.PM_MAX = dataReader2.GetInt32(5);
-                            perso.PA_MAX = dataReader2.GetInt32(6);
-                            perso.ID_VILLAGE = dataReader2.GetInt32(7);
-                            perso.IMG = dataReader2.GetInt32(8);
-                            perso.RACE = dataReader2.GetString(9);
-                            perso.CLASSE = dataReader2.GetString(10);
-                            perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
-                        }
+                        idTemp[i] = (dataReader.GetInt32(0));
+                    }
+
+                    
+                    foreach(int id in idTemp)
+                    {
+                        MySqlCommand cmd2 = new MySqlCommand(query2, conn); ;
+                        cmd2.Parameters.AddWithValue("@idP", id);
+                        MySqlDataReader dataReader2 = cmd.ExecuteReader();
+
+                        perso.Id = dataReader2.GetInt32(0);
+                        perso.Level = dataReader2.GetInt32(1);
+                        perso.PV = dataReader2.GetInt32(2);
+                        perso.PV_MAX = dataReader2.GetInt32(3);
+                        perso.Name = dataReader2.GetString(4);
+                        perso.PM_MAX = dataReader2.GetInt32(5);
+                        perso.PA_MAX = dataReader2.GetInt32(6);
+                        perso.ID_VILLAGE = dataReader2.GetInt32(7);
+                        perso.IMG = dataReader2.GetInt32(8);
+                        perso.RACE = dataReader2.GetString(9);
+                        perso.CLASSE = dataReader2.GetString(10);
+                        perso.ID_EQUIPEMENT = dataReader2.GetInt32(11);
+
                         res.Add(perso);
                     }
+                    
+                    
                 }
                 catch (MySqlException ex)
                 {
