@@ -4,12 +4,13 @@ namespace Server.Utils
 	{
 		static private String EXECUTABLE = Environment.GetEnvironmentVariable("GAME_EXECUTABLE") ?? "";
 
-		public static int? LaunchInstance()
+		public static int? LaunchInstance(String arguments)
 		{
 			Process process = Process.Start(
 				new ProcessStartInfo
 				{
 					FileName = Launcher.EXECUTABLE,
+					Arguments = arguments,
 					RedirectStandardOutput = true,
 					UseShellExecute = false
 				}
