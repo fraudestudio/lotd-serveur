@@ -310,7 +310,7 @@ namespace Server.Controllers.Api
         [HttpPost("{idVillage}/expedition")]
         public async Task<IActionResult> StartExpedition(int idVillage, List<int> characters)
         {
-            String args = String.Join(" ", characters.Select(n => n.ToString()))
+            String args = String.Join(" ", characters.Select(n => n.ToString()));
             
             if(Launcher.LaunchInstance(args) is int port) {
                 return new ContentResult
@@ -325,7 +325,7 @@ namespace Server.Controllers.Api
                 {
                     Content = "Impossible de démarrer une nouvelle instance du serveur de jeu",
                     ContentType = "application/json; charset=UTF-8",
-                    StatusCode = StatusCodes.Status503ServiceUnavailable;
+                    StatusCode = StatusCodes.Status503ServiceUnavailable,
                 };
             }
         }

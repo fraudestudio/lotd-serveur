@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Server.Utils
 {
 	public class Launcher
