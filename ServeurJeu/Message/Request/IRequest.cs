@@ -1,7 +1,11 @@
+using Game.Message;
+
 namespace Game.Message.Request
 {
 	public interface IRequest
-	: ISerializable<IRequest, RequestType>
 	{
+		public RequestType Type { get; }
+
+		public void FromData(String[] data);
 	}
 }

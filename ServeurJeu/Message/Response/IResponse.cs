@@ -1,7 +1,12 @@
+using Game.Message;
+using Game.Networking;
+
 namespace Game.Message.Response
 {
 	public interface IResponse
-	: ISerializable<IResponse, ResponseType>, Dispatchable
 	{
+		public ResponseType Type { get; }
+
+		public String[] ToData();
 	}
 }
