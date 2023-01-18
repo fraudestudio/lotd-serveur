@@ -56,9 +56,15 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+
+RoomGenerationAlgorithm generationAlgorithm = new RoomGenerationAlgorithm();
+generationAlgorithm.Afficher();
+
 Thread mailThread = new Thread(Email.SendMessages);
 mailThread.IsBackground = true;
 mailThread.Start();
+
+
 app.Run();
 
 

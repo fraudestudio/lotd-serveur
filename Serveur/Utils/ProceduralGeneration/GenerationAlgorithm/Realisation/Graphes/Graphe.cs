@@ -1,8 +1,8 @@
 ﻿using Server.Utils.ProceduralGeneration;
-using Server.Utils.ProceduralGeneration;
 using Server.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation.Graphes;
 using Serveur.Utils.ProceduralGeneration.Carte;
 using Serveur.Utils.ProceduralGeneration.Carte.Salles;
+using Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 

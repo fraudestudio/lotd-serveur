@@ -8,19 +8,19 @@ using Serveur.Utils.ProceduralGeneration.Carte.Salles;
 
 namespace Serveur.Utils.ProceduralGeneration.Carte
 {
-    /// <summary>
-    /// Classe représentant une carte de jeu
-    /// </summary>
     public class Carte
     {
-              
         //Taille des cartes
-        public static int Taille => 6;
+        private static int taille;
+        public static int Taille { get => taille; set => taille = value; }
 
         /// <summary>
         /// Tableau des salles (0,0) en haut à gauche
         /// </summary>
         public Salle[,] Salles => salles;
+
+
+
         private Salle[,] salles;
 
         public Carte()
@@ -39,15 +39,14 @@ namespace Serveur.Utils.ProceduralGeneration.Carte
             //Création de la salle
             Salle salle = FabriqueSalle.Creer(typeSalle, ligne, colonne);
             //Positionnement de la salle
-            for (int i = ligne; i < ligne + salle.Hauteur; i++)
+            for (int i = ligne; i < ligne + 1; i++)
             {
-                for (int j = colonne; j < colonne + salle.Largeur; j++)
+                for (int j = colonne; j < colonne + 1; j++)
                 {
                     this.salles[i, j] = salle;
                 }
             }
         }
-
     }
 }
 

@@ -9,13 +9,6 @@
         {
         }
 
-        public override void Generation()
-        {
-            //Génération fixe que l'on modifiera plus tard
-            base.Generation();
-            this.NbMonstre = 2;
-            this.NbItems = 1;
-        }
 
         public override TypeSalle Type => TypeSalle.NORMALE;
     }

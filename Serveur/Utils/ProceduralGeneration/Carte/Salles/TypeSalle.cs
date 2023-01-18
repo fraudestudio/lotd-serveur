@@ -12,6 +12,6 @@ namespace Serveur.Utils.ProceduralGeneration.Carte.Salles
     /// </summary>
     public enum TypeSalle
     {
-        NORMALE, BOSS, START, VIDE
+        NORMALE, BOSS, START, VIDE, TILEFULL, TILENORMALE
     }
 }

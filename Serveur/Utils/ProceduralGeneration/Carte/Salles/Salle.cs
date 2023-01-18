@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Server.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation.Graphes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace Serveur.Utils.ProceduralGeneration.Carte.Salles
 {
-    /// <summary>
-    /// Classe abstraite représentant une salle
     public abstract class Salle
     {
+        //Numéro de ligne où se trouve la salle
         public int Ligne { get => ligne; set => ligne = value; }
         private int ligne;
 
@@ -17,45 +17,21 @@ namespace Serveur.Utils.ProceduralGeneration.Carte.Salles
         public int Colonne { get => colonne; set => colonne = value; }
         private int colonne;
 
-        /// <summary>
-        /// Largeur de la salle
-        /// </summary>
-        public virtual int Largeur => 1;
 
-        /// <summary>
-        /// Hauteur de la salle
-        /// </summary>
-        public virtual int Hauteur => 1;
-
-        /// <summary>
-        /// Nombre de monstre dans la salle
-        /// </summary>
-        public int NbMonstre { get => nbMonstres; set => nbMonstres = value; }
-        private int nbMonstres;
-
-        /// <summary>
-        /// Nombre d'items dans la salle
-        /// </summary>
-        public int NbItems { get => nbItems; set => nbItems = value; }
-        private int nbItems;
-
+        public int SeedLocal { get => seedLocal; set => seedLocal = value; }
+        private int seedLocal;
+        
+        private bool hasPlayer;
+        public bool HasPlayer { get => hasPlayer; set => hasPlayer = value; }
         protected Salle(int ligne, int colonne)
         {
             this.ligne = ligne;
             this.colonne = colonne;
-            this.nbItems = 0;
-            this.nbMonstres = 0;
+            seedLocal = int.Parse(ligne.ToString() + colonne.ToString());
         }
 
         public abstract TypeSalle Type { get; }
 
-        /// <summary>
-        /// Génération de l'intérieur de la salle (de base il ne se passe rien)
-        /// </summary>
-        public virtual void Generation()
-        {
-
-        }
 
         public override bool Equals(object? obj)
         {
@@ -69,11 +45,7 @@ namespace Serveur.Utils.ProceduralGeneration.Carte.Salles
             return HashCode.Combine(ligne, colonne);
         }
 
-        /// <summary>
-        /// La salle est-elle toujours vide de monstres
-        /// </summary>
-        public virtual bool EstVide => false;
+       
+        
     }
-
 }
-

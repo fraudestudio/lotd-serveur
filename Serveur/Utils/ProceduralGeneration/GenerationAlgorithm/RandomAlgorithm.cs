@@ -9,8 +9,8 @@ namespace Server.Utils.ProceduralGeneration.GenerationAlgorithm
 {
     public class RandomAlgorithm
     {
+        // Singleton
         private static RandomAlgorithm instance;
-        
         public static RandomAlgorithm Instance
         {
             get
@@ -24,31 +24,65 @@ namespace Server.Utils.ProceduralGeneration.GenerationAlgorithm
         }
 
         private Random random;
+
+        // the global seed
         private int seedGlobale;
+        // the local seed
+        private int seedLocale;
 
-        private RandomAlgorithm() { }
+        private RandomAlgorithm()
+        {
 
-        public void SetSeed(int seed)
+        }
+
+        /// <summary>
+        /// Set the global seed of the generator
+        /// </summary>
+        /// <param name="seed">the seed</param>
+        public void SetSeedGlobal(int seed)
         {
             Instance.seedGlobale = seed;
             Instance.random = new Random(Instance.seedGlobale);
-            Console.WriteLine("Seed: " + Instance.seedGlobale);
-            Console.WriteLine("random: " + Instance.random);
+            Instance.seedLocale = 0;
         }
 
+        /// <summary>
+        /// Set the local seed of the generator
+        /// </summary>
+        /// <param name="seed">the local seed</param>
+        public void SetSeedLocale(int seed)
+        {
+            Instance.seedLocale = seed;
+            Instance.random = new Random(Instance.seedGlobale + Instance.seedLocale);
+        }
+
+        /// <summary>
+        /// Generate a number
+        /// </summary>
+        /// <returns>the number generated</returns>
         public int Next()
         {
             return Instance.random.Next();
+
         }
 
+        /// <summary>
+        /// Generate a number with max 
+        /// </summary>
+        /// <param name="borneMax">the max number</param>
+        /// <returns>the generated number</returns>
         public int Next(int borneMax)
         {
             return Instance.random.Next(borneMax);
         }
 
-        public static Coordonnees NextCoordonnes()
+        /// <summary>
+        /// Generate a new coordinates base 
+        /// </summary>
+        /// <returns></returns>
+        public Coordonnees NextCoordonnees()
         {
-            return new Coordonnees(Instance.Next(Carte.Taille), Instance.Next(Carte.Taille));
+            return new Coordonnees(Next(Carte.Taille), Next(Carte.Taille));
         }
     }
 }
