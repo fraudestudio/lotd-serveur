@@ -11,7 +11,8 @@ namespace Game.Message.Request
         {
             return type switch
             {
-            	RequestType.AUTH => new Authenticate(""),
+                RequestType.AUTH => new Authenticate(""),
+            	RequestType.JOIN => new Join(0, ""),
             	_ => throw new ArgumentException("Invalid request type"),
             };
         }

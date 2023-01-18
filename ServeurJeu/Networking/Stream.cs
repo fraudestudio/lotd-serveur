@@ -12,39 +12,44 @@ namespace Game.Networking
 		private static ISerialiser serialiser = new SpaceSeparatedSerialiser();
 
 		private int id;
-		private Socket socket;
-		private String stringBuffer = "";
+		private TcpClient socket;
+		private StreamReader input;
+		private StreamWriter output;
+
 
 		public int Id => this.id;
 
-		public Stream(Socket socket)
+		public Stream(TcpClient socket)
 		{
 			// assigne puis incrémente
 			this.id = nextId++;
 
 			this.socket = socket;
+			this.socket.NoDelay = true;
+
+			this.input = new StreamReader(socket.GetStream(), Encoding.ASCII);
+			this.output = new StreamWriter(socket.GetStream(), Encoding.ASCII);
 		}
 
 		public IRequest? Receive()
 		{
-			byte[] buffer = new byte[1024]; 
-			int bytesRead;
-
-			while (!this.stringBuffer.Contains('\n'))
+			if (this.input.ReadLine() is String msg)
 			{
-				bytesRead = this.socket.Receive(buffer);
-				this.stringBuffer += Encoding.ASCII.GetString(buffer, 0, bytesRead);
+				Console.WriteLine("#{0} <<< {1}", this.id, msg);
+				return serialiser.Deserialise(msg);
 			}
-
-			String message = this.stringBuffer.Split('\n', 2)[0];
-			return serialiser.Deserialise(message);
+			else
+			{
+				return null;
+			}
 		}
 
 		public void Send(IResponse message)
 		{
-			String payload = serialiser.Serialise(message) + '\n';
-
-			this.socket.Send(Encoding.ASCII.GetBytes(payload));
+			String msg = serialiser.Serialise(message);
+			Console.WriteLine("#{0} >>> {1}", this.id, msg);
+			this.output.WriteLine(msg);
+			this.output.Flush();
 		}
 
 		public void Close()

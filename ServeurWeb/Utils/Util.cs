@@ -36,7 +36,7 @@ namespace Server.Utils
             Byte[] res = new Byte[32];
             using (SHA256 sha256Hash = SHA256.Create())
             {
-                res = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password, salt));
+                res = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
             }
             return res;
         }

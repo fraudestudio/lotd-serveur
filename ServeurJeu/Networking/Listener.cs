@@ -10,19 +10,17 @@ namespace Game.Networking
 		private TcpListener listener;
 
 		private Stream? parentProcess;
-		private List<Stream> clients;
+		private Clients clients;
 
-		public bool AllConnected {
-			get => parentProcess != null && clients.Count == 2;
-		}
+		public Clients Clients => this.clients;
 
 		public Listener(int port, int nbClients)
 		{
-      		IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+      		IPAddress localAddr = IPAddress.Parse("0.0.0.0");
 			this.listener = new TcpListener(localAddr, port);
 
 			this.parentProcess = null;
-			this.clients = new List<Stream>();
+			this.clients = new Clients(nbClients);
 		}
 
 		public void Start()
@@ -32,56 +30,86 @@ namespace Game.Networking
 			Console.WriteLine("[LISTENER] Listening on {0}", this.listener.LocalEndpoint);
 		}
 
-		public void Connect(String parentToken)
+		public void Accept(String parentToken)
 		{
-			while (!this.AllConnected)
+			while (this.parentProcess == null)
 			{
-				Console.WriteLine("[LISTENER] Waiting for a connection...");
-				Socket client = listener.AcceptSocket();
+				Console.WriteLine("[LISTENER] Waiting for the parent process...");
+				TcpClient client = listener.AcceptTcpClient();
 
-				Console.WriteLine("[LISTENER] Connecting with {0}...", client.RemoteEndPoint);
-				this.AcceptConnection(new Stream(client), parentToken);
+				Console.WriteLine("[LISTENER] Connecting with {0}...", client.Client.RemoteEndPoint);
+				Stream stream  = new Stream(client);
+				if (this.AcceptConnection(stream, parentToken))
+				{
+					this.parentProcess = stream; 
+				}
+			}
+
+			while (this.clients.ClientsNeeded)
+			{
+				IRequest? req = this.parentProcess!.Receive();
+				if (req is Message.Request.Join joinRequest)
+				{
+					Console.WriteLine("[LISTENER] Waiting for a client...");
+					TcpClient client = listener.AcceptTcpClient();
+
+					Console.WriteLine("[LISTENER] Connecting with {0}...", client.Client.RemoteEndPoint);
+					Stream stream  = new Stream(client);
+					if (this.AcceptConnection(stream, joinRequest.Token))
+					{
+						this.clients.Add(stream, joinRequest.Id); 
+
+						if (this.clients.ClientsNeeded)
+						{
+							this.parentProcess.Send(new Message.Response.Ok());
+						}
+						else
+						{
+							this.parentProcess.Send(new Message.Response.Started());
+						}
+					}
+				}
+				else
+				{
+					Console.WriteLine("[LISTENER] Expected JOIN request");
+				}
 			}
 		}
 
-		private void AcceptConnection(Stream client, String parentToken)
+		private bool AcceptConnection(Stream client, String token)
 		{
 			client.Send(new Message.Response.Authenticate());
 			IRequest? req = client.Receive();
 			
 			if (req is Message.Request.Authenticate auth)
 			{
-				if (auth.Token == parentToken)
+				if (auth.Token == token)
 				{
-					if (this.parentProcess == null)
-					{
-						this.parentProcess = client;
-						client.Send(new Message.Response.Ok());
-						Console.WriteLine("[LISTENER] Parent process connected");
-					}
-					else
-					{
-						Console.WriteLine("[LISTENER] Duplicate parent process, refusing connection");
-						client.Close();
-					}
+					client.Send(new Message.Response.Ok());
+					Console.WriteLine("[LISTENER] Successfully connected");
+					return true;
 				}
 				else
 				{
-					this.clients.Add(client);
-					client.Send(new Message.Response.Ok());
-					Console.WriteLine("[LISTENER] Client #{0} connected", client.Id);
+					Console.WriteLine("[LISTENER] Invalid token, refusing connection");
+					client.Close();
+					return false;
 				}
 			}
 			else if (req != null)
 			{
 				Console.WriteLine("[LISTENER] Invalid response, refusing connection");
 				client.Close();
+				return false;
 			}
 			else
 			{
 				Console.WriteLine("[LISTENER] Timed out, refusing connection");
 				client.Close();
+				return false;
 			}
 		}
+
+
 	}
 }

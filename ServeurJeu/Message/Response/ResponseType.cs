@@ -4,5 +4,7 @@ namespace Game.Message.Response
 	{
 		AUTH,
 		OK,
+		STARTED,
+		SEED,
 	}
 }

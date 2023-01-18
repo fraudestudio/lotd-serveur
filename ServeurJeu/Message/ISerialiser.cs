@@ -7,6 +7,6 @@ namespace Game.Message
 	{
 		public String Serialise(IResponse response);
 
-		public IRequest Deserialise(String request);
+		public IRequest? Deserialise(String request);
 	}
 }

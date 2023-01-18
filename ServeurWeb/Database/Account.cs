@@ -83,7 +83,7 @@ namespace Server.Database
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@adresse_mail",email );
                     cmd.Parameters.AddWithValue("@nom_compte", username);
-                    cmd.Parameters.AddWithValue("@password", Util.BtoH(password, sel));
+                    cmd.Parameters.AddWithValue("@password", Util.ComputeHash(password, sel));
                     cmd.Parameters.AddWithValue("@date_creation", DateTime.Now);
                     cmd.Parameters.AddWithValue("@sel", sel);
 
@@ -129,7 +129,7 @@ namespace Server.Database
                     }
                     cmd = new MySqlCommand(query2, conn);
                     cmd.Parameters.AddWithValue("@nomcompte", username);
-                    cmd.Parameters.AddWithValue("@mdp", Util.BtoH(password,sel));
+                    cmd.Parameters.AddWithValue("@mdp", Util.ComputeHash(password,sel));
                     using (MySqlDataReader dataReader = cmd.ExecuteReader())
                     {
                         if (dataReader.Read())
@@ -295,7 +295,7 @@ namespace Server.Database
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@mdp", Util.BtoH(mdp, salt));
+                    cmd.Parameters.AddWithValue("@mdp", Util.ComputeHash(mdp, salt));
                     cmd.Parameters.AddWithValue("@salt", salt);
                     cmd.Parameters.AddWithValue("@id", id);
                     await cmd.ExecuteNonQueryAsync();

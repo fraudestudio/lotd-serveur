@@ -273,6 +273,7 @@ namespace Server.Controllers.Api
                 ContentType = "application/json; charset=UTF-8",
             };
         }
+
         /// <summary>
         /// Send
         /// </summary>
@@ -310,22 +311,38 @@ namespace Server.Controllers.Api
         [HttpPost("{idVillage}/expedition")]
         public async Task<IActionResult> StartExpedition(int idVillage, List<int> characters)
         {
-            String args = String.Join(" ", characters.Select(n => n.ToString()));
-            
-            if(Launcher.LaunchInstance(args) is int port) {
-                return new ContentResult
+            int? maybeId = HttpContext.User.UserId();
+
+            if (maybeId is int playerId)
+            {
+                int universeId = (await VillageDB.GetUniverseId(idVillage)).Value;
+                // Récupère la première charge utile d'authentification
+                String auth = Request.Headers["Authorization"][0].Split(' ', 2)[1];
+                
+                if (Launcher.Current.CreateOrJoinGame(universeId, playerId, auth) is int port) {
+                    return new ContentResult
+                    {
+                        ContentType = "application/json; charset=UTF-8",
+                        Content = JsonSerializer.Serialize<int>(port),
+                    };
+                }
+                else
                 {
-                    Content = JsonSerializer.Serialize<int>(port),
-                    ContentType = "application/json; charset=UTF-8",
-                };
+                    return new ContentResult
+                    {
+                        StatusCode = StatusCodes.Status503ServiceUnavailable,
+                        ContentType = "application/json; charset=UTF-8",
+                        Content = "Impossible de démarrer une nouvelle instance du serveur de jeu",
+                    };
+                }
             }
             else
             {
                 return new ContentResult
                 {
-                    Content = "Impossible de démarrer une nouvelle instance du serveur de jeu",
-                    ContentType = "application/json; charset=UTF-8",
-                    StatusCode = StatusCodes.Status503ServiceUnavailable,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    ContentType = "text/plain",
+                    Content = "No user ID",
                 };
             }
         }
