@@ -57,6 +57,8 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                 
             }
             TorchGeneration(g.ToCarte());
+            
+            
             return g.ToCarte();
         }
 
@@ -206,12 +208,56 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                     }
                 }
 
-                if (Larger + "_" + PositionLigne + "_" + PositionColonne == "BIG_MIDDLE_DOWN")
+                if (Larger + "_" + PositionLigne + "_" + PositionColonne == "BIG_MIDD   LE_DOWN")
                 {
                     if (RandomAlgorithm.Instance.Next(100) + 1 > 70)
                     {
                     }
                 }
+            }
+        }
+
+        public void CharactersGeneration(Carte.Carte map)
+        {
+            List<Coordonnees> coordonneesPerso = new List<Coordonnees>();
+            for (int i = 0; i < 6; i++)
+            {
+                int ligne = RandomAlgorithm.Instance.Next(Carte.Carte.Taille-1) +1;
+                int colonne = RandomAlgorithm.Instance.Next(3) + 1;
+
+                Coordonnees coordonneesTemp = new Coordonnees(ligne, colonne);
+
+                while(coordonneesPerso.Contains(coordonneesTemp) && map.Salles[coordonneesTemp.Ligne,coordonneesTemp.Colonne].Type == TypeSalle.TILEFULL)
+                {
+                    ligne = RandomAlgorithm.Instance.Next(Carte.Carte.Taille - 1) + 1;
+                    colonne = RandomAlgorithm.Instance.Next(3) + 1;
+
+                    coordonneesTemp.Ligne = ligne;
+                    coordonneesTemp.Colonne = colonne;
+                }
+                coordonneesPerso.Add(coordonneesTemp);
+            }
+        }
+
+        public void EnemiesGeneration(Carte.Carte map)
+        {
+            List<Coordonnees> coordonneesEnemies= new List<Coordonnees>();
+            for (int i = 0; i < 6; i++)
+            {
+                int ligne = RandomAlgorithm.Instance.Next(Carte.Carte.Taille - 1) + 1;
+                int colonne = Carte.Carte.Taille - 5 + RandomAlgorithm.Instance.Next(3) + 1;
+
+                Coordonnees coordonneesTemp = new Coordonnees(ligne, colonne);
+
+                while (coordonneesEnemies.Contains(coordonneesTemp) && map.Salles[coordonneesTemp.Ligne, coordonneesTemp.Colonne].Type == TypeSalle.TILEFULL)
+                {
+                    ligne = RandomAlgorithm.Instance.Next(Carte.Carte.Taille - 1) + 1;
+                    colonne = Carte.Carte.Taille - 5 + RandomAlgorithm.Instance.Next(3) + 1;
+
+                    coordonneesTemp.Ligne = ligne;
+                    coordonneesTemp.Colonne = colonne;
+                }
+                coordonneesEnemies.Add(coordonneesTemp);
             }
         }
         public void Afficher()
