@@ -3,6 +3,9 @@ using Game.Message.Response;
 
 namespace Game.Message
 {
+	/// <summary>
+	/// Sérialise les requêtes/réponses sous la forme « COMMANDE ARG1 ARG2 ... »
+	/// </summary>
 	public class SpaceSeparatedSerialiser : ISerialiser
 	{
 		public String Serialise(IResponse response)

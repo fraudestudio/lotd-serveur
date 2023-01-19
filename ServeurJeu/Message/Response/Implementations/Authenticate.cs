@@ -1,5 +1,8 @@
 namespace Game.Message.Response
 {
+	/// <summary>
+	/// Une notification d'autentification.
+	/// </summary>
 	public class Authenticate : IResponse
 	{
 		public ResponseType Type => ResponseType.AUTH;

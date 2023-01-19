@@ -1,5 +1,8 @@
 namespace Game.Message.Response
 {
+	/// <summary>
+	/// Une notification indiquant la seed de la map aux clients.
+	/// </summary>
 	public class Seed : IResponse
 	{
 		private int seed;

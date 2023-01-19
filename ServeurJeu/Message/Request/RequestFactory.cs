@@ -1,5 +1,8 @@
 namespace Game.Message.Request
 {
+    /// <summary>
+    /// Une fabrique de requêtes.
+    /// </summary>
 	public class RequestFactory
 	{
         /// <summary>

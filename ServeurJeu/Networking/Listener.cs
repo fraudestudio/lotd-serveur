@@ -5,6 +5,9 @@ using Game.Message.Request;
 
 namespace Game.Networking
 {
+	/// <summary>
+	/// Gère les connexions.
+	/// </summary>
 	public class Listener
 	{
 		private TcpListener listener;
@@ -12,17 +15,27 @@ namespace Game.Networking
 		private Stream? parentProcess;
 		private Clients clients;
 
+		/// <summary>
+		/// Les clients connectés.
+		/// </summary>
 		public Clients Clients => this.clients;
 
-		public Listener(int port, int nbClients)
+		/// <summary>
+		/// Crée un nouveau <see cref="Listener"/>.
+		/// </summary>
+		/// <param name="port">Le port sur lequel écouter.</param>
+		public Listener(int port)
 		{
       		IPAddress localAddr = IPAddress.Parse("0.0.0.0");
 			this.listener = new TcpListener(localAddr, port);
 
 			this.parentProcess = null;
-			this.clients = new Clients(nbClients);
+			this.clients = new Clients();
 		}
 
+		/// <summary>
+		/// Commence à écouter pour des connexions entrantes.
+		/// </summary>
 		public void Start()
 		{
 			Console.WriteLine("[LISTENER] Starting up...");
@@ -30,6 +43,12 @@ namespace Game.Networking
 			Console.WriteLine("[LISTENER] Listening on {0}", this.listener.LocalEndpoint);
 		}
 
+		/// <summary>
+		/// Accepte la connexion du processus parent et des clients.
+		/// 
+		/// Cette méthode bloque jusqu'à ce que tous les clients soient connectés.
+		/// </summary>
+		/// <param name="parentToken"></param>
 		public void Accept(String parentToken)
 		{
 			while (this.parentProcess == null)
