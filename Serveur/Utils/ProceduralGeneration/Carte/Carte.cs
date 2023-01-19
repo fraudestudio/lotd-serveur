@@ -28,9 +28,16 @@ namespace Serveur.Utils.ProceduralGeneration.Carte
         /// <summary>
         /// Property tha contains the list of playable characters
         /// </summary>
-        public List<Perso> Characters { get => characters; set => characters = value; }
-        private List<Perso> characters;
+        public List<Perso> CharactersJ1 { get => charactersJ1; set => charactersJ1 = value; }
+        private List<Perso> charactersJ1;
 
+
+        /// <summary>
+        /// Property tha contains the list of playable characters
+        /// </summary>
+        public List<Perso> CharactersJ2 { get => charactersJ2; set => charactersJ2 = value; }
+        private List<Perso> charactersJ2;
+        
         /// <summary>
         /// Property that contains the list of ennemies on the map
         /// </summary>

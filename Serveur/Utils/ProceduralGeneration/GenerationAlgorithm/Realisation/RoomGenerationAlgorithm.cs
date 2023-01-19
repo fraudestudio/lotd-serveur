@@ -251,7 +251,14 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
             
             foreach(Coordonnees coordonnees in coordonneesPerso)
             {
-                map.Characters.Add(new Perso(coordonnees));
+                if (coordonneesPerso[0] == coordonnees || coordonneesPerso[2] == coordonnees || coordonneesPerso[4] == coordonnees)
+                {
+                    map.CharactersJ1.Add(new Perso(coordonnees));
+                }
+                else
+                {
+                    map.CharactersJ2.Add(new Perso(coordonnees));
+                }
             }
         }
 
@@ -312,7 +319,7 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                     Console.Write(" ");
                 }
 
-                foreach (Perso perso in test.Characters)
+                foreach (Perso perso in test.CharactersJ1)
                 {
                     if (salle.Ligne == perso.CoordonneesPerso.Ligne && salle.Colonne == perso.CoordonneesPerso.Colonne)
                     {
@@ -320,13 +327,22 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                     }
                 }
 
-                foreach(Enemies enemies in test.Enemies)
+                foreach (Perso perso in test.CharactersJ2)
+                {
+                    if (salle.Ligne == perso.CoordonneesPerso.Ligne && salle.Colonne == perso.CoordonneesPerso.Colonne)
+                    {
+                        Console.Write("P");
+                    }
+                }
+
+                foreach (Enemies enemies in test.Enemies)
                 {
                     if (salle.Ligne == enemies.Coordonnees.Ligne && salle.Colonne == enemies.Coordonnees.Colonne)
                     {
                         Console.Write("E");
                     }
                 }
+                
                 if (salle.Colonne == Carte.Carte.Taille - 1)
                 {
                     Console.WriteLine();
