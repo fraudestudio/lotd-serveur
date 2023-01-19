@@ -1,3 +1,5 @@
+using Game.Networking;
+
 namespace Game.Logic
 {
 	public class Game

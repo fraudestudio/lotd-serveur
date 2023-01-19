@@ -10,7 +10,7 @@ namespace Game
 			int port = Int32.Parse(args[0]);
 			String parentToken = args[1];
 
-			Listener listener = new Listener(port, GameModel.PLAYER_COUNT);
+			Listener listener = new Listener(port, Logic.Game.PLAYER_COUNT);
 			listener.Start();
 			listener.Accept(parentToken);
 
