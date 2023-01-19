@@ -757,7 +757,6 @@ namespace Server.Database
             return res;
         }
 
-
         static public async Task<int> GetTimeBatimentFonction(int idP)
         {
             int res = 0;
@@ -783,6 +782,32 @@ namespace Server.Database
             return res;
         }
 
+        static public async Task<int?> GetUniverseId(int villageId)
+        {
+            int? res = null;
+
+            using (MySqlConnection conn = DatabaseConnection.NewConnection())
+            {
+                await conn.OpenAsync();
+                try
+                {
+                    string query = "SELECT ID_UNIVERS FROM VILLAGE WHERE ID_VILLAGE = @id";
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", villageId);
+                    MySqlDataReader dataReader = cmd.ExecuteReader();
+                    if (dataReader.Read())
+                    {
+                        res = dataReader.GetInt32(0);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return res;
+        }
     }
 
 }
