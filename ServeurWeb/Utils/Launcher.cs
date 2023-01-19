@@ -8,7 +8,7 @@ namespace Server.Utils
 	{
 		// singleton -----------------------------------------------------------
 
-		private static Launcher current = null;
+		private static Launcher? current = null;
 
 		public static Launcher Current
 		{
@@ -54,7 +54,7 @@ namespace Server.Utils
 						// ne pas lancer via l'environement de bureau
 						UseShellExecute = false, 
 					}
-				);
+				)!;
 
 				this.processConnection = new TcpClient();
 
@@ -78,7 +78,7 @@ namespace Server.Utils
 					this.input = new StreamReader(this.processConnection.GetStream(), Encoding.ASCII);
 					this.output = new StreamWriter(this.processConnection.GetStream(), Encoding.ASCII);
 
-					String msg = this.input.ReadLine();
+					String? msg = this.input.ReadLine();
 					if (msg != "AUTH") throw new Exception(String.Format("Message inattendu « {0} »", msg));
 
 					this.output.WriteLine("AUTH {0}", token);
@@ -105,7 +105,7 @@ namespace Server.Utils
 					this.output.Flush();
 
 					new Thread(() => {
-						String msg;
+						String? msg;
 						do
 						{
 							msg = this.input.ReadLine();
