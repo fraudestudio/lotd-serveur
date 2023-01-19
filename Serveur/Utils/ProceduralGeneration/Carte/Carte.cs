@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
 using Serveur.Utils.ProceduralGeneration.Carte.Salles;
-
+using Server.Model;
+using Serveur.Model;
 
 namespace Serveur.Utils.ProceduralGeneration.Carte
 {
@@ -18,15 +19,23 @@ namespace Serveur.Utils.ProceduralGeneration.Carte
         /// Tableau des salles (0,0) en haut à gauche
         /// </summary>
         public Salle[,] Salles => salles;
-
-
-
         private Salle[,] salles;
-
         public Carte()
         {
             this.salles = new Salle[Taille, Taille];
         }
+
+        /// <summary>
+        /// Property tha contains the list of playable characters
+        /// </summary>
+        public List<Perso> Characters { get => characters; set => characters = value; }
+        private List<Perso> characters;
+
+        /// <summary>
+        /// Property that contains the list of ennemies on the map
+        /// </summary>
+        public List<Enemies> Enemies { get => enemies; set => enemies = value; }
+        private List<Enemies> enemies;
 
         /// <summary>
         /// Ajoute une salle à la position i,j

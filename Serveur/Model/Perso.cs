@@ -33,12 +33,18 @@ namespace Server.Model
         public string RACE { get => race; set => race = value; }
         private string race ="";
         public int ID_EQUIPEMENT { get => id_equipement; set => id_equipement = value ; }
-        private int id_equipement;       
+        private int id_equipement;
 
+
+
+        public Perso(Coordonnees coordonnees)
+        {
+            this.CoordonneesPerso = coordonnees;
+        }
         /// <summary>
         /// property for the position of the character
         /// </summary>
-        public Coordonnees Coordonnees { get => coordonnees; set => coordonnees = value; }
+        public Coordonnees CoordonneesPerso { get => coordonnees; set => coordonnees = value; }
         private Coordonnees coordonnees;
     }
 }

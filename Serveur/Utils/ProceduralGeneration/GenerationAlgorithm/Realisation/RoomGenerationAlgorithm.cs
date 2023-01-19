@@ -1,5 +1,7 @@
-﻿using Server.Utils.ProceduralGeneration.GenerationAlgorithm;
+﻿using Server.Model;
+using Server.Utils.ProceduralGeneration.GenerationAlgorithm;
 using Server.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation.Graphes;
+using Serveur.Model;
 using Serveur.Utils.ProceduralGeneration.Carte;
 using Serveur.Utils.ProceduralGeneration.Carte.Salles;
 using Serveur.Utils.ProceduralGeneration.Carte.Salles.Realisation;
@@ -56,10 +58,14 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                 g = CreateSquare(g, c.Colonne, c.Ligne, taille);
                 
             }
-            TorchGeneration(g.ToCarte());
+
+            Carte.Carte carteTemp = g.ToCarte();
             
-            
-            return g.ToCarte();
+            TorchGeneration(carteTemp);
+            CharactersGeneration(carteTemp);
+            EnemiesGeneration(carteTemp);
+
+            return carteTemp;
         }
 
 
@@ -217,6 +223,10 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="map"></param>
         public void CharactersGeneration(Carte.Carte map)
         {
             List<Coordonnees> coordonneesPerso = new List<Coordonnees>();
@@ -236,6 +246,12 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                     coordonneesTemp.Colonne = colonne;
                 }
                 coordonneesPerso.Add(coordonneesTemp);
+
+            }
+            
+            foreach(Coordonnees coordonnees in coordonneesPerso)
+            {
+                map.Characters.Add(new Perso(coordonnees));
             }
         }
 
@@ -258,7 +274,13 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                     coordonneesTemp.Colonne = colonne;
                 }
                 coordonneesEnemies.Add(coordonneesTemp);
+
+                foreach (Coordonnees coordonnees in coordonneesEnemies)
+                {
+                    map.Enemies.Add(new Enemies(coordonnees));
+                }
             }
+            
         }
         public void Afficher()
         {
@@ -290,12 +312,27 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                     Console.Write(" ");
                 }
 
+                foreach (Perso perso in test.Characters)
+                {
+                    if (salle.Ligne == perso.CoordonneesPerso.Ligne && salle.Colonne == perso.CoordonneesPerso.Colonne)
+                    {
+                        Console.Write("P");
+                    }
+                }
+
+                foreach(Enemies enemies in test.Enemies)
+                {
+                    if (salle.Ligne == enemies.Coordonnees.Ligne && salle.Colonne == enemies.Coordonnees.Colonne)
+                    {
+                        Console.Write("E");
+                    }
+                }
                 if (salle.Colonne == Carte.Carte.Taille - 1)
                 {
                     Console.WriteLine();
                 }
-            }
-            
+
+            }  
         }
     }
 }

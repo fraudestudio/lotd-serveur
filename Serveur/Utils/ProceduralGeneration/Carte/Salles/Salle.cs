@@ -1,4 +1,6 @@
-﻿using Server.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation.Graphes;
+﻿using Server.Model;
+using Server.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation.Graphes;
+using Serveur.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +22,7 @@ namespace Serveur.Utils.ProceduralGeneration.Carte.Salles
 
         public int SeedLocal { get => seedLocal; set => seedLocal = value; }
         private int seedLocal;
-        
-        private bool hasPlayer;
-        public bool HasPlayer { get => hasPlayer; set => hasPlayer = value; }
+
         protected Salle(int ligne, int colonne)
         {
             this.ligne = ligne;
