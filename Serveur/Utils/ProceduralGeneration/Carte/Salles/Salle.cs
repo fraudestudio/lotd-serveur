@@ -19,7 +19,8 @@ namespace Serveur.Utils.ProceduralGeneration.Carte.Salles
         public int Colonne { get => colonne; set => colonne = value; }
         private int colonne;
 
-
+        private bool hasPlayer = false;
+        public bool HasPlayer { get => hasPlayer; set => hasPlayer = value; }
         public int SeedLocal { get => seedLocal; set => seedLocal = value; }
         private int seedLocal;
 

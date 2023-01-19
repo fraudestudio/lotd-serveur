@@ -23,6 +23,9 @@ namespace Serveur.Utils.ProceduralGeneration.Carte
         public Carte()
         {
             this.salles = new Salle[Taille, Taille];
+            this.CharactersJ1 = new List<Perso>();
+            this.CharactersJ2 = new List<Perso>();
+            this.Enemies = new List<Enemies>();
         }
 
         /// <summary>
@@ -36,13 +39,13 @@ namespace Serveur.Utils.ProceduralGeneration.Carte
         /// Property tha contains the list of playable characters
         /// </summary>
         public List<Perso> CharactersJ2 { get => charactersJ2; set => charactersJ2 = value; }
-        private List<Perso> charactersJ2;
+        private List<Perso>? charactersJ2;
         
         /// <summary>
         /// Property that contains the list of ennemies on the map
         /// </summary>
         public List<Enemies> Enemies { get => enemies; set => enemies = value; }
-        private List<Enemies> enemies;
+        private List<Enemies>? enemies;
 
         /// <summary>
         /// Ajoute une salle à la position i,j

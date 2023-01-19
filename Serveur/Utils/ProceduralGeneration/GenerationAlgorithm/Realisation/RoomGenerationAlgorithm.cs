@@ -223,13 +223,23 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
+
+        private bool PlayableCanBePlaced(int ligne, int colonne, Carte.Carte map)
+        {
+            bool result = true;
+
+            if (map.Salles[ligne, colonne].Type == TypeSalle.TILEFULL || map.Salles[ligne, colonne].HasPlayer)
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
         public void CharactersGeneration(Carte.Carte map)
         {
             List<Coordonnees> coordonneesPerso = new List<Coordonnees>();
+            
             for (int i = 0; i < 6; i++)
             {
                 int ligne = RandomAlgorithm.Instance.Next(Carte.Carte.Taille-1) +1;
@@ -237,28 +247,20 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
 
                 Coordonnees coordonneesTemp = new Coordonnees(ligne, colonne);
 
-                while(coordonneesPerso.Contains(coordonneesTemp) && map.Salles[coordonneesTemp.Ligne,coordonneesTemp.Colonne].Type == TypeSalle.TILEFULL)
+                while (!PlayableCanBePlaced(ligne, colonne, map))
                 {
                     ligne = RandomAlgorithm.Instance.Next(Carte.Carte.Taille - 1) + 1;
                     colonne = RandomAlgorithm.Instance.Next(3) + 1;
-
-                    coordonneesTemp.Ligne = ligne;
-                    coordonneesTemp.Colonne = colonne;
+                    coordonneesTemp = new Coordonnees(ligne, colonne);
                 }
+                map.Salles[ligne, colonne].HasPlayer = true;
                 coordonneesPerso.Add(coordonneesTemp);
 
             }
             
             foreach(Coordonnees coordonnees in coordonneesPerso)
             {
-                if (coordonneesPerso[0] == coordonnees || coordonneesPerso[2] == coordonnees || coordonneesPerso[4] == coordonnees)
-                {
-                    map.CharactersJ1.Add(new Perso(coordonnees));
-                }
-                else
-                {
-                    map.CharactersJ2.Add(new Perso(coordonnees));
-                }
+                map.CharactersJ1.Add(new Perso(coordonnees));
             }
         }
 
@@ -272,7 +274,7 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
 
                 Coordonnees coordonneesTemp = new Coordonnees(ligne, colonne);
 
-                while (coordonneesEnemies.Contains(coordonneesTemp) && map.Salles[coordonneesTemp.Ligne, coordonneesTemp.Colonne].Type == TypeSalle.TILEFULL)
+                while (!PlayableCanBePlaced(ligne, colonne, map))
                 {
                     ligne = RandomAlgorithm.Instance.Next(Carte.Carte.Taille - 1) + 1;
                     colonne = Carte.Carte.Taille - 5 + RandomAlgorithm.Instance.Next(3) + 1;
@@ -280,6 +282,7 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
                     coordonneesTemp.Ligne = ligne;
                     coordonneesTemp.Colonne = colonne;
                 }
+                map.Salles[ligne, colonne].HasPlayer = true;
                 coordonneesEnemies.Add(coordonneesTemp);
 
                 foreach (Coordonnees coordonnees in coordonneesEnemies)
@@ -308,47 +311,42 @@ namespace Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation
             RoomGenerationAlgorithm room = new RoomGenerationAlgorithm();
             Carte.Carte test = room.Generer(salleStart.SeedLocal);
 
+            char[,] mapAffiche = new char[23, 23];
+
             foreach (Salle salle in test.Salles)
             {
+                
                 if (salle.Type == TypeSalle.TILEFULL)
                 {
-                    Console.Write("X");
+                    
+                    mapAffiche[salle.Ligne, salle.Colonne] = 'X';
                 }
                 else
                 {
-                    Console.Write(" ");
+                    mapAffiche[salle.Ligne, salle.Colonne] = ' ';
                 }
+            }
 
-                foreach (Perso perso in test.CharactersJ1)
-                {
-                    if (salle.Ligne == perso.CoordonneesPerso.Ligne && salle.Colonne == perso.CoordonneesPerso.Colonne)
-                    {
-                        Console.Write("P");
-                    }
-                }
+            foreach (Perso perso in test.CharactersJ1)
+            {
+                mapAffiche[perso.CoordonneesPerso.Ligne, perso.CoordonneesPerso.Colonne] = 'P';
+            }
 
-                foreach (Perso perso in test.CharactersJ2)
-                {
-                    if (salle.Ligne == perso.CoordonneesPerso.Ligne && salle.Colonne == perso.CoordonneesPerso.Colonne)
-                    {
-                        Console.Write("P");
-                    }
-                }
-
-                foreach (Enemies enemies in test.Enemies)
-                {
-                    if (salle.Ligne == enemies.Coordonnees.Ligne && salle.Colonne == enemies.Coordonnees.Colonne)
-                    {
-                        Console.Write("E");
-                    }
-                }
+            foreach (Enemies enemies in test.Enemies)
+            {
+                mapAffiche[enemies.Coordonnees.Ligne, enemies.Coordonnees.Colonne] = 'E';
                 
-                if (salle.Colonne == Carte.Carte.Taille - 1)
-                {
-                    Console.WriteLine();
-                }
+            }
 
-            }  
+
+            for (int i = 0; i < 23; i++)
+            {
+                for (int j = 0; j < 23; j++)
+                {
+                    Console.Write(mapAffiche[i, j].ToString());
+                }
+                Console.WriteLine();
+            }
         }
     }
 }

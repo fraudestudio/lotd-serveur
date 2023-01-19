@@ -41,9 +41,14 @@ namespace Server.Model
         {
             this.CoordonneesPerso = coordonnees;
         }
+        
+        public Perso(){}
+
+
         /// <summary>
         /// property for the position of the character
         /// </summary>
+        
         public Coordonnees CoordonneesPerso { get => coordonnees; set => coordonnees = value; }
         private Coordonnees coordonnees;
     }
