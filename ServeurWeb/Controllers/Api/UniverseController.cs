@@ -8,12 +8,20 @@ using System.Text.Json;
 
 namespace Server.Controllers.Api
 {
+    ///<summary>
+    /// class that represent the universe controller
+    ///</summary>
     [ApiController]
     [Route("api/universe")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class UniverseController : Controller
     {
 
+        ///<summary>
+        /// Method that represent the creation of the universe
+        ///</summary>
+        /// <param name="universe"> the universe to create</param>
+        /// <returns> return the result of the creation</returns>
         [HttpPost("create")]
         public async Task<IActionResult> Create(Model.Universe universe)
         {
@@ -44,6 +52,10 @@ namespace Server.Controllers.Api
             }
         }
 
+        ///<summary>
+        /// Method that represent the get all universe
+        /// </summary>
+        ///<returns> return the result of the get all universe</returns>
         [HttpGet("all")]
         public async Task<IActionResult> All()
         {
@@ -69,6 +81,10 @@ namespace Server.Controllers.Api
         }
 
 
+        ///<summary>
+        /// Method that represent the get all universe
+        /// </summary>
+        /// <returns> return the result of the get all universe</returns>
         [HttpGet("joined")]
         public async Task<IActionResult> Joined()
         {
@@ -193,7 +209,12 @@ namespace Server.Controllers.Api
         }
 
 
-
+        /// <summary>
+        /// Send the major faction of an universe
+        /// </summary>
+        /// <param name="idUniv"> id of the universe</param>
+        /// <param name="u"> the universe to update</param>
+        /// <returns> return the result of the update</returns>
         [HttpPost("access/{idUniv}")]
         public async Task<IActionResult> AccessUniverse(int idUniv,Model.Universe u)
         {

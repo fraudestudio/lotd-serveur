@@ -1,9 +1,20 @@
 namespace Server.Model
 {
-	class SignInSuccess
+    /// <summary>
+    /// Class that represent the SignInSuccess
+    /// </summary>
+    class SignInSuccess
 	{
-		public bool? Validated { get; set; } = null;
+        /// <summary>
+        /// the boolean if the clients is validated
+        /// </summary>
+		public bool Validated { get; set; }
+        private bool? validated = null;
 
-		public String? SessionToken { get; set; } = null;
-	}
+        /// <summary>
+        /// the string of the token
+        /// </summary>
+        public String SessionToken { get => sessionToken; set => sessionToken = value; }
+        private String? sessionToken = null;
+    }
 }

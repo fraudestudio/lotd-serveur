@@ -19,7 +19,7 @@ namespace Server.Database
         /// </summary>
         /// <param name="v">Village</param>
         /// <param name="idJ">ID of the player</param>
-        /// <returns></returns>
+        /// <returns> return true if the village has been updated otherwise false</returns>
         static public async Task<bool> InsertVillage(Model.Village v,  int idJ)
         {
             bool res = false;
@@ -49,8 +49,8 @@ namespace Server.Database
         /// <summary>
         /// renvoie les ressources disponible sous formes de tableau 
         /// </summary>
-        /// <param name="idV"></param>
-        /// <returns></returns>
+        /// <param name="idV"> the id of the village </param>
+        /// <returns> return the ressources of the player </returns>
         static public async Task<Model.Ressources> GetRessource(int idV)
         {
             Model.Ressources res = new Model.Ressources();
@@ -80,6 +80,14 @@ namespace Server.Database
             return res;
         }
 
+        /// <summary>
+        /// Update the ressources of the player
+        /// </summary>
+        /// <param name="idV"> the id of the village </param>
+        /// <param name="Bois"> the number of wood </param>
+        /// <param name="Pierre"> the number of stone </param>
+        /// <param name="Or"> the number of gold </param>
+        /// <returns> return true if the ressources has been updated otherwise false </returns>
         static public async Task<bool> UpdateRessources(int idV,int Bois,int Pierre, int Or)
         {
             bool res = false;
@@ -113,8 +121,8 @@ namespace Server.Database
         /// <summary>
         /// initialise tout les batiment d'un village
         /// </summary>
-        /// <param name="idV"></param>
-        /// <returns></returns>
+        /// <param name="idV"> the id of the village </param>
+        /// <returns> return true if the building has been Initialized otherwise false </returns>
         static public async Task<bool> InitBatiment(int idV)
         {
             bool res = false;
@@ -147,11 +155,11 @@ namespace Server.Database
         /// <summary>
         /// augemente le niveau d'un batiment de plus 1 et retire les ressource spécifié
         /// </summary>
-        /// <param name="idB"></param>
-        /// <param name="coutB"></param>
-        /// <param name="coutP"></param>
-        /// <param name="coutO"></param>
-        /// <returns></returns>
+        /// <param name="idB"> the id of the building </param>
+        /// <param name="coutB"> The cost of the building </param>
+        /// <param name="coutP"> The cost of the building </param>
+        /// <param name="coutO"> The cost of the building </param>
+        /// <returns> return true if the building has been updated otherwise false </returns>
         static public async Task<bool> UpBatiment(int idV, string building)
         {
             bool res = false;
@@ -182,8 +190,8 @@ namespace Server.Database
         /// <summary>
         /// renvoie le niveau de batiment d'un village
         /// </summary>
-        /// <param name="idV"></param>
-        /// <returns></returns>
+        /// <param name="idV"> the id of the village </param>
+        /// <returns> return the level of the building </returns>
         static public async Task<Dictionary<string, int>> GetLevelBatiment(int idV)
         {
             Dictionary<string, int> res = new Dictionary<string, int>();
@@ -215,8 +223,8 @@ namespace Server.Database
         /// <summary>
         /// retourne plusieurs liste contenant le personnage, l'heure d'arriver et le slot des personnage contenu dans un batiment
         /// </summary>
-        /// <param name="idB"></param>
-        /// <returns></returns>
+        /// <param name="idB"> the id of the building </param>
+        /// <returns> return a list of character, a list of time and a list of slot </returns>
         static public async Task<List<(Server.Model.Perso, int, int)>> GetPersoInBatiment(int idB)
         {
             List<(Server.Model.Perso, int, int)> res = new List<(Server.Model.Perso, int, int)>();
@@ -269,8 +277,8 @@ namespace Server.Database
         /// <summary>
         /// retourne une liste contenant les personnages qui sont dans l'inventaire
         /// </summary>
-        /// <param name="idB"></param>
-        /// <returns></returns>
+        /// <param name="idB"> the id of the building </param>
+        /// <returns> return a list of character </returns>
         static public async Task<List<Server.Model.Perso>> GetPersoInInventaire(int idB)
         {
             List<Server.Model.Perso> res = new List<Server.Model.Perso>();
@@ -332,8 +340,8 @@ namespace Server.Database
         /// <summary>
         /// retourne une liste de tout les perso présent dans le village
         /// </summary>
-        /// <param name="idV"></param>
-        /// <returns></returns>
+        /// <param name="idV"> the id of the village </param>
+        /// <returns> return a list of character </returns>
         static public async Task<List<Server.Model.Perso>> GetPersoInVillage(int idV)
         {
             List<Server.Model.Perso> res = new List<Server.Model.Perso>();
@@ -374,14 +382,14 @@ namespace Server.Database
             return res;
         }
 
-        
+
 
         /// <summary>
         /// ajoute un perso dans un batiement au slot spécifié, si le personnage est déjà dedans ne fait rien 
         /// </summary>
-        /// <param name="idP"></param>
-        /// <param name="idB"></param>
-        /// <param name="slot"></param>
+        /// <param name="idP"> the id of the Player </param>
+        /// <param name="idB"> the id of the building </param>
+        /// <param name="slot"> the slot where the character will be put </param>
         /// <returns></returns>
         static public async Task<bool> InsertPersoInBatiment(int idP, int idB, int slot)
         {
@@ -566,7 +574,10 @@ namespace Server.Database
             return idPR;
         }
 
-
+        /// <summary>
+        /// initialise un équipement aléatoire
+        /// </summary>
+        /// <returns></returns>
         static public async Task<int?> InitEquipement()
         {
             int? idE = null;
@@ -594,6 +605,11 @@ namespace Server.Database
             return idE;
         }
 
+        /// <summary>
+        /// get the stuff of a personnage
+        /// </summary>
+        /// <param name="idEquipement"> id of the stuff</param>
+        /// <returns></returns>
         static public async Task<Model.Equipement> GetEquipement(int idEquipement)
         {
             Model.Equipement equipement = new Model.Equipement();
@@ -625,6 +641,11 @@ namespace Server.Database
             return equipement;
         }
 
+        /// <summary>
+        /// get the characters of a player by id
+        /// </summary>
+        /// <param name="idP"> id of the player</param>
+        /// <returns> the characters of the player</returns>
         static public async Task<Model.Perso> GetPersoById(int idP)
         {
             Model.Perso res = new Model.Perso();
@@ -662,7 +683,12 @@ namespace Server.Database
         }
 
 
-
+        /// <summary>
+        /// get the buildings of a village by id if they are in construction state
+        /// </summary>
+        /// <param name="idV"></param>
+        /// <param name="building"></param>
+        /// <returns></returns>
         static public async Task<bool> GetBuildingInConstruction(int idV, string building)
         {
             bool res = false;
@@ -689,7 +715,12 @@ namespace Server.Database
             return res;
         }
 
-
+        /// <summary>
+        /// set the building in construction state
+        /// </summary>
+        /// <param name="idV"></param>
+        /// <param name="building"></param>
+        /// <returns></returns>
         static public async Task<bool> SetBuildingInConstruction(int idV, string building)
         {
             bool res = false;
@@ -714,6 +745,12 @@ namespace Server.Database
             return res;
         }
 
+        /// <summary>
+        /// get the time of construction of a building
+        /// </summary>
+        /// <param name="idV"></param>
+        /// <param name="building"></param>
+        /// <returns></returns>
         static public async Task<int> GetBuildingInConstructionTime(int idV, string building)
         {
             int res = 0;
@@ -768,6 +805,11 @@ namespace Server.Database
             return res;
         }
 
+        /// <summary>
+        /// get the building fonction time 
+        /// </summary>
+        /// <param name="idP"></param>
+        /// <returns></returns>
         static public async Task<int> GetTimeBatimentFonction(int idP)
         {
             int res = 0;
@@ -793,6 +835,11 @@ namespace Server.Database
             return res;
         }
 
+        /// <summary>
+        /// get the univers id
+        /// </summary>
+        /// <param name="villageId"></param>
+        /// <returns></returns>
         static public async Task<int?> GetUniverseId(int villageId)
         {
             int? res = null;

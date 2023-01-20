@@ -11,8 +11,18 @@ using Server.Database;
 
 namespace Server.Auth
 {
+    /// <summary>
+    /// This class is responsible for handling the authentication of the user by Token.
+    /// </summary>
     public class BearerAuthenticationHandler : AuthenticationHandler<AuthOptions>
     {
+        /// <summary>
+        /// Constructor for the BearerAuthenticationHandler class.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="logger"></param>
+        /// <param name="encoder"></param>
+        /// <param name="clock"></param>
         public BearerAuthenticationHandler(
             IOptionsMonitor<AuthOptions> options,
             ILoggerFactory logger,
@@ -23,7 +33,10 @@ namespace Server.Auth
 
         }
 
-
+        /// <summary>
+        /// This method is responsible for handling the authentication of the user by Token.
+        /// </summary>
+        /// <returns> return if the request was succesful or not</returns>
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (!Request.Headers.ContainsKey("Authorization"))

@@ -5,6 +5,9 @@ using Server.Model;
 
 namespace Server.Utils
 {
+    /// <summary>
+    /// Class that represent the captcha
+    /// </summary>
 	public class Captcha
 	{
         static private HttpClient? _httpClient;
@@ -12,6 +15,10 @@ namespace Server.Utils
 
         private String _tok;
 
+        /// <summary>
+        /// Constructor of the captcha
+        /// </summary>
+        /// <param name="token"> the token of the captcha</param>
         public Captcha(String token)
         {
         	this._tok = token;
@@ -25,6 +32,10 @@ namespace Server.Utils
         	}
         }
 
+        /// <summary>
+        /// Method that verify the captcha
+        /// </summary>
+        /// <returns> the boolean if the captcha is valid</returns>
 		public async Task<bool> IsValid()
 		{
 			var response = await Captcha._httpClient!.PostAsync(

@@ -8,6 +8,9 @@ using System.Text.Json.Serialization;
 
 namespace Server.Utils
 {
+    /// <summary>
+    /// Class that represent the utils
+    /// </summary>
     public class Util
     {
         public static JsonSerializerOptions DefaultJsonOptions => new JsonSerializerOptions {
@@ -18,6 +21,11 @@ namespace Server.Utils
 
         private const String ALPHANUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+        /// <summary>
+        /// Method that generate a random alphanum random
+        /// </summary>
+        /// <param name="size"> the size of the password</param>
+        /// <returns></returns>
         static public String RandomPassword(int size)
         {
             string result = "";
@@ -31,6 +39,12 @@ namespace Server.Utils
             return result;
         }
 
+        /// <summary>
+        /// Compute the salted password 
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="salt"></param>
+        /// <returns></returns>
         static public byte[] ComputeHash(string password, string salt)
         {
             Byte[] res = new Byte[32];
@@ -41,12 +55,23 @@ namespace Server.Utils
             return res;
         }
 
+        /// <summary>
+        /// Compare the two salted password
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="salt"></param>
+        /// <param name="hash"></param>
+        /// <returns></returns>
         static public bool CompareHash(string password, string salt, Byte[] hash)
         {
             Byte[] temp = ComputeHash(password, salt);
             return Enumerable.SequenceEqual(temp, hash);
         }
 
+        /// <summary>
+        /// Method that generate the characters name randomly 
+        /// </summary>
+        /// <returns></returns>
         public static string GenerationNom()
         {
             Random rand = new Random();

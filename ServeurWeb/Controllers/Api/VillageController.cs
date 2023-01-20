@@ -10,6 +10,9 @@ using System.Collections.Generic;
 
 namespace Server.Controllers.Api
 {
+    /// <summary>
+    /// class that represent the village controller
+    /// </summary>
     [ApiController]
     [Route("api/village")]
     [Authorize(AuthenticationSchemes = "Bearer")]

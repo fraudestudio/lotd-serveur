@@ -139,9 +139,9 @@ namespace Server.Database
         }
 
         /// <summary>
-        /// 
+        /// Method return the Univers of the player 
         /// </summary>
-        /// <param name="playerId"></param>
+        /// <param name="playerId"> the id for if the player </param>
         /// <returns></returns>
         static public async Task<List<Model.Universe>> UniversPlayer(int playerId)
         {
@@ -172,6 +172,11 @@ namespace Server.Database
             return result;
         }
 
+        /// <summary>
+        /// Method return the Univers Owned of the player
+        /// </summary>
+        /// <param name="playerId"> the id of the player </param>
+        /// <returns> return the univers</returns>
         static public async Task<Model.Universe> UniversOwned(int playerId)
         {
             Model.Universe result = new Model.Universe { };
@@ -202,8 +207,8 @@ namespace Server.Database
         /// <summary>
         /// renvoie l'id du village du joueur renvoie null si aucun 
         /// </summary>
-        /// <param name="idJ"></param>
-        /// <param name="idU"></param>
+        /// <param name="idJ"> id of the univers </param>
+        /// <param name="idU"> id of the Univers</param>
         /// <returns></returns>
         static public async Task<int?> PlayerHaveVillageInUnivers(int idJ, int idU)
         {
@@ -271,9 +276,9 @@ namespace Server.Database
         /// <summary>
         /// renvoie le nom du village du joueur 
         /// </summary>
-        /// <param name="idJ"></param>
-        /// <param name="idV"></param>
-        /// <returns></returns>
+        /// <param name="idJ"> id of the player</param>
+        /// <param name="idV"> id of the village</param>
+        /// <returns> return the name of the village otherwise null</returns>
         static public async Task<string?> PlayerVillageName(int idJ, int idV)
         {
             string? res = null;
@@ -299,7 +304,11 @@ namespace Server.Database
             }
             return res;
         }
-
+        /// <summary>
+        /// Method that returns the Faction that is majoritary in the universe
+        /// </summary>
+        /// <param name="idU"> id of the univers </param>
+        /// <returns> return the faction that is majoritary </returns>
         static public async Task<string?> MajoritaryFaction(int idU)
         {
             string? res = null;

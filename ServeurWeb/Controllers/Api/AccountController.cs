@@ -15,11 +15,20 @@ using System.Drawing.Printing;
 
 namespace Server.Controllers.Api
 {
+
     [ApiController]
-    [Route("api/account")]          
+    [Route("api/account")]
+    ///<summary>
+    /// class that represent the account contoller
+    ///</summary>
     public class AccountController : Controller
     {
+        
         [HttpPost("signup")]
+        ///<summary>
+        /// Method that represent the signup of the user
+        ///</summary>
+        ///<returns> return the result of the signup</returns>
         public async Task<IActionResult> SignUp(SignUpRequest signUpRequest)
         {
             Captcha captcha = new Captcha(signUpRequest.CaptchaToken);
@@ -105,6 +114,10 @@ namespace Server.Controllers.Api
 
         [Authorize(AuthenticationSchemes="Basic")]
         [HttpPost("signin")]
+        ///<summary>
+        /// Method that represent the signin of the user
+        ///</summary>
+        ///<returns> return the result of the signin</returns>
         public async Task<IActionResult> SignIn()
         {
             ContentResult result = new ContentResult
@@ -165,6 +178,10 @@ namespace Server.Controllers.Api
 
         [Authorize(AuthenticationSchemes = "Basic")]
         [HttpPost("validate")]
+        ///<summary>
+        /// Method that represent the validation of the user
+        ///</summary>
+        ///<returns> return the result of the validation</returns>
         public async Task<IActionResult> Validation([FromBody] string newPwd)
         {
             ContentResult result = new ContentResult

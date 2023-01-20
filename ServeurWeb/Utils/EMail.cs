@@ -6,6 +6,9 @@ using MimeKit.Text;
 
 namespace Server.Utils
 {
+    /// <summary>
+	/// Class that represent the email
+	/// </summary>
 	public class Email : MimeMessage, IDisposable
 	{
 		static private SmtpClient smtpClient = new SmtpClient();
@@ -17,6 +20,9 @@ namespace Server.Utils
 		private const int MAX_RETRIES = 5;
 		static private TimeSpan STANDBY_DELAY = TimeSpan.FromMinutes(30);
 
+        /// <summary>
+		/// static method that send the email
+		/// </summary>
 		static public void SendMessages()
 		{
 			while (true)
@@ -56,6 +62,12 @@ namespace Server.Utils
 
 		private int retries;
 
+        /// <summary>
+		///	Constructor of the email 
+		/// </summary>
+		/// <param name="recipient"></param>
+		/// <param name="subject"></param>
+		/// <param name="body"></param>
 		public Email(String recipient, String subject, String body) : base ()
 		{
 			this.From.Add(new MailboxAddress("Lord Of The Dungeons", Email.ADDRESS));
