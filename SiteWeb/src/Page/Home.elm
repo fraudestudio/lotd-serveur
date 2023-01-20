@@ -32,6 +32,6 @@ view : Model -> Html Msg
 view model =
   Html.main_ [ ]
     [ Html.div [ Attr.class "box" ]
-      [ Html.h1 [ ] [ Html.text "Bientôt disponible" ]
+      [ Html.h1 [ ] [ Html.text "Jeu bientôt disponible" ]
       ]
     ]

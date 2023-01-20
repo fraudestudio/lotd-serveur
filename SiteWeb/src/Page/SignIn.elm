@@ -5,13 +5,18 @@ import Browser.Navigation as Nav
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events as Events
+import Html.Lazy as Lazy
 
 import Session exposing (..)
 import Route exposing (Route, SignUpFragment(..))
+import Api
+import Helpers exposing (..)
 
 
 type alias Model = 
   { session : Session
+  , userId : String
+  , password : String
   , status : Status
   }
 
@@ -19,21 +24,23 @@ type alias Model =
 type Status
   = Initial
   | InProgress
-  | AuthenticationFailed
-  | RequestFailed
+  | Failed String
 
 
 type Msg
-  = SignInAlice
-  | SignInBob
-  | SignInEve
+  = UserId String
+  | Password String
+  | SignInRequest
+  | SignInResponse (Api.Result (Maybe String))
 
 
 init : Session -> ( Model, Cmd Msg )
 init oldSession =
   (
     { session = oldSession
-    , status = Initial 
+    , status = Initial
+    , userId = ""
+    , password = ""
     }
   , Cmd.none
   )
@@ -46,61 +53,93 @@ session model = model.session
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    SignInAlice ->
-      ( { model | session =
-          withUser model.session (
-            Validated { sessionToken = "abcdef" }
-          )
-        }
-      , Nav.pushUrl model.session.key "/myaccount"
+    UserId userId ->
+      ( { model | userId = userId }, Cmd.none )
+
+    Password password ->
+      ( { model | password = password }, Cmd.none )
+
+    SignInRequest ->
+      ( { model | status = InProgress }
+      , ( Api.signInRequest
+          SignInResponse
+          ( NotValidated { userId = model.userId, password = model.password } )
+        )
       )
 
-    SignInBob ->
-      ( { model | session =
-          withUser model.session (
-            NotValidated { userId = "bob", password = "mdp" }
+    SignInResponse response ->
+      case response of
+        Err Api.Internal ->
+          ( { model | status = Failed "Erreur interne" }
+          , Cmd.none
           )
-        }
-      , Nav.pushUrl model.session.key "/validation"
-      )
+        Err Api.Network ->
+          ( { model | status = Failed "Impossible de se connecter au serveur" }
+          , Cmd.none
+          )
+        Err Api.Unauthorized ->
+          ( { model | status = Failed "Identifiant ou mot de passe invalide" }
+          , Cmd.none
+          )
+        Err (Api.Message message) ->
+          ( { model | status = Failed message }
+          , Cmd.none
+          )
+        Ok maybeToken ->
+          case maybeToken of
+            Just token ->
+              ( { model | session = validated model.session
+                  { token = token
+                  }
+                }
+              , Nav.pushUrl model.session.key "/myaccount"
+              )
+            Nothing ->
+              ( { model | session = notValidated model.session
+                  { userId = model.userId
+                  , password = model.password
+                  }
+                }
+              , Nav.pushUrl model.session.key "/validation"
+              )
 
-    SignInEve ->
-      ( { model | status = AuthenticationFailed }
-      , Cmd.none
-      )
 
 
 view : Model -> Html Msg
 view model =
   Html.main_ [ ]
-    [ Html.p [ ] [ Html.text "Connexion" ]
-    , Html.p [ ]
-      [ Html.button [ Events.onClick SignInAlice ]
-        [ Html.text "Connexion en tant qu'Alice"
-        ]
-      , Html.button [ Events.onClick SignInBob ]
-        [ Html.text "Connexion en tant que Bob"
-        ]
-      , Html.button [ Events.onClick SignInEve ]
-        [ Html.text "Connexion en tant qu'Ève"
-        ]
+    [ Html.div [ Attr.class "box" ]
+      [ Html.h1 [ ] [ Html.text "Connexion" ]
+      , case model.status of
+          Initial ->
+            Html.p [ Attr.class "no-error" ] [ ]
+          InProgress ->
+            Html.p [ Attr.class "loading" ] [Html.text "Connexion" ]
+          Failed msg ->
+            Html.p [ Attr.class "error" ] [ Html.text msg ]
+      , viewForm model
       ]
-    , Html.p [ ]
-      [ Html.text (
-          case model.status of
-            AuthenticationFailed ->
-              "L'identifiant et le mot de passe ne correspondent pas"
-            RequestFailed ->
-              "Impossible de vérifier les informations"
-            _ -> ""
-        )
-      ]
-    , Html.p [ ]
-      [ Html.text (
-          case model.status of
-            InProgress ->
-              "Chargement ..."
-            _ -> ""
-        )
+    ]
+
+
+viewForm : Model -> Html Msg
+viewForm model =
+  Html.form [ Attr.id "signin", Events.onSubmit SignInRequest ]
+    [ Lazy.lazy formInput
+        { id = "userid"
+        , type_ = "text"
+        , label = "Identifiant"
+        , required = True
+        , onInput = UserId
+        }
+    , Lazy.lazy formInput
+        { id = "password"
+        , type_ = "password"
+        , label = "Mot de passe"
+        , required = True
+        , onInput = Password
+        }
+    , Html.div [ Attr.class "input" ]
+      [ Html.input [ Attr.type_ "submit", Attr.value "Se connecter" ] [ ]
       ]
     ]
