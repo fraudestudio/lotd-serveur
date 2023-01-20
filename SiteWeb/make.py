@@ -31,7 +31,7 @@ def make_static():
 
 
 def make_style():
-    cmd("npx sass", "--no-source-map", "style/style.scss", "build/style.css")
+    cmd("sassc", "style/style.scss", ">", "build/style.css")
 
 
 def make_elm():

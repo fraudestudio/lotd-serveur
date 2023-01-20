@@ -7,7 +7,13 @@ namespace Game.Message.Response
 	{
 		AUTH,
 		OK,
+		NOK,
 		STARTED,
 		SEED,
+		ORDER,
+		PLAY,
+		WAIT,
+		MOVE,
+		TURN,
 	}
 }

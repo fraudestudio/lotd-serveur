@@ -55,7 +55,7 @@ namespace Game.Networking
 		/// </summary>
 		/// <param name="response">Le message à envoyer.</param>
 		/// <param name="index">Le numéro du client à qui envoyer le message.</param>
-		public void SendTo(IResponse response, int index)
+		public void SendTo(int index, IResponse response)
 		{
 			this.clients[index].stream.Send(response);
 		}
@@ -63,11 +63,22 @@ namespace Game.Networking
 		/// <summary>
 		/// Reçois un message d'un client.
 		/// </summary>
-		/// <param name="index"></param>
-		/// <returns></returns>
+		/// <param name="index">Le numéro du client depuis lequel recevoir le message.</param>
+		/// <returns>Le message reçu, si il y en a un, sinon <see langword="null"/>.</returns>
 		public IRequest? ReceiveFrom(int index)
 		{
 			return this.clients[index].stream.Receive();
+		}
+
+		/// <summary>
+		/// Reçois un message d'un client.
+		/// </summary>
+		/// <param name="index">Le numéro du client depuis lequel recevoir le message.</param>
+		/// <param name="timeout">La durée maximale à attendre avant d'arrêter d'attendre une réponse.</param>
+		/// <returns>Le message reçu, si il y en a un, sinon <see langword="null"/>.</returns>
+		public IRequest? ReceiveFrom(int index, TimeSpan timeout)
+		{
+			return this.clients[index].stream.Receive(timeout);
 		}
 	}
 }

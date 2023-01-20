@@ -55,6 +55,26 @@ namespace Game.Networking
 		}
 
 		/// <summary>
+		/// Reçois un message.
+		/// </summary>
+		/// <param name="timeout">La durée maximale à attendre avant d'arrêter d'attendre une réponse.</param>
+		/// <returns>La requête reçue.</returns>
+		public IRequest? Receive(TimeSpan timeout)
+		{
+			Task<String?> task = this.input.ReadLineAsync();
+			if (task.Wait(timeout))
+			{
+				if (task.Result is String msg)
+				{
+					Console.WriteLine("#{0} <<< {1}", this.id, msg);
+					return serialiser.Deserialise(msg);
+				}
+			}
+			
+			return null;
+		}
+
+		/// <summary>
 		/// Envoie un message.
 		/// </summary>
 		/// <param name="message">La réponse à envoyer.</param>

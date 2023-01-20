@@ -14,12 +14,14 @@ namespace Game
 			listener.Start();
 			listener.Accept(parentToken);
 
-			// indique que la partie commence
-			listener.Clients.Notify(new Message.Response.Started());
-
 			Logic.Game game = new Logic.Game(listener.Clients);
 
 			game.Init();
+
+			// indique que la partie commence
+			listener.Clients.Notify(new Message.Response.Started());
+
+			game.Loop();
 		}
 	}
 }

@@ -7,5 +7,6 @@ namespace Game.Message.Request
 	{
 		AUTH,
 		JOIN,
+		MOVE,
 	}
 }
