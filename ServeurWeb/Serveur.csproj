@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Utils\ProceduralGeneration\NewFolder\**" />
+    <Content Remove="Utils\ProceduralGeneration\NewFolder\**" />
+    <EmbeddedResource Remove="Utils\ProceduralGeneration\NewFolder\**" />
+    <None Remove="Utils\ProceduralGeneration\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MailKit" Version="3.4.1" />
     <PackageReference Include="MySql.Data" Version="8.0.31" />
   </ItemGroup>

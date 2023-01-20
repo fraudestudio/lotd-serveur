@@ -6,8 +6,15 @@ using Server.Utils;
 
 namespace Server.Database
 {
-	 public class Account
+    /// <summary>
+    /// Class that Contains for the village database méthods for the API
+    /// /// </summary>
+    public class Account
 	{
+        /// <summary>
+        /// Method return if the user exists in the database.
+        /// </summary>
+        /// <param name="username" > The username of the user.</param>
         static public async Task<bool> UserExists(string username)
         {
             bool result = true;
@@ -32,6 +39,11 @@ namespace Server.Database
             return result;
         }
 
+        /// <summary>
+        /// Method that return if the Email exists in the database.
+        /// </summary>
+        /// <param name="emailAddress"> The email address of the user.</param>
+        /// <returns> return the id of the user if the email exists, null otherwise.</returns>
 		static public async Task<int?> UserExistsEmail(string emailAddress)
         {
             int? result = null;
@@ -65,9 +77,9 @@ namespace Server.Database
         /// <summary>
         /// créer un utilisateur temporaire et renvoie le mot de passe temporaire
         /// </summary>
-        /// <param name="email"></param>
-        /// <param name="username"></param>
-        /// <returns></returns>
+        /// <param name="email"> l'adresse mail de l'utilisateur</param>
+        /// <param name="username"> le nom d'utilisateur de l'utilisateur</param>
+        /// <returns> le mot de passe temporaire</returns>
         static public async Task<bool> CreateTemp(string email, string username, string password)
         {
             string sel = Util.RandomPassword(32);
@@ -102,9 +114,9 @@ namespace Server.Database
         /// <summary>
         /// check for the connexion return the id of the player 
         /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
+        /// <param name="username"> the username of the player</param>
+        /// <param name="password"> the password of the player</param>
+        /// <returns> the id of the player if the connexion is correct, null otherwise</returns>
         static public async Task<(int?, bool)> CheckUsernamePassword(string username, string password)
         {
             int? result = null;
@@ -146,7 +158,12 @@ namespace Server.Database
             }
             return (result,validate);
         }
-
+        /// <summary>
+        /// Method that create a session for the client
+        /// </summary>
+        /// <param name="userId"> The id of the user.</param>
+        /// <param name="sessionToken"> The session token of the user.</param>
+        /// <returns> return true if the session is created, false otherwise.</returns>
         static public async Task<bool> CreateSession(int userId, string sessionToken)
         {
             bool executed = false;
@@ -171,6 +188,11 @@ namespace Server.Database
             return executed;
         }
 
+        /// <summary>
+        /// Method that delete the session of the client
+        /// </summary>
+        /// <param name="id_compte"> The id of the user.</param>
+        /// <returns> return true if the session is deleted, false otherwise.</returns>
         static public async Task<bool> DeleteJoueurSession(int id_compte)
         {
             bool execute = false;
@@ -194,6 +216,12 @@ namespace Server.Database
             return execute;
         }
 
+        
+        /// <summary>
+        /// Method that check the session token 
+        /// </summary>
+        /// <param name="session"> the name of the Session </param>
+        /// <returns></returns>
         static public async Task<int?> CheckTokenSession(string session)
         {
             int? result = null;
@@ -222,7 +250,11 @@ namespace Server.Database
             }
             return result;
         }
-
+        /// <summary>
+        /// Method that Validate an User 
+        /// </summary>
+        /// <param name="id"> the id of the player</param>
+        /// <returns> true if the player is validated </returns>
         static public async Task<bool> ValidateUser(int id)
         {
             bool result = false;
@@ -248,6 +280,11 @@ namespace Server.Database
             return result;
         }
 
+        /// <summary>
+        /// Method that fetch the User Info in the Model account
+        /// </summary>
+        /// <param name="id"> the id of the player</param>
+        /// <returns> return the model fetched or null otherwise</returns>
         static public async Task<Model.Account?> UserInfo(int id)
         {
             Model.Account? result = null;
@@ -282,6 +319,12 @@ namespace Server.Database
             return result;
         }
 
+        /// <summary>
+        /// Method that Update the password of the user
+        /// </summary>
+        /// <param name="mdp"> the new password </param>
+        /// <param name="id"> the id of the player </param>
+        /// <returns> return true if the password has been updated, false otherwise</returns>
         static public async Task<bool> UpdateMDP(string mdp, int id)
         {
             bool result = false;

@@ -11,8 +11,18 @@ using Server.Database;
 
 namespace Server.Auth
 {
+    /// <summary>
+    ///  This class is responsible for handling the authentication of the user by password.
+    /// </summary>
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthOptions>
     {
+        /// <summary>
+        /// Constructor for the BasicAuthenticationHandler class.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="logger"></param>
+        /// <param name="encoder"></param>
+        /// <param name="clock"></param>
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthOptions> options,
             ILoggerFactory logger,
@@ -20,10 +30,12 @@ namespace Server.Auth
             ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
-
         }
 
-
+        /// <summary>
+        /// This method is responsible for handling the authentication of the user by password.
+        /// </summary>
+        /// <returns> return if the request is succesful or not</returns>
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (!Request.Headers.ContainsKey("Authorization"))

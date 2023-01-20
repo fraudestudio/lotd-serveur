@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MySqlX.XDevAPI.Common;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +10,9 @@ using System.Collections.Generic;
 
 namespace Server.Controllers.Api
 {
+    /// <summary>
+    /// class that represent the village controller
+    /// </summary>
     [ApiController]
     [Route("api/village")]
     [Authorize(AuthenticationSchemes = "Bearer")]
@@ -300,6 +303,18 @@ namespace Server.Controllers.Api
         public async Task<IActionResult> GerCharacterByVillage(int idVillage)
         {
             List<Model.Perso> result = await Database.VillageDB.GetPersoInVillage(idVillage);
+
+            return new ContentResult
+            {
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json; charset=UTF-8",
+            };
+        }
+
+        [HttpGet("{idVillage}/character/get/inventaire")]
+        public async Task<IActionResult> GetInventaire(int idVillage)
+        {
+            List<Model.Perso> result = await Database.VillageDB.GetPersoInInventaire(idVillage);
 
             return new ContentResult
             {

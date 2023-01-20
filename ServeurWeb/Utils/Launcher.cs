@@ -4,12 +4,21 @@ using System.Text;
 
 namespace Server.Utils
 {
-	public class Launcher
+    /// <summary>
+    /// Class that represent the launcher
+    /// </summary>
+    public class Launcher
 	{
-		// singleton -----------------------------------------------------------
+        // singleton -----------------------------------------------------------
+        
+		/// <summary>
+        /// The instance of the launcher
+        /// </summary>
+        private static Launcher? current = null;
 
-		private static Launcher? current = null;
-
+        /// <summary>
+		/// The Property  of the instance
+		/// </summary>
 		public static Launcher Current
 		{
 			get
@@ -22,9 +31,12 @@ namespace Server.Utils
 			}
 		}
 
-		// ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
 
-		private class GameSubprocess
+        /// <summary>
+        /// class that represant the sub process
+        /// </summary>
+        private class GameSubprocess
 		{
 			private bool started;
 			private int universeId;
@@ -38,6 +50,14 @@ namespace Server.Utils
 
 			public int UniverseId => this.universeId;
 
+
+            /// <summary>
+			/// Constructor of the GameSubprocess
+			/// </summary>
+			/// <param name="port"> the port of the game</param>
+			/// <param name="executable"> the executable of the game</param>
+			/// <param name="universeId" > the id of the universe</param>
+			/// <exception cref="Exception"> if the process is not started </exception>
 			public GameSubprocess(int port, String executable, int universeId)
 			{
 				this.started = false;
@@ -93,6 +113,12 @@ namespace Server.Utils
 				}
 			}
 
+            /// <summary>
+			/// Method that join the game
+			/// </summary>
+			/// <param name="playerId"> the id of the player</param>
+			/// <param name="playerToken"> the token of the player</param>
+			/// <exception cref="InvalidOperationException"> if the game is not started </exception>
 			public void Join(int playerId, String playerToken)
 			{
 				if (this.Started)
@@ -135,12 +161,22 @@ namespace Server.Utils
 
 		private const int PORT_RANGE_START = 2000;
 
+        /// <summary>
+		/// Constructor of the launcher
+		/// </summary>
 		private Launcher()
 		{
 			this.executable = Environment.GetEnvironmentVariable("GAME_EXECUTABLE") ?? "";
 			this.games = new Dictionary<int, GameSubprocess>();
 		}
 
+		/// <summary>
+		/// Method that crate or join a game
+		/// </summary>
+		/// <param name="universeId"></param>
+		/// <param name="playerId"></param>
+		/// <param name="playerToken"></param>
+		/// <returns></returns>
 		public int? CreateOrJoinGame(int universeId, int playerId, String playerToken)
 		{
 			lock (this.games)
@@ -158,7 +194,11 @@ namespace Server.Utils
 			}
 		}
 
-		public void EndGame(int port)
+        /// <summary>
+        /// Method that end the Game
+        /// </summary>
+        /// <param name="port">port on which the game run</param>
+        public void EndGame(int port)
 		{
 			lock (this.games)
 			{
@@ -166,6 +206,11 @@ namespace Server.Utils
 			}
 		}
 
+		/// <summary>
+		/// find the game
+		/// </summary>
+		/// <param name="universeId"></param>
+		/// <returns></returns>
 		private int FindGame(int universeId)
 		{
 			Console.WriteLine("searching game in universe {0}", universeId);
@@ -183,6 +228,12 @@ namespace Server.Utils
 			return -1;
 		}
 
+		/// <summary>
+		/// Method that create the game
+		/// </summary>
+		/// <param name="universeId"></param>
+		/// <returns></returns>
+		/// <exception cref="Exception"></exception>
 		private int CreateGame(int universeId)
 		{
 			for (int port = PORT_RANGE_START; port < PORT_RANGE_START+1000; port++)

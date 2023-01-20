@@ -52,11 +52,11 @@ app.UseStaticFiles(
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 Thread mailThread = new Thread(Email.SendMessages);
 mailThread.IsBackground = true;
 mailThread.Start();
-
 app.Run();
+
+
