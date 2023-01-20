@@ -5,7 +5,6 @@ using Server.Auth;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 using Server.Controllers;
-using Serveur.Utils.ProceduralGeneration.GenerationAlgorithm.Realisation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +52,6 @@ app.UseStaticFiles(
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 Thread mailThread = new Thread(Email.SendMessages);
