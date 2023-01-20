@@ -8,8 +8,8 @@ namespace Server.Model
         /// <summary>
         /// the boolean if the clients is validated
         /// </summary>
-		public bool? Validated { get; set; }
-        private bool? validated = null;
+		public bool Validated { get => validated; set => validated = value; }
+        private bool validated;
 
         /// <summary>
         /// the string of the token
