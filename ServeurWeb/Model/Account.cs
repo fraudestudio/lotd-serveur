@@ -8,20 +8,20 @@
         /// <summary>
         /// The id of the account
         /// </summary>
-        public String? Username { get => username ; set => username = value; }
-        private String? username;
-        
+        public String Username { get => username ; set => username = value; }
+        private String username = "";
+
         /// <summary>
         /// The Email of the account
         /// </summary>
-        public String? Email { get => email; set => email =  value; }
-        private String? email;
-        
+        public String Email { get => email; set => email =  value; }
+        private String email = "";
+
         /// <summary>
         /// The account is validated
         /// </summary>
-        public bool? IsValidated { get => isValidated; set => isValidated = value ; }
-        private bool? isValidated;
+        public bool IsValidated { get => isValidated; set => isValidated = value ; }
+        private bool isValidated = false;
 
         /// <summary>
         /// Constructor of the Account
